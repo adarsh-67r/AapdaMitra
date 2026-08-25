@@ -5,7 +5,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { Spacing } from "@/constants/theme";
-import { supabase } from "@/lib/supabase";
+import { apiFetchJson } from "@/lib/api-client";
 
 interface Report {
   id: string;
@@ -27,24 +27,16 @@ export default function MyReportsScreen() {
   const [refreshing, setRefreshing] = useState(false);
 
   const load = useCallback(async () => {
-    const { data, error } = await supabase
-      .from("reports")
-      .select("id, severity, description, status, created_at")
-      .order("created_at", { ascending: false });
-    if (!error && data) setReports(data as Report[]);
+    const data = await apiFetchJson<Report[]>("/reports");
+    setReports(data);
     setLoading(false);
     setRefreshing(false);
   }, []);
 
   useEffect(() => {
     load();
-    const channel = supabase
-      .channel("my-reports-live")
-      .on("postgres_changes", { event: "*", schema: "public", table: "reports" }, load)
-      .subscribe();
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    const interval = setInterval(load, 12000);
+    return () => clearInterval(interval);
   }, [load]);
 
   return (

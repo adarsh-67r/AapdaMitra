@@ -7,8 +7,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { Spacing } from "@/constants/theme";
+import { apiFetchJson } from "@/lib/api-client";
 import { leafletHtml, type MapPin } from "@/lib/leaflet-html";
-import { supabase } from "@/lib/supabase";
 
 interface Resource {
   id: string;
@@ -44,21 +44,14 @@ export default function SheltersScreen() {
     })();
 
     async function load() {
-      const { data, error } = await supabase
-        .from("resources")
-        .select("id, type, name, lat, lng, status");
-      if (!error && data) setResources(data as Resource[]);
+      const data = await apiFetchJson<Resource[]>("/resources");
+      setResources(data);
       setLoading(false);
     }
     load();
 
-    const channel = supabase
-      .channel("resources-live")
-      .on("postgres_changes", { event: "*", schema: "public", table: "resources" }, load)
-      .subscribe();
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    const interval = setInterval(load, 12000);
+    return () => clearInterval(interval);
   }, []);
 
   const pins: MapPin[] = useMemo(

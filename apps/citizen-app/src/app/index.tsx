@@ -15,7 +15,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { Spacing } from "@/constants/theme";
-import { supabase } from "@/lib/supabase";
+import { apiFetch, apiFetchJson } from "@/lib/api-client";
 
 type Severity = "low" | "medium" | "high" | "critical";
 const SEVERITIES: Severity[] = ["low", "medium", "high", "critical"];
@@ -65,44 +65,25 @@ export default function ReportScreen() {
     }
     setSubmitting(true);
     try {
-      let photo_url: string | null = null;
+      const report = await apiFetchJson<{ id: string }>("/reports", {
+        method: "POST",
+        body: JSON.stringify({ lat: location.lat, lng: location.lng, severity, description }),
+      });
+
       if (photoUri) {
         const response = await fetch(photoUri);
         const blob = await response.blob();
-        const path = `${Date.now()}.jpg`;
-        const { error: uploadError } = await supabase.storage
-          .from("report-photos")
-          .upload(path, blob, { contentType: "image/jpeg" });
-        if (uploadError) {
-          Alert.alert("Photo upload failed", uploadError.message);
-        } else {
-          const { data } = supabase.storage.from("report-photos").getPublicUrl(path);
-          photo_url = data.publicUrl;
-        }
-      }
-
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      const { error } = await supabase.from("reports").insert({
-        citizen_id: session?.user.id,
-        lat: location.lat,
-        lng: location.lng,
-        severity,
-        description,
-        photo_url,
-      });
-
-      if (error) {
-        Alert.alert("Submission failed", error.message);
-        return;
+        const form = new FormData();
+        form.append("file", blob, "photo.jpg");
+        await apiFetch(`/reports/${report.id}/photo`, { method: "POST", body: form, headers: {} });
       }
 
       Alert.alert("Report submitted", "Authorities have been notified.");
       setDescription("");
       setPhotoUri(null);
       setSeverity("medium");
+    } catch (e) {
+      Alert.alert("Submission failed", e instanceof Error ? e.message : "unknown error");
     } finally {
       setSubmitting(false);
     }

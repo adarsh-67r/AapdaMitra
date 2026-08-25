@@ -6,8 +6,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { Spacing } from "@/constants/theme";
+import { apiFetchJson } from "@/lib/api-client";
 import { haversineKm } from "@/lib/geo";
-import { supabase } from "@/lib/supabase";
 
 interface Alert {
   id: string;
@@ -42,31 +42,17 @@ export default function AlertsScreen() {
       origin = { lat: pos.coords.latitude, lng: pos.coords.longitude };
     }
 
-    const { data, error } = await supabase
-      .from("alerts")
-      .select("id, disaster_type, area_description, severity_color, warning_message, lat, lng, effective_end")
-      .order("fetched_at", { ascending: false })
-      .limit(200);
-
-    if (!error && data) {
-      const list = origin
-        ? data.filter((a) => haversineKm(origin!, a) <= NEARBY_RADIUS_KM)
-        : data;
-      setAlerts(list as Alert[]);
-    }
+    const data = await apiFetchJson<Alert[]>("/alerts");
+    const list = origin ? data.filter((a) => haversineKm(origin!, a) <= NEARBY_RADIUS_KM) : data;
+    setAlerts(list);
     setLoading(false);
     setRefreshing(false);
   }, []);
 
   useEffect(() => {
     load();
-    const channel = supabase
-      .channel("alerts-live")
-      .on("postgres_changes", { event: "*", schema: "public", table: "alerts" }, load)
-      .subscribe();
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    const interval = setInterval(load, 12000);
+    return () => clearInterval(interval);
   }, [load]);
 
   return (
