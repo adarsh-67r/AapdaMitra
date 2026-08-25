@@ -1,0 +1,21 @@
+node_modules/
+.env
+.env.local
+.env*.local
+dist/
+build/
+.expo/
+.next/
+*.log
+supabase/district_raw.geojson
+
+# Local AI-assistant tooling config — regenerated automatically by
+# next dev / expo, not meant to be tracked in this repo.
+CLAUDE.md
+AGENTS.md
+.claude/
+
+# Stray artifacts from local tooling experiments, not part of the project.
+pnpm-lock.yaml
+pnpm-workspace.yaml
+supabase/.temp/

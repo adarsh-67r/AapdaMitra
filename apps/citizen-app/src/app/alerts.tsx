@@ -1,0 +1,137 @@
+import * as Location from "expo-location";
+import { useCallback, useEffect, useState } from "react";
+import { ActivityIndicator, FlatList, RefreshControl, StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+
+import { ThemedText } from "@/components/themed-text";
+import { ThemedView } from "@/components/themed-view";
+import { Spacing } from "@/constants/theme";
+import { haversineKm } from "@/lib/geo";
+import { supabase } from "@/lib/supabase";
+
+interface Alert {
+  id: string;
+  disaster_type: string;
+  area_description: string | null;
+  severity_color: "green" | "yellow" | "orange" | "red";
+  warning_message: string | null;
+  lat: number;
+  lng: number;
+  effective_end: string | null;
+}
+
+const COLOR_HEX: Record<Alert["severity_color"], string> = {
+  green: "#2E9E4A",
+  yellow: "#D8B400",
+  orange: "#E08A00",
+  red: "#D64545",
+};
+
+const NEARBY_RADIUS_KM = 150;
+
+export default function AlertsScreen() {
+  const [alerts, setAlerts] = useState<Alert[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const load = useCallback(async () => {
+    const { status } = await Location.requestForegroundPermissionsAsync();
+    let origin: { lat: number; lng: number } | null = null;
+    if (status === "granted") {
+      const pos = await Location.getCurrentPositionAsync({});
+      origin = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+    }
+
+    const { data, error } = await supabase
+      .from("alerts")
+      .select("id, disaster_type, area_description, severity_color, warning_message, lat, lng, effective_end")
+      .order("fetched_at", { ascending: false })
+      .limit(200);
+
+    if (!error && data) {
+      const list = origin
+        ? data.filter((a) => haversineKm(origin!, a) <= NEARBY_RADIUS_KM)
+        : data;
+      setAlerts(list as Alert[]);
+    }
+    setLoading(false);
+    setRefreshing(false);
+  }, []);
+
+  useEffect(() => {
+    load();
+    const channel = supabase
+      .channel("alerts-live")
+      .on("postgres_changes", { event: "*", schema: "public", table: "alerts" }, load)
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [load]);
+
+  return (
+    <ThemedView style={styles.container}>
+      <SafeAreaView style={styles.safeArea}>
+        <ThemedText type="title" style={styles.title}>
+          Live Alerts
+        </ThemedText>
+        <ThemedText type="small" themeColor="textSecondary" style={styles.subtitle}>
+          Within {NEARBY_RADIUS_KM}km of your location
+        </ThemedText>
+
+        {loading ? (
+          <ActivityIndicator style={{ marginTop: Spacing.four }} />
+        ) : alerts.length === 0 ? (
+          <ThemedText type="small" themeColor="textSecondary" style={styles.empty}>
+            No active alerts nearby.
+          </ThemedText>
+        ) : (
+          <FlatList
+            data={alerts}
+            keyExtractor={(a) => a.id}
+            contentContainerStyle={styles.list}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={() => {
+                  setRefreshing(true);
+                  load();
+                }}
+              />
+            }
+            renderItem={({ item }) => (
+              <ThemedView type="backgroundElement" style={styles.card}>
+                <ThemedView style={styles.cardHeader}>
+                  <ThemedView
+                    style={[styles.dot, { backgroundColor: COLOR_HEX[item.severity_color] }]}
+                  />
+                  <ThemedText type="smallBold">{item.disaster_type}</ThemedText>
+                </ThemedView>
+                {item.area_description && (
+                  <ThemedText type="small" themeColor="textSecondary">
+                    {item.area_description}
+                  </ThemedText>
+                )}
+                {item.warning_message && (
+                  <ThemedText type="small">{item.warning_message}</ThemedText>
+                )}
+              </ThemedView>
+            )}
+          />
+        )}
+      </SafeAreaView>
+    </ThemedView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+  safeArea: { flex: 1, paddingHorizontal: Spacing.three },
+  title: { fontSize: 28, lineHeight: 34, marginTop: Spacing.two },
+  subtitle: { marginBottom: Spacing.three },
+  empty: { textAlign: "center", marginTop: Spacing.five },
+  list: { gap: Spacing.two, paddingBottom: Spacing.four },
+  card: { borderRadius: Spacing.three, padding: Spacing.three, gap: Spacing.one },
+  cardHeader: { flexDirection: "row", alignItems: "center", gap: Spacing.two, backgroundColor: "transparent" },
+  dot: { width: 10, height: 10, borderRadius: 5 },
+});

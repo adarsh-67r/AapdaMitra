@@ -1,0 +1,91 @@
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+/* "Field instrument" theme tokens. Dark is the default; [data-theme="light"]
+   overrides. A single teal accent is kept separate from the severity colors
+   (critical/high/medium/available/assigned) so it's never confused with
+   status meaning. */
+:root,
+[data-theme="dark"] {
+  --bg: #0b0f14;
+  --panel: #12181f;
+  --panel-alt: #0e141a;
+  --border: #232c35;
+  --text: #eef2f6;
+  --text-muted: #8b96a3;
+  --accent: #2dd4bf;
+  --accent-contrast: #06201c;
+  --critical: #ff6b5e;
+  --high: #ff9d5c;
+  --medium: #eab84d;
+  --available: #4ade80;
+  --assigned: #38bdf8;
+}
+
+[data-theme="light"] {
+  --bg: #f4f5f2;
+  --panel: #ffffff;
+  --panel-alt: #eef0ec;
+  --border: #dde0d9;
+  --text: #14181c;
+  --text-muted: #6b7280;
+  --accent: #0f9c8f;
+  --accent-contrast: #ffffff;
+  --critical: #d6473a;
+  --high: #c9701a;
+  --medium: #a3811f;
+  --available: #188a53;
+  --assigned: #0d76ad;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-panel: var(--panel);
+  --color-panel-alt: var(--panel-alt);
+  --color-border: var(--border);
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
+  --color-accent: var(--accent);
+  --color-accent-contrast: var(--accent-contrast);
+  --color-critical: var(--critical);
+  --color-high: var(--high);
+  --color-medium: var(--medium);
+  --color-available: var(--available);
+  --color-assigned: var(--assigned);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+.tick {
+  background: repeating-linear-gradient(90deg, var(--border) 0 1px, transparent 1px 12px);
+}
+.tick-v {
+  background: repeating-linear-gradient(180deg, var(--border) 0 1px, transparent 1px 12px);
+}
+
+/* Tailwind's preflight reset (img { max-width: 100%; height: auto }) breaks
+   Leaflet's absolutely-positioned tile/marker images, which rely on their
+   inline width/height. Without this, the map renders as a blank/black box. */
+.leaflet-container img {
+  max-width: none;
+  height: auto;
+}
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+  background: var(--panel-alt);
+}
+
+/* leaflet.css itself sets `mix-blend-mode: plus-lighter` on tile images (a
+   retina-tile rendering optimization). On some browser/GPU combinations this
+   composites as solid black instead of blending normally — tiles download
+   fine (200 OK) but never become visible. Force normal blending. */
+.leaflet-container img.leaflet-tile {
+  mix-blend-mode: normal;
+}
