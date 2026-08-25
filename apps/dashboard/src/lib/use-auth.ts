@@ -1,52 +1,59 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { Session } from "@supabase/supabase-js";
-import { supabase } from "./supabase-client";
+import { apiFetchJson, clearToken, getToken, setToken } from "./api-client";
 
 export type Role = "citizen" | "authority";
 export type AuthStatus = "loading" | "signed-out" | Role;
 
+interface DecodedToken {
+  role: Role;
+}
+
+function decodeRole(token: string): Role | null {
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1])) as DecodedToken;
+    return payload.role;
+  } catch {
+    return null;
+  }
+}
+
 export function useAuth() {
-  const [session, setSession] = useState<Session | null | undefined>(undefined);
   const [status, setStatus] = useState<AuthStatus>("loading");
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => setSession(data.session));
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, newSession) => {
-      setSession(newSession);
-    });
-    return () => sub.subscription.unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    if (session === undefined) return;
-    if (!session?.user) {
+    const token = getToken();
+    if (!token) {
       setStatus("signed-out");
       return;
     }
+    const role = decodeRole(token);
+    setStatus(role ?? "signed-out");
+  }, []);
 
-    (async () => {
-      const { data: existing } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", session.user.id)
-        .maybeSingle();
+  const signup = async (email: string, password: string, role: Role) => {
+    const data = await apiFetchJson<{ token: string; role: Role }>("/auth/signup", {
+      method: "POST",
+      body: JSON.stringify({ email, password, role }),
+    });
+    setToken(data.token);
+    setStatus(data.role);
+  };
 
-      if (existing) {
-        setStatus(existing.role as Role);
-        return;
-      }
+  const login = async (email: string, password: string) => {
+    const data = await apiFetchJson<{ token: string; role: Role }>("/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ email, password }),
+    });
+    setToken(data.token);
+    setStatus(data.role);
+  };
 
-      const intended = (localStorage.getItem("intended_role") as Role | null) ?? "citizen";
-      localStorage.removeItem("intended_role");
-      const { error } = await supabase.from("profiles").insert({ id: session.user.id, role: intended });
-      if (error) console.warn("profile insert failed:", error.message);
-      setStatus(intended);
-    })();
-  }, [session]);
+  const signOut = () => {
+    clearToken();
+    setStatus("signed-out");
+  };
 
-  const signOut = () => supabase.auth.signOut();
-
-  return { status, session, signOut };
+  return { status, login, signup, signOut };
 }

@@ -1,48 +1,38 @@
 "use client";
 
 import { useState } from "react";
-import { supabase } from "@/lib/supabase-client";
+import { useAuth } from "@/lib/use-auth";
 
-type Step = "email" | "code";
+type Mode = "login" | "signup";
 type Role = "citizen" | "authority";
 
 export default function LoginScreen() {
+  const { login, signup } = useAuth();
+  const [mode, setMode] = useState<Mode>("login");
   const [role, setRole] = useState<Role>("citizen");
-  const [step, setStep] = useState<Step>("email");
   const [email, setEmail] = useState("");
-  const [code, setCode] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function sendCode() {
+  async function submit() {
     setError(null);
-    if (!email.includes("@")) {
-      setError("Enter a valid email address");
+    if (!email.includes("@") || password.length < 6) {
+      setError("Enter a valid email and a password of at least 6 characters");
       return;
     }
     setLoading(true);
-    const { error } = await supabase.auth.signInWithOtp({ email });
-    setLoading(false);
-    if (error) {
-      setError(error.message);
-      return;
+    try {
+      if (mode === "signup") {
+        await signup(email, password, role);
+      } else {
+        await login(email, password);
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "something went wrong");
+    } finally {
+      setLoading(false);
     }
-    // Only used if this turns out to be a brand-new account — an existing
-    // profile keeps its own stored role regardless of this selection.
-    localStorage.setItem("intended_role", role);
-    setStep("code");
-  }
-
-  async function verifyCode() {
-    setError(null);
-    if (code.trim().length === 0) {
-      setError("Enter the code from your email");
-      return;
-    }
-    setLoading(true);
-    const { error } = await supabase.auth.verifyOtp({ email, token: code.trim(), type: "email" });
-    setLoading(false);
-    if (error) setError(error.message);
   }
 
   return (
@@ -56,20 +46,28 @@ export default function LoginScreen() {
           </div>
           <span className="text-xl font-bold tracking-tight">AapdaMitra</span>
         </div>
-        <p className="text-sm text-text-muted text-center">Sign in to continue</p>
 
-        {step === "email" && (
+        <div className="flex bg-panel-alt border border-border rounded-lg p-1 gap-1">
+          {(["login", "signup"] as Mode[]).map((m) => (
+            <button
+              key={m}
+              onClick={() => setMode(m)}
+              className="flex-1 py-2 rounded-md text-sm font-semibold uppercase tracking-wide cursor-pointer"
+              style={mode === m ? { background: "var(--accent)", color: "var(--accent-contrast)" } : { color: "var(--text-muted)" }}
+            >
+              {m}
+            </button>
+          ))}
+        </div>
+
+        {mode === "signup" && (
           <div className="flex bg-panel-alt border border-border rounded-lg p-1 gap-1">
             {(["citizen", "authority"] as Role[]).map((r) => (
               <button
                 key={r}
                 onClick={() => setRole(r)}
                 className="flex-1 py-2 rounded-md text-sm font-semibold uppercase tracking-wide cursor-pointer"
-                style={
-                  role === r
-                    ? { background: "var(--accent)", color: "var(--accent-contrast)" }
-                    : { color: "var(--text-muted)" }
-                }
+                style={role === r ? { background: "var(--accent)", color: "var(--accent-contrast)" } : { color: "var(--text-muted)" }}
               >
                 {r}
               </button>
@@ -78,56 +76,29 @@ export default function LoginScreen() {
         )}
 
         <div className="bg-panel border border-border rounded-lg p-5 flex flex-col gap-3.5">
-          {step === "email" ? (
-            <>
-              <label className="font-mono text-xs uppercase tracking-wider text-text-muted">
-                Email address
-              </label>
-              <input
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
-                type="email"
-                className="bg-panel-alt border border-border rounded px-3 py-2.5 text-sm outline-none focus:border-accent"
-                onKeyDown={(e) => e.key === "Enter" && sendCode()}
-              />
-              <button
-                onClick={sendCode}
-                disabled={loading}
-                className="py-2.5 rounded text-sm font-bold uppercase tracking-wide disabled:opacity-50 cursor-pointer"
-                style={{ background: "var(--accent)", color: "var(--accent-contrast)" }}>
-                {loading ? "Sending…" : "Send Code"}
-              </button>
-            </>
-          ) : (
-            <>
-              <label className="font-mono text-xs uppercase tracking-wider text-text-muted">
-                Code sent to {email}
-              </label>
-              <input
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                placeholder="123456"
-                inputMode="numeric"
-                className="bg-panel-alt border border-border rounded px-3 py-2.5 text-sm outline-none focus:border-accent font-mono tracking-widest"
-                onKeyDown={(e) => e.key === "Enter" && verifyCode()}
-              />
-              <button
-                onClick={verifyCode}
-                disabled={loading}
-                className="py-2.5 rounded text-sm font-bold uppercase tracking-wide disabled:opacity-50 cursor-pointer"
-                style={{ background: "var(--accent)", color: "var(--accent-contrast)" }}>
-                {loading ? "Verifying…" : "Verify"}
-              </button>
-              <button
-                onClick={() => setStep("email")}
-                className="text-xs text-text-muted underline cursor-pointer"
-              >
-                Use a different email
-              </button>
-            </>
-          )}
-
+          <label className="font-mono text-xs uppercase tracking-wider text-text-muted">Email</label>
+          <input
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            type="email"
+            className="bg-panel-alt border border-border rounded px-3 py-2.5 text-sm outline-none focus:border-accent"
+          />
+          <label className="font-mono text-xs uppercase tracking-wider text-text-muted">Password</label>
+          <input
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            type="password"
+            className="bg-panel-alt border border-border rounded px-3 py-2.5 text-sm outline-none focus:border-accent"
+            onKeyDown={(e) => e.key === "Enter" && submit()}
+          />
+          <button
+            onClick={submit}
+            disabled={loading}
+            className="py-2.5 rounded text-sm font-bold uppercase tracking-wide disabled:opacity-50 cursor-pointer"
+            style={{ background: "var(--accent)", color: "var(--accent-contrast)" }}
+          >
+            {loading ? "..." : mode === "signup" ? "Create Account" : "Sign In"}
+          </button>
           {error && <p className="text-sm text-critical">{error}</p>}
         </div>
       </div>
