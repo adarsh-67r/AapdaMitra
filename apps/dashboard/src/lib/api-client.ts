@@ -26,6 +26,15 @@ export async function apiFetch(path: string, options: RequestInit = {}): Promise
 
 export async function apiFetchJson<T>(path: string, options: RequestInit = {}): Promise<T> {
   const res = await apiFetch(path, options);
+  if (res.status === 401) {
+    // Clear the stale/expired token so the next auth check (next poll tick
+    // or next app foreground) sees "signed-out". We deliberately don't
+    // reach into the auth store from here — importing use-auth.ts would
+    // create a circular import, and clearing the token is enough since
+    // nothing re-checks status faster than the next poll cycle anyway.
+    clearToken();
+    throw new Error("session expired");
+  }
   const data = await res.json();
   if (!res.ok) {
     throw new Error(data.detail ?? `request failed: ${res.status}`);

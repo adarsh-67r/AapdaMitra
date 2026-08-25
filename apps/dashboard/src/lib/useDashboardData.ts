@@ -44,15 +44,20 @@ export function useDashboardData() {
   const [allocating, setAllocating] = useState<string | null>(null);
 
   const loadAll = useCallback(async () => {
-    const [a, r, rep] = await Promise.all([
-      apiFetchJson<Alert[]>("/alerts"),
-      apiFetchJson<Resource[]>("/resources"),
-      apiFetchJson<Report[]>("/reports"),
-    ]);
-    setAlerts(a);
-    setResources(r);
-    setReports(rep);
-    setLoading(false);
+    try {
+      const [a, r, rep] = await Promise.all([
+        apiFetchJson<Alert[]>("/alerts"),
+        apiFetchJson<Resource[]>("/resources"),
+        apiFetchJson<Report[]>("/reports"),
+      ]);
+      setAlerts(a);
+      setResources(r);
+      setReports(rep);
+    } catch (e) {
+      console.error("dashboard poll failed", e);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   const allocate = useCallback(async (reportId: string) => {
@@ -69,7 +74,16 @@ export function useDashboardData() {
     }
   }, [loadAll]);
 
+  // Frees whatever resource was previously assigned (if any) back to
+  // "available" before dispatching the new one.
   const manualAssign = useCallback(async (reportId: string, resourceId: string) => {
+    const report = reports.find((r) => r.id === reportId);
+    if (report?.assigned_resource_id && report.assigned_resource_id !== resourceId) {
+      await apiFetchJson(`/resources/${report.assigned_resource_id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ status: "available" }),
+      });
+    }
     await apiFetchJson(`/reports/${reportId}`, {
       method: "PATCH",
       body: JSON.stringify({ status: "assigned", assigned_resource_id: resourceId }),
@@ -79,7 +93,7 @@ export function useDashboardData() {
       body: JSON.stringify({ status: "dispatched" }),
     });
     await loadAll();
-  }, [loadAll]);
+  }, [reports, loadAll]);
 
   const resolveReport = useCallback(async (reportId: string) => {
     await apiFetchJson(`/reports/${reportId}`, {
@@ -89,13 +103,22 @@ export function useDashboardData() {
     await loadAll();
   }, [loadAll]);
 
+  // Reopens a report and frees whatever resource was assigned to it — the
+  // "cancel this assignment" action.
   const reopenReport = useCallback(async (reportId: string) => {
+    const report = reports.find((r) => r.id === reportId);
+    if (report?.assigned_resource_id) {
+      await apiFetchJson(`/resources/${report.assigned_resource_id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ status: "available" }),
+      });
+    }
     await apiFetchJson(`/reports/${reportId}`, {
       method: "PATCH",
       body: JSON.stringify({ status: "open", assigned_resource_id: null }),
     });
     await loadAll();
-  }, [loadAll]);
+  }, [reports, loadAll]);
 
   const addResource = useCallback(async (resource: Omit<Resource, "id">) => {
     await apiFetchJson("/resources", { method: "POST", body: JSON.stringify(resource) });

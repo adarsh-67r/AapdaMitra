@@ -74,14 +74,18 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
   const [myReports, setMyReports] = useState<ReportRow[]>([]);
 
   const loadAll = useCallback(async () => {
-    const [a, r, rep] = await Promise.all([
-      apiFetchJson<AlertRow[]>("/alerts"),
-      apiFetchJson<ResourceRow[]>("/resources"),
-      apiFetchJson<ReportRow[]>("/reports"),
-    ]);
-    setAlerts(a);
-    setResources(r);
-    setMyReports(rep);
+    try {
+      const [a, r, rep] = await Promise.all([
+        apiFetchJson<AlertRow[]>("/alerts"),
+        apiFetchJson<ResourceRow[]>("/resources"),
+        apiFetchJson<ReportRow[]>("/reports"),
+      ]);
+      setAlerts(a);
+      setResources(r);
+      setMyReports(rep);
+    } catch (e) {
+      console.error("citizen web view poll failed", e);
+    }
   }, []);
 
   useEffect(() => {
