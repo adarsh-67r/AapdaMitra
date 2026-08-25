@@ -4,7 +4,6 @@ Real-time disaster early-warning and resource coordination platform (PS-05).
 
 AapdaMitra ingests live disaster alerts (SACHET), lets citizens report incidents with photos and location, and gives disaster-response authorities a live map to review reports, allocate the nearest available resource, and broadcast advisories — all backed by a custom FastAPI service (no Supabase Auth/Realtime dependency).
 
-
 ## Architecture
 
 ```

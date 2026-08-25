@@ -4,7 +4,7 @@ Status snapshot for AapdaMitra (PS-05). Last updated 2026-08-25.
 
 ## Done
 
-- **Backend**: FastAPI service —auth (signup/login/password reset), alerts (SACHET ingestion + broadcast), citizen reports with photo upload, resource management, nearest-available allocation.
+- **Backend**: FastAPI service — auth (signup/login/password reset), alerts (SACHET ingestion + broadcast), citizen reports with photo upload, resource management, nearest-available allocation.
 - **Dashboard**: authority web app — live map (reports + resources), inspector/allocation panel, resource management, broadcast advisories, embedded citizen view. Fully migrated off Supabase Auth/Realtime onto the FastAPI backend, polling-based.
 - **Citizen app**: Expo app — submit reports with photo + location, browse alerts and shelters, track own reports. Fully migrated onto the FastAPI backend.
 - **Alert ingestion cron**: scheduled job hitting the backend every 10 minutes to keep alerts fresh and the free-tier instance warm.
