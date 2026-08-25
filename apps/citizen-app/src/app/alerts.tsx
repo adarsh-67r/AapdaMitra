@@ -35,18 +35,23 @@ export default function AlertsScreen() {
   const [refreshing, setRefreshing] = useState(false);
 
   const load = useCallback(async () => {
-    const { status } = await Location.requestForegroundPermissionsAsync();
-    let origin: { lat: number; lng: number } | null = null;
-    if (status === "granted") {
-      const pos = await Location.getCurrentPositionAsync({});
-      origin = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-    }
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      let origin: { lat: number; lng: number } | null = null;
+      if (status === "granted") {
+        const pos = await Location.getCurrentPositionAsync({});
+        origin = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      }
 
-    const data = await apiFetchJson<Alert[]>("/alerts");
-    const list = origin ? data.filter((a) => haversineKm(origin!, a) <= NEARBY_RADIUS_KM) : data;
-    setAlerts(list);
-    setLoading(false);
-    setRefreshing(false);
+      const data = await apiFetchJson<Alert[]>("/alerts");
+      const list = origin ? data.filter((a) => haversineKm(origin!, a) <= NEARBY_RADIUS_KM) : data;
+      setAlerts(list);
+    } catch (e) {
+      console.error("alerts poll failed", e);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
   }, []);
 
   useEffect(() => {

@@ -44,9 +44,14 @@ export default function SheltersScreen() {
     })();
 
     async function load() {
-      const data = await apiFetchJson<Resource[]>("/resources");
-      setResources(data);
-      setLoading(false);
+      try {
+        const data = await apiFetchJson<Resource[]>("/resources");
+        setResources(data);
+      } catch (e) {
+        console.error("shelters poll failed", e);
+      } finally {
+        setLoading(false);
+      }
     }
     load();
 

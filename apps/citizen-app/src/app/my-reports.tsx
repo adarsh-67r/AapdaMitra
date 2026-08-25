@@ -27,10 +27,15 @@ export default function MyReportsScreen() {
   const [refreshing, setRefreshing] = useState(false);
 
   const load = useCallback(async () => {
-    const data = await apiFetchJson<Report[]>("/reports");
-    setReports(data);
-    setLoading(false);
-    setRefreshing(false);
+    try {
+      const data = await apiFetchJson<Report[]>("/reports");
+      setReports(data);
+    } catch (e) {
+      console.error("my-reports poll failed", e);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
   }, []);
 
   useEffect(() => {

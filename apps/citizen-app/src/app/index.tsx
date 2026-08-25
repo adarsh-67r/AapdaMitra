@@ -71,11 +71,10 @@ export default function ReportScreen() {
       });
 
       if (photoUri) {
-        const response = await fetch(photoUri);
-        const blob = await response.blob();
         const form = new FormData();
-        form.append("file", blob, "photo.jpg");
-        await apiFetch(`/reports/${report.id}/photo`, { method: "POST", body: form, headers: {} });
+        form.append("file", { uri: photoUri, name: "photo.jpg", type: "image/jpeg" } as any);
+        const res = await apiFetch(`/reports/${report.id}/photo`, { method: "POST", body: form, headers: {} });
+        if (!res.ok) throw new Error(`photo upload failed: ${res.status}`);
       }
 
       Alert.alert("Report submitted", "Authorities have been notified.");
