@@ -19,3 +19,6 @@ AGENTS.md
 pnpm-lock.yaml
 pnpm-workspace.yaml
 supabase/.temp/
+
+# Subagent-driven-development scratch workspace (ledgers, briefs, reports).
+.superpowers/
