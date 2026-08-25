@@ -11,19 +11,19 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
-  const { session, loading } = useAuth();
+  const { status } = useAuth();
 
   useEffect(() => {
-    if (!loading) SplashScreen.hideAsync();
-  }, [loading]);
+    if (status !== "loading") SplashScreen.hideAsync();
+  }, [status]);
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      {loading ? (
+      {status === "loading" ? (
         <ThemedView style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
           <ActivityIndicator />
         </ThemedView>
-      ) : !session ? (
+      ) : status === "signed-out" ? (
         <LoginScreen />
       ) : (
         <Tabs screenOptions={{ headerShown: false }}>
