@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import auth, reports
+from app.routers import auth, reports, resources
 
 app = FastAPI(title="AapdaMitra API")
 
@@ -13,6 +13,7 @@ app.add_middleware(
 
 app.include_router(auth.router)
 app.include_router(reports.router)
+app.include_router(resources.router)
 
 
 @app.get("/health")
