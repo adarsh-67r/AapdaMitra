@@ -58,20 +58,26 @@ def ingest_alerts(
     if resp.status_code >= 300:
         raise HTTPException(status_code=502, detail=f"SACHET fetch failed: {resp.status_code}")
     raw = resp.json()
+    if not isinstance(raw, list):
+        return {"upserted": 0, "skipped": 0, "total": 0}
 
     deduped = dedupe_preferring_english(raw)
     rows = []
     skipped = 0
     for a in deduped:
-        geo = parse_centroid(a["centroid"])
-        if not geo:
+        try:
+            geo = parse_centroid(a["centroid"])
+            if not geo:
+                skipped += 1
+                continue
+            rows.append((
+                str(a["identifier"]), a["disaster_type"], a["area_description"], a["severity_color"],
+                a["severity_level"], a["warning_message"], "sachet_ndma", geo["lat"], geo["lng"],
+                parse_sachet_time(a["effective_start_time"]), parse_sachet_time(a["effective_end_time"]),
+            ))
+        except (KeyError, TypeError):
             skipped += 1
             continue
-        rows.append((
-            str(a["identifier"]), a["disaster_type"], a["area_description"], a["severity_color"],
-            a["severity_level"], a["warning_message"], "sachet_ndma", geo["lat"], geo["lng"],
-            parse_sachet_time(a["effective_start_time"]), parse_sachet_time(a["effective_end_time"]),
-        ))
 
     if rows:
         with conn.cursor() as cur:

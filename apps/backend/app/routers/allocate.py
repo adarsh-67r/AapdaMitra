@@ -35,9 +35,15 @@ def allocate(
             return {"assigned": False, "reason": "no available resource in range"}
 
         cur.execute(
+            "update resources set status = 'dispatched' where id = %s and status = 'available'",
+            (chosen["id"],),
+        )
+        if cur.rowcount == 0:
+            raise HTTPException(status_code=409, detail="resource was just dispatched, retry")
+
+        cur.execute(
             "update reports set status = 'assigned', assigned_resource_id = %s where id = %s",
             (chosen["id"], body.report_id),
         )
-        cur.execute("update resources set status = 'dispatched' where id = %s", (chosen["id"],))
     conn.commit()
     return {"assigned": True, "resource_id": str(chosen["id"])}

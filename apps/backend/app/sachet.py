@@ -42,7 +42,10 @@ def parse_sachet_time(raw: str) -> str | None:
 def dedupe_preferring_english(alerts: list[dict]) -> list[dict]:
     by_id: dict[str, dict] = {}
     for a in alerts:
-        key = str(a["identifier"])
+        identifier = a.get("identifier")
+        if identifier is None:
+            continue
+        key = str(identifier)
         existing = by_id.get(key)
         if existing is None or (existing.get("actual_lang") != "en" and a.get("actual_lang") == "en"):
             by_id[key] = a

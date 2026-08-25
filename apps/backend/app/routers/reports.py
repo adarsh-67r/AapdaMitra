@@ -80,13 +80,21 @@ def update_report(
 
 
 @router.post("/{report_id}/photo")
-async def upload_photo(
+def upload_photo(
     report_id: str,
     file: UploadFile,
     conn: Connection = Depends(get_conn),
     user: dict = Depends(get_current_user),
 ):
-    contents = await file.read()
+    with conn.cursor() as cur:
+        cur.execute("select citizen_id from reports where id = %s", (report_id,))
+        report = cur.fetchone()
+    if not report:
+        raise HTTPException(status_code=404, detail="report not found")
+    if user["role"] != "authority" and str(report["citizen_id"]) != user["user_id"]:
+        raise HTTPException(status_code=403, detail="not your report")
+
+    contents = file.file.read()
     path = f"{uuid.uuid4()}.jpg"
     upload_url = f"{settings.supabase_url}/storage/v1/object/report-photos/{path}"
     resp = httpx.post(
