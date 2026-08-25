@@ -8,7 +8,9 @@ _pool: ConnectionPool | None = None
 def get_pool() -> ConnectionPool:
     global _pool
     if _pool is None:
-        _pool = ConnectionPool(settings.database_url, min_size=1, max_size=5, kwargs={"row_factory": dict_row})
+        _pool = ConnectionPool(
+            settings.database_url, min_size=1, max_size=5, open=True, kwargs={"row_factory": dict_row}
+        )
     return _pool
 
 
