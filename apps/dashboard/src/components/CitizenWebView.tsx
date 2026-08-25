@@ -1,11 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { Session } from "@supabase/supabase-js";
 import CitizenMap from "@/components/CitizenMap";
 import ThemeToggle from "@/components/ThemeToggle";
-import { supabase } from "@/lib/supabase-client";
-import { haversineKm } from "@/lib/geo";
+import { apiFetchJson } from "@/lib/api-client";
+import { haversineKm } from "@/lib/geo-client";
 import type { MapPin } from "@/components/CitizenMapClient";
 
 type Tab = "report" | "alerts" | "shelters" | "mine" | "emergency";
@@ -61,7 +60,9 @@ const SEVERITY_COLOR: Record<AlertRow["severity_color"], string> = {
   green: "#2E9E4A", yellow: "#D8B400", orange: "#E08A00", red: "#D64545",
 };
 
-export default function CitizenWebView({ session, onSignOut }: { session: Session; onSignOut: () => void }) {
+const POLL_INTERVAL_MS = 12000;
+
+export default function CitizenWebView({ onSignOut }: { onSignOut: () => void }) {
   const [tab, setTab] = useState<Tab>("report");
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [severity, setSeverity] = useState<Severity>("medium");
@@ -72,43 +73,22 @@ export default function CitizenWebView({ session, onSignOut }: { session: Sessio
   const [resources, setResources] = useState<ResourceRow[]>([]);
   const [myReports, setMyReports] = useState<ReportRow[]>([]);
 
-  const loadAlerts = useCallback(async () => {
-    const { data } = await supabase
-      .from("alerts")
-      .select("id, disaster_type, area_description, severity_color, warning_message, lat, lng")
-      .order("fetched_at", { ascending: false })
-      .limit(200);
-    if (data) setAlerts(data as AlertRow[]);
+  const loadAll = useCallback(async () => {
+    const [a, r, rep] = await Promise.all([
+      apiFetchJson<AlertRow[]>("/alerts"),
+      apiFetchJson<ResourceRow[]>("/resources"),
+      apiFetchJson<ReportRow[]>("/reports"),
+    ]);
+    setAlerts(a);
+    setResources(r);
+    setMyReports(rep);
   }, []);
-
-  const loadResources = useCallback(async () => {
-    const { data } = await supabase.from("resources").select("id, type, name, lat, lng, status");
-    if (data) setResources(data as ResourceRow[]);
-  }, []);
-
-  const loadMyReports = useCallback(async () => {
-    const { data } = await supabase
-      .from("reports")
-      .select("id, severity, description, status, created_at")
-      .eq("citizen_id", session.user.id)
-      .order("created_at", { ascending: false });
-    if (data) setMyReports(data as ReportRow[]);
-  }, [session.user.id]);
 
   useEffect(() => {
-    loadAlerts();
-    loadResources();
-    loadMyReports();
-    const channel = supabase
-      .channel("citizen-web-live")
-      .on("postgres_changes", { event: "*", schema: "public", table: "alerts" }, loadAlerts)
-      .on("postgres_changes", { event: "*", schema: "public", table: "resources" }, loadResources)
-      .on("postgres_changes", { event: "*", schema: "public", table: "reports" }, loadMyReports)
-      .subscribe();
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [loadAlerts, loadResources, loadMyReports]);
+    loadAll();
+    const interval = setInterval(loadAll, POLL_INTERVAL_MS);
+    return () => clearInterval(interval);
+  }, [loadAll]);
 
   useEffect(() => {
     if (!navigator.geolocation) return;
@@ -142,21 +122,21 @@ export default function CitizenWebView({ session, onSignOut }: { session: Sessio
     }
     setSubmitting(true);
     try {
-      const { error } = await supabase.from("reports").insert({
-        citizen_id: session.user.id,
-        lat: location.lat,
-        lng: location.lng,
-        severity: overrideSeverity ?? severity,
-        description: overrideDescription ?? description,
+      await apiFetchJson("/reports", {
+        method: "POST",
+        body: JSON.stringify({
+          lat: location.lat,
+          lng: location.lng,
+          severity: overrideSeverity ?? severity,
+          description: overrideDescription ?? description,
+        }),
       });
-      if (error) {
-        alert(`Submission failed: ${error.message}`);
-        return;
-      }
       setDescription("");
       setSeverity("medium");
       alert("Report submitted. Authorities have been notified.");
-      loadMyReports();
+      loadAll();
+    } catch (e) {
+      alert(`Submission failed: ${e instanceof Error ? e.message : "unknown error"}`);
     } finally {
       setSubmitting(false);
     }
@@ -187,11 +167,7 @@ export default function CitizenWebView({ session, onSignOut }: { session: Sessio
             key={t.id}
             onClick={() => setTab(t.id)}
             className="px-3 py-1.5 rounded text-sm font-medium whitespace-nowrap cursor-pointer"
-            style={
-              tab === t.id
-                ? { background: "var(--accent)", color: "var(--accent-contrast)" }
-                : { color: "var(--text-muted)" }
-            }
+            style={tab === t.id ? { background: "var(--accent)", color: "var(--accent-contrast)" } : { color: "var(--text-muted)" }}
           >
             {t.label}
           </button>

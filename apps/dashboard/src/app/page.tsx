@@ -6,7 +6,7 @@ import LoginScreen from "@/components/LoginScreen";
 import { useAuth } from "@/lib/use-auth";
 
 export default function Home() {
-  const { status, session, signOut } = useAuth();
+  const { status, signOut } = useAuth();
 
   if (status === "loading") {
     return (
@@ -16,12 +16,12 @@ export default function Home() {
     );
   }
 
-  if (status === "signed-out" || !session) {
+  if (status === "signed-out") {
     return <LoginScreen />;
   }
 
   if (status === "citizen") {
-    return <CitizenWebView session={session} onSignOut={signOut} />;
+    return <CitizenWebView onSignOut={signOut} />;
   }
 
   return <DashboardShell onSignOut={signOut} />;
