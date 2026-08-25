@@ -1,4 +1,28 @@
-import { haversineKm } from "./geo";
+// Client-side-only preview helpers used by InspectorPanel to show a
+// "Nearest Available" resource + distance before an authority clicks
+// "Allocate Nearest Resource". This is a deliberate duplicate of pure
+// functions for UI preview purposes only — the canonical, authoritative
+// allocation logic lives in apps/backend/app/allocator.py, and the actual
+// allocation is always committed via the real /allocate backend call in
+// useDashboardData.ts, never via these functions.
+
+const EARTH_RADIUS_KM = 6371;
+
+export function haversineKm(
+  a: { lat: number; lng: number },
+  b: { lat: number; lng: number }
+): number {
+  const toRad = (deg: number) => (deg * Math.PI) / 180;
+  const dLat = toRad(b.lat - a.lat);
+  const dLng = toRad(b.lng - a.lng);
+  const lat1 = toRad(a.lat);
+  const lat2 = toRad(b.lat);
+
+  const h =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
+  return 2 * EARTH_RADIUS_KM * Math.asin(Math.sqrt(h));
+}
 
 export type ResourceType = "shelter" | "rescue_team" | "supply_stock";
 export type ResourceStatus = "available" | "full" | "dispatched";

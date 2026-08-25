@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { pickNearestAvailable } from "@/lib/allocator";
-import { haversineKm } from "@/lib/geo";
+import { pickNearestAvailable, haversineKm } from "@/lib/allocator-preview";
 import type { Report, Resource } from "@/lib/useDashboardData";
 
 const SEVERITY_COLOR: Record<Report["severity"], string> = {

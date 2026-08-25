@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { supabase } from "./supabase-client";
+import { apiFetchJson } from "./api-client";
 
 export interface Alert {
   id: string;
@@ -34,6 +34,8 @@ export interface Report {
   created_at: string;
 }
 
+const POLL_INTERVAL_MS = 12000;
+
 export function useDashboardData() {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [resources, setResources] = useState<Resource[]>([]);
@@ -43,72 +45,65 @@ export function useDashboardData() {
 
   const loadAll = useCallback(async () => {
     const [a, r, rep] = await Promise.all([
-      supabase.from("alerts").select("id, disaster_type, area_description, severity_color, warning_message, lat, lng"),
-      supabase.from("resources").select("id, type, name, lat, lng, capacity, status"),
-      supabase.from("reports").select("id, lat, lng, severity, description, status, assigned_resource_id, created_at").order("created_at", { ascending: false }),
+      apiFetchJson<Alert[]>("/alerts"),
+      apiFetchJson<Resource[]>("/resources"),
+      apiFetchJson<Report[]>("/reports"),
     ]);
-    if (a.data) setAlerts(a.data as Alert[]);
-    if (r.data) setResources(r.data as Resource[]);
-    if (rep.data) setReports(rep.data as Report[]);
+    setAlerts(a);
+    setResources(r);
+    setReports(rep);
     setLoading(false);
   }, []);
 
   const allocate = useCallback(async (reportId: string) => {
     setAllocating(reportId);
     try {
-      const { data: sessionData } = await supabase.auth.getSession();
-      const res = await fetch("/api/allocate", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${sessionData.session?.access_token ?? ""}`,
-        },
-        body: JSON.stringify({ report_id: reportId }),
-      });
-      const data = await res.json();
+      const data = await apiFetchJson<{ assigned: boolean; resource_id?: string; reason?: string }>(
+        "/allocate",
+        { method: "POST", body: JSON.stringify({ report_id: reportId }) }
+      );
       await loadAll();
-      return data as { assigned: boolean; resource_id?: string; reason?: string };
+      return data;
     } finally {
       setAllocating(null);
     }
   }, [loadAll]);
 
-  // Manual override of allocate(): authority picks a specific resource
-  // rather than automatic nearest-match. Frees the report's previous
-  // resource (if any) back to available before dispatching the new one.
   const manualAssign = useCallback(async (reportId: string, resourceId: string) => {
-    const report = reports.find((r) => r.id === reportId);
-    if (report?.assigned_resource_id && report.assigned_resource_id !== resourceId) {
-      await supabase.from("resources").update({ status: "available" }).eq("id", report.assigned_resource_id);
-    }
-    await supabase.from("reports").update({ status: "assigned", assigned_resource_id: resourceId }).eq("id", reportId);
-    await supabase.from("resources").update({ status: "dispatched" }).eq("id", resourceId);
-    await loadAll();
-  }, [reports, loadAll]);
-
-  const resolveReport = useCallback(async (reportId: string) => {
-    await supabase.from("reports").update({ status: "resolved" }).eq("id", reportId);
+    await apiFetchJson(`/reports/${reportId}`, {
+      method: "PATCH",
+      body: JSON.stringify({ status: "assigned", assigned_resource_id: resourceId }),
+    });
+    await apiFetchJson(`/resources/${resourceId}`, {
+      method: "PATCH",
+      body: JSON.stringify({ status: "dispatched" }),
+    });
     await loadAll();
   }, [loadAll]);
 
-  // Reopens a report and frees whatever resource was assigned to it — the
-  // "cancel this assignment" action.
-  const reopenReport = useCallback(async (reportId: string) => {
-    const report = reports.find((r) => r.id === reportId);
-    if (report?.assigned_resource_id) {
-      await supabase.from("resources").update({ status: "available" }).eq("id", report.assigned_resource_id);
-    }
-    await supabase.from("reports").update({ status: "open", assigned_resource_id: null }).eq("id", reportId);
+  const resolveReport = useCallback(async (reportId: string) => {
+    await apiFetchJson(`/reports/${reportId}`, {
+      method: "PATCH",
+      body: JSON.stringify({ status: "resolved" }),
+    });
     await loadAll();
-  }, [reports, loadAll]);
+  }, [loadAll]);
+
+  const reopenReport = useCallback(async (reportId: string) => {
+    await apiFetchJson(`/reports/${reportId}`, {
+      method: "PATCH",
+      body: JSON.stringify({ status: "open", assigned_resource_id: null }),
+    });
+    await loadAll();
+  }, [loadAll]);
 
   const addResource = useCallback(async (resource: Omit<Resource, "id">) => {
-    await supabase.from("resources").insert(resource);
+    await apiFetchJson("/resources", { method: "POST", body: JSON.stringify(resource) });
     await loadAll();
   }, [loadAll]);
 
   const updateResource = useCallback(async (id: string, updates: Partial<Omit<Resource, "id">>) => {
-    await supabase.from("resources").update(updates).eq("id", id);
+    await apiFetchJson(`/resources/${id}`, { method: "PATCH", body: JSON.stringify(updates) });
     await loadAll();
   }, [loadAll]);
 
@@ -120,21 +115,14 @@ export function useDashboardData() {
     lat: number;
     lng: number;
   }) => {
-    await supabase.from("alerts").insert({ ...alert, source: "authority_advisory" });
+    await apiFetchJson("/alerts", { method: "POST", body: JSON.stringify(alert) });
     await loadAll();
   }, [loadAll]);
 
   useEffect(() => {
     loadAll();
-    const channel = supabase
-      .channel("dashboard-live")
-      .on("postgres_changes", { event: "*", schema: "public", table: "reports" }, loadAll)
-      .on("postgres_changes", { event: "*", schema: "public", table: "resources" }, loadAll)
-      .on("postgres_changes", { event: "*", schema: "public", table: "alerts" }, loadAll)
-      .subscribe();
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    const interval = setInterval(loadAll, POLL_INTERVAL_MS);
+    return () => clearInterval(interval);
   }, [loadAll]);
 
   return {
