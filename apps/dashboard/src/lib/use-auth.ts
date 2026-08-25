@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { apiFetchJson, clearToken, getToken, setToken } from "./api-client";
 
 export type Role = "citizen" | "authority";
@@ -19,17 +19,45 @@ function decodeRole(token: string): Role | null {
   }
 }
 
+// Module-level store shared by every useAuth() call site. Without this,
+// page.tsx and LoginScreen.tsx would each get their own isolated useState,
+// so a successful login/signup in LoginScreen.tsx would never be seen by
+// page.tsx's render branch (the app would stay stuck on the login screen
+// forever after a real sign-in).
+let status: AuthStatus = "loading";
+const listeners = new Set<() => void>();
+
+function setStatus(next: AuthStatus) {
+  status = next;
+  listeners.forEach((listener) => listener());
+}
+
+function subscribe(listener: () => void) {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
+
+function getSnapshot() {
+  return status;
+}
+
+let initialized = false;
+function ensureInitialized() {
+  if (initialized) return;
+  initialized = true;
+  const token = getToken();
+  if (!token) {
+    setStatus("signed-out");
+    return;
+  }
+  setStatus(decodeRole(token) ?? "signed-out");
+}
+
 export function useAuth() {
-  const [status, setStatus] = useState<AuthStatus>("loading");
+  const currentStatus = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 
   useEffect(() => {
-    const token = getToken();
-    if (!token) {
-      setStatus("signed-out");
-      return;
-    }
-    const role = decodeRole(token);
-    setStatus(role ?? "signed-out");
+    ensureInitialized();
   }, []);
 
   const signup = async (email: string, password: string, role: Role) => {
@@ -55,5 +83,5 @@ export function useAuth() {
     setStatus("signed-out");
   };
 
-  return { status, login, signup, signOut };
+  return { status: currentStatus, login, signup, signOut };
 }
