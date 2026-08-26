@@ -148,7 +148,7 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
 
   return (
     <div className="flex flex-col h-screen bg-bg text-text">
-      <header className="flex items-center justify-between px-6 py-3.5 border-b border-border">
+      <header className="flex items-center justify-between px-6 py-3.5 border-b border-white/10 bg-white/[0.03] backdrop-blur-xl">
         <div className="flex items-center gap-3">
           <div className="w-7 h-7 border border-accent rounded-md flex items-center justify-center">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -165,7 +165,7 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
         </div>
       </header>
 
-      <nav className="flex gap-1 px-4 py-2 border-b border-border overflow-x-auto">
+      <nav className="flex gap-1 px-4 py-2 border-b border-white/10 bg-white/[0.02] backdrop-blur-xl overflow-x-auto">
         {TABS.map((t) => (
           <button
             key={t.id}
@@ -193,7 +193,7 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
               Instantly files a critical report at your current location.
             </p>
 
-            <div className="bg-panel border border-border rounded-lg p-4 flex flex-col gap-3">
+            <div className="bg-white/[0.04] backdrop-blur-md border border-white/10 rounded-2xl p-4 flex flex-col gap-3">
               <span className="text-sm font-semibold">Report an Incident</span>
               <div className="text-xs text-text-muted font-mono">
                 {location ? `📍 ${location.lat.toFixed(4)}, ${location.lng.toFixed(4)}` : "Locating…"}
@@ -239,7 +239,7 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
               <p className="text-sm text-text-muted text-center py-10">No active alerts nearby.</p>
             ) : (
               nearbyAlerts.map((a) => (
-                <div key={a.id} className="bg-panel border border-border rounded-lg p-3.5 flex flex-col gap-1">
+                <div key={a.id} className="bg-white/[0.04] backdrop-blur-md border border-white/10 rounded-2xl p-3.5 flex flex-col gap-1">
                   <div className="flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full" style={{ background: SEVERITY_COLOR[a.severity_color] }} />
                     <span className="text-sm font-semibold">{a.disaster_type}</span>
@@ -253,7 +253,7 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
         )}
 
         {tab === "shelters" && (
-          <div className="h-[70vh] rounded-lg overflow-hidden border border-border">
+          <div className="h-[70vh] rounded-2xl overflow-hidden border border-white/10">
             <CitizenMap pins={resourcePins} center={location ? [location.lat, location.lng] : undefined} />
           </div>
         )}
@@ -264,7 +264,7 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
               <p className="text-sm text-text-muted text-center py-10">You haven&apos;t submitted any reports yet.</p>
             ) : (
               myReports.map((r) => (
-                <div key={r.id} className="bg-panel border border-border rounded-lg p-3.5 flex flex-col gap-1">
+                <div key={r.id} className="bg-white/[0.04] backdrop-blur-md border border-white/10 rounded-2xl p-3.5 flex flex-col gap-1">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-semibold uppercase">{r.severity}</span>
                     <span className="font-mono text-xs uppercase text-text-muted">{r.status}</span>
@@ -283,7 +283,7 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
               <a
                 key={c.number}
                 href={`tel:${c.number}`}
-                className="flex items-center justify-between bg-panel border border-border rounded-lg p-3.5 hover:border-accent"
+                className="flex items-center justify-between bg-white/[0.04] backdrop-blur-md border border-white/10 rounded-2xl p-3.5 hover:border-accent"
               >
                 <span className="text-sm font-medium">{c.name}</span>
                 <span className="font-mono text-base font-bold text-accent">{c.number}</span>

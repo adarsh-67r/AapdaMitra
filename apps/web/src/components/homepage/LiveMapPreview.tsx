@@ -31,6 +31,14 @@ export default function LiveMapPreview() {
           <span>3 alerts &middot; 6 reports</span>
         </div>
         <div className="relative h-52 rounded-xl bg-panel-alt overflow-hidden">
+          <motion.div
+            className="absolute inset-0 origin-center opacity-40"
+            style={{
+              background: "conic-gradient(from 0deg, transparent 0deg, var(--accent) 18deg, transparent 40deg)",
+            }}
+            animate={{ rotate: 360 }}
+            transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+          />
           {MARKERS.map((m, i) => (
             <div key={i} className="absolute" style={{ left: `${m.x}%`, top: `${m.y}%` }}>
               <motion.span

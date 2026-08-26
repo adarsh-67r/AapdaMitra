@@ -19,11 +19,26 @@ interface AlertRow {
   lng: number;
 }
 
+interface ResourceRow {
+  id: string;
+  type: "shelter" | "rescue_team" | "supply_stock";
+  name: string;
+  lat: number;
+  lng: number;
+  status: "available" | "full" | "dispatched";
+}
+
 const SEVERITY_COLOR: Record<AlertRow["severity_color"], string> = {
   green: "#2E9E4A",
   yellow: "#D8B400",
   orange: "#E08A00",
   red: "#D64545",
+};
+
+const RESOURCE_COLOR: Record<ResourceRow["status"], string> = {
+  available: "#2E9E4A",
+  full: "#D64545",
+  dispatched: "#E08A00",
 };
 
 const INDIA_CENTER: [number, number] = [22.9734, 78.6569];
@@ -32,6 +47,7 @@ const POLL_INTERVAL_MS = 12000;
 export default function MapPage() {
   const { status, login } = useAuth();
   const [alerts, setAlerts] = useState<AlertRow[]>([]);
+  const [resources, setResources] = useState<ResourceRow[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -45,8 +61,14 @@ export default function MapPage() {
     let cancelled = false;
     async function poll() {
       try {
-        const data = await apiFetchJson<AlertRow[]>("/alerts");
-        if (!cancelled) setAlerts(data);
+        const [a, r] = await Promise.all([
+          apiFetchJson<AlertRow[]>("/alerts"),
+          apiFetchJson<ResourceRow[]>("/resources"),
+        ]);
+        if (!cancelled) {
+          setAlerts(a);
+          setResources(r);
+        }
       } catch {
         if (!cancelled) setError("Could not load live data.");
       }
@@ -59,13 +81,22 @@ export default function MapPage() {
     };
   }, [status]);
 
-  const pins: MapPin[] = alerts.map((a) => ({
-    lat: a.lat,
-    lng: a.lng,
-    color: SEVERITY_COLOR[a.severity_color],
-    title: a.disaster_type,
-    description: a.warning_message ?? a.area_description ?? "",
-  }));
+  const pins: MapPin[] = [
+    ...alerts.map((a) => ({
+      lat: a.lat,
+      lng: a.lng,
+      color: SEVERITY_COLOR[a.severity_color],
+      title: a.disaster_type,
+      description: a.warning_message ?? a.area_description ?? "",
+    })),
+    ...resources.map((r) => ({
+      lat: r.lat,
+      lng: r.lng,
+      color: RESOURCE_COLOR[r.status],
+      title: r.name,
+      description: `${r.type.replace("_", " ")} — ${r.status}`,
+    })),
+  ];
 
   return (
     <div className="flex flex-col h-screen bg-bg text-text">
@@ -74,7 +105,7 @@ export default function MapPage() {
           AapdaMitra
         </Link>
         <div className="flex items-center gap-3.5">
-          <div className="flex gap-4 font-mono text-[0.68rem] text-text-muted">
+          <div className="hidden md:flex gap-3 font-mono text-[0.68rem] text-text-muted flex-wrap">
             <span className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full" style={{ background: SEVERITY_COLOR.red }} /> Severe
             </span>
@@ -84,8 +115,12 @@ export default function MapPage() {
             <span className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full" style={{ background: SEVERITY_COLOR.yellow }} /> Moderate
             </span>
+            <span className="text-border">|</span>
             <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full" style={{ background: SEVERITY_COLOR.green }} /> Advisory
+              <span className="w-2 h-2 rounded-full" style={{ background: RESOURCE_COLOR.available }} /> Available
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full" style={{ background: RESOURCE_COLOR.dispatched }} /> Dispatched
             </span>
           </div>
           <ThemeToggle />

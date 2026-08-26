@@ -33,7 +33,7 @@ export default function DashboardShell({ onSignOut }: { onSignOut: () => void })
 
   return (
     <div className="flex flex-col h-screen bg-bg text-text">
-      <header className="flex items-center justify-between px-7 py-4 border-b border-border">
+      <header className="flex items-center justify-between px-7 py-4 border-b border-white/10 bg-white/[0.03] backdrop-blur-xl">
         <div className="flex items-center gap-3.5">
           <div className="w-8 h-8 border border-accent rounded-md flex items-center justify-center">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -94,7 +94,7 @@ export default function DashboardShell({ onSignOut }: { onSignOut: () => void })
           onSelectReport={setSelectedReportId}
         />
 
-        <div className="relative min-h-[320px] bg-panel border border-border rounded-lg overflow-hidden flex flex-col">
+        <div className="relative min-h-[320px] bg-panel/70 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden flex flex-col shadow-[0_20px_50px_-25px_rgba(0,0,0,0.5)]">
           <div className="tick h-3.5 border-b border-border shrink-0" />
           <div className="flex flex-1 min-h-0">
             <div className="tick-v w-3.5 border-r border-border shrink-0" />
