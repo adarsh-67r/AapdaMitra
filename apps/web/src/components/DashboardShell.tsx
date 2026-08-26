@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import BroadcastAlertModal from "@/components/BroadcastAlertModal";
 import DashboardMap from "@/components/DashboardMap";
 import FallbackPanel from "@/components/FallbackPanel";
@@ -22,6 +23,7 @@ export default function DashboardShell({ onSignOut }: { onSignOut: () => void })
   const [autoAllocate, setAutoAllocate] = useState(false);
   const [showResources, setShowResources] = useState(false);
   const [showBroadcast, setShowBroadcast] = useState(false);
+  const [showQueue, setShowQueue] = useState(false);
 
   const selectedReport = reports.find((r) => r.id === selectedReportId) ?? null;
 
@@ -57,6 +59,13 @@ export default function DashboardShell({ onSignOut }: { onSignOut: () => void })
             Auto-allocate
           </label>
           <button
+            onClick={() => setShowQueue((v) => !v)}
+            className="font-mono text-xs px-2.5 py-1.5 rounded border border-border cursor-pointer"
+            style={showQueue ? { background: "var(--accent)", color: "var(--accent-contrast)", borderColor: "var(--accent)" } : undefined}
+          >
+            Reports ({reports.length})
+          </button>
+          <button
             onClick={() => setShowResources(true)}
             className="font-mono text-xs px-2.5 py-1.5 rounded border border-border cursor-pointer"
           >
@@ -87,14 +96,8 @@ export default function DashboardShell({ onSignOut }: { onSignOut: () => void })
         <FallbackPanel events={fallbackEvents} onTriggerDemo={triggerDemoEvent} />
       </div>
 
-      <main className="flex-1 grid grid-cols-1 lg:grid-cols-[292px_1fr_324px] gap-4 px-7 pb-4 min-h-0">
-        <ReportsQueue
-          reports={reports}
-          selectedReportId={selectedReportId}
-          onSelectReport={setSelectedReportId}
-        />
-
-        <div className="relative min-h-[320px] bg-panel/70 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden flex flex-col shadow-[0_20px_50px_-25px_rgba(0,0,0,0.5)]">
+      <main className="relative flex-1 px-7 pb-4 min-h-0">
+        <div className="relative h-full min-h-[320px] bg-panel/70 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden flex flex-col shadow-[0_20px_50px_-25px_rgba(0,0,0,0.5)]">
           <div className="tick h-3.5 border-b border-border shrink-0" />
           <div className="flex flex-1 min-h-0">
             <div className="tick-v w-3.5 border-r border-border shrink-0" />
@@ -116,15 +119,61 @@ export default function DashboardShell({ onSignOut }: { onSignOut: () => void })
           </div>
         </div>
 
-        <InspectorPanel
-          report={selectedReport}
-          resources={resources}
-          allocating={allocating === selectedReportId}
-          onAllocate={allocate}
-          onManualAssign={manualAssign}
-          onResolve={resolveReport}
-          onReopen={reopenReport}
-        />
+        <AnimatePresence>
+          {showQueue && (
+            <>
+              <motion.div
+                key="queue-backdrop"
+                className="absolute inset-0 bg-black/30 z-10"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setShowQueue(false)}
+              />
+              <motion.div
+                key="queue-panel"
+                className="absolute top-0 left-0 h-full w-[300px] z-20"
+                initial={{ x: "-100%" }}
+                animate={{ x: 0 }}
+                exit={{ x: "-100%" }}
+                transition={{ type: "spring", stiffness: 320, damping: 32 }}
+              >
+                <ReportsQueue
+                  reports={reports}
+                  selectedReportId={selectedReportId}
+                  onSelectReport={(id) => {
+                    setSelectedReportId(id);
+                    setShowQueue(false);
+                  }}
+                />
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {selectedReport && (
+            <motion.div
+              key="inspector-panel"
+              className="absolute top-0 right-0 h-full w-[324px] z-20"
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", stiffness: 320, damping: 32 }}
+            >
+              <InspectorPanel
+                report={selectedReport}
+                resources={resources}
+                allocating={allocating === selectedReportId}
+                onAllocate={allocate}
+                onManualAssign={manualAssign}
+                onResolve={resolveReport}
+                onReopen={reopenReport}
+                onClose={() => setSelectedReportId(null)}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </main>
 
       {showResources && (

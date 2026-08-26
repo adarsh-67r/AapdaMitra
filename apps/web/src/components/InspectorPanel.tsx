@@ -19,6 +19,7 @@ interface Props {
   onManualAssign: (reportId: string, resourceId: string) => void;
   onResolve: (reportId: string) => void;
   onReopen: (reportId: string) => void;
+  onClose?: () => void;
 }
 
 export default function InspectorPanel({
@@ -29,12 +30,13 @@ export default function InspectorPanel({
   onManualAssign,
   onResolve,
   onReopen,
+  onClose,
 }: Props) {
   const [manualPick, setManualPick] = useState("");
 
   if (!report) {
     return (
-      <section className="flex flex-col h-full bg-panel border border-border rounded-lg items-center justify-center px-4">
+      <section className="flex flex-col h-full bg-panel border border-border rounded-2xl shadow-[0_20px_50px_-20px_rgba(0,0,0,0.6)] items-center justify-center px-4">
         <p className="text-sm text-text-muted text-center">
           Select a report from the queue or map to inspect it.
         </p>
@@ -52,9 +54,14 @@ export default function InspectorPanel({
   const availableResources = resources.filter((r) => r.status === "available" || r.id === report.assigned_resource_id);
 
   return (
-    <section className="flex flex-col h-full bg-panel border border-border rounded-lg overflow-y-auto">
-      <div className="px-4 py-3.5 border-b border-border">
+    <section className="flex flex-col h-full bg-panel border border-border rounded-2xl shadow-[0_20px_50px_-20px_rgba(0,0,0,0.6)] overflow-y-auto">
+      <div className="px-4 py-3.5 border-b border-border flex items-center justify-between">
         <span className="text-base font-semibold">Inspector</span>
+        {onClose && (
+          <button onClick={onClose} className="font-mono text-xs text-text-muted hover:text-text cursor-pointer">
+            ✕
+          </button>
+        )}
       </div>
 
       <div className="p-4 flex flex-col gap-3.5">

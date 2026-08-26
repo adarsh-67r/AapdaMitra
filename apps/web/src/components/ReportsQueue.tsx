@@ -34,7 +34,7 @@ export default function ReportsQueue({ reports, selectedReportId, onSelectReport
   const filtered = filter === "all" ? reports : reports.filter((r) => r.status === filter);
 
   return (
-    <section className="flex flex-col h-full bg-panel border border-border rounded-lg overflow-hidden">
+    <section className="flex flex-col h-full bg-panel border border-border rounded-2xl shadow-[0_20px_50px_-20px_rgba(0,0,0,0.6)] overflow-hidden">
       <div className="px-4 py-3.5 border-b border-border flex items-center justify-between">
         <span className="text-base font-semibold">Report Queue</span>
         <span className="font-mono text-xs text-text-muted">{String(filtered.length).padStart(3, "0")}</span>

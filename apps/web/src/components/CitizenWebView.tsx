@@ -9,13 +9,21 @@ import type { MapPin } from "@/components/CitizenMapClient";
 
 type Tab = "report" | "alerts" | "shelters" | "mine" | "emergency";
 
-const TABS: { id: Tab; label: string }[] = [
-  { id: "report", label: "Report" },
-  { id: "alerts", label: "Alerts" },
-  { id: "shelters", label: "Shelters" },
-  { id: "mine", label: "My Reports" },
-  { id: "emergency", label: "Emergency" },
+const MENU: { id: Tab; label: string; icon: string; description: string }[] = [
+  { id: "report", label: "Report Incident", icon: "📍", description: "Photo, location, severity — filed in under a minute" },
+  { id: "alerts", label: "Live Alerts", icon: "⚠️", description: "Official warnings near you, updated continuously" },
+  { id: "shelters", label: "Find Shelter", icon: "🏠", description: "Nearest shelters and resources on the map" },
+  { id: "mine", label: "My Reports", icon: "🗂️", description: "Track the status of what you've reported" },
+  { id: "emergency", label: "Emergency Contacts", icon: "☎️", description: "Fire, police, ambulance, disaster helplines" },
 ];
+
+const TAB_LABEL: Record<Tab, string> = {
+  report: "Report Incident",
+  alerts: "Live Alerts",
+  shelters: "Find Shelter",
+  mine: "My Reports",
+  emergency: "Emergency Contacts",
+};
 
 const SEVERITIES = ["low", "medium", "high", "critical"] as const;
 type Severity = (typeof SEVERITIES)[number];
@@ -63,7 +71,7 @@ const SEVERITY_COLOR: Record<AlertRow["severity_color"], string> = {
 const POLL_INTERVAL_MS = 12000;
 
 export default function CitizenWebView({ onSignOut }: { onSignOut: () => void }) {
-  const [tab, setTab] = useState<Tab>("report");
+  const [tab, setTab] = useState<Tab | null>(null);
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [severity, setSeverity] = useState<Severity>("medium");
   const [description, setDescription] = useState("");
@@ -165,20 +173,66 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
         </div>
       </header>
 
-      <nav className="flex gap-1 px-4 py-2 border-b border-white/10 bg-white/[0.02] backdrop-blur-xl overflow-x-auto">
-        {TABS.map((t) => (
+      {tab !== null && (
+        <div className="flex items-center gap-3 px-6 py-2.5 border-b border-white/10 bg-white/[0.02] backdrop-blur-xl">
           <button
-            key={t.id}
-            onClick={() => setTab(t.id)}
-            className="px-3 py-1.5 rounded text-sm font-medium whitespace-nowrap cursor-pointer"
-            style={tab === t.id ? { background: "var(--accent)", color: "var(--accent-contrast)" } : { color: "var(--text-muted)" }}
+            onClick={() => setTab(null)}
+            className="font-mono text-xs text-text-muted hover:text-text cursor-pointer flex items-center gap-1.5"
           >
-            {t.label}
+            ← Menu
           </button>
-        ))}
-      </nav>
+          <span className="text-border">|</span>
+          <span className="text-sm font-semibold">{TAB_LABEL[tab]}</span>
+        </div>
+      )}
 
       <main className="flex-1 overflow-y-auto p-5 max-w-2xl w-full mx-auto">
+        {tab === null && (
+          <div className="flex flex-col gap-4">
+            <button
+              onClick={() => submitReport("critical", "SOS — immediate emergency assistance needed")}
+              disabled={submitting || !location}
+              className="w-full py-5 rounded-2xl text-lg font-bold uppercase tracking-wide disabled:opacity-50 cursor-pointer"
+              style={{ background: "var(--critical)", color: "#fff" }}
+            >
+              🆘 SOS — Send Emergency Alert Now
+            </button>
+            <p className="text-xs text-text-muted text-center -mt-2">
+              Instantly files a critical report at your current location.
+            </p>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5 mt-2">
+              {MENU.map((m) => (
+                <button
+                  key={m.id}
+                  onClick={() => setTab(m.id)}
+                  className="relative flex flex-col items-start gap-2 p-4 rounded-2xl bg-white/[0.04] backdrop-blur-md border border-white/10 hover:border-accent hover:bg-white/[0.07] transition-colors text-left cursor-pointer min-h-[128px]"
+                >
+                  <span className="text-2xl">{m.icon}</span>
+                  <span className="text-sm font-semibold leading-tight">{m.label}</span>
+                  <span className="text-xs text-text-muted leading-snug">{m.description}</span>
+                  {m.id === "alerts" && nearbyAlerts.length > 0 && (
+                    <span
+                      className="absolute top-3 right-3 font-mono text-[0.65rem] font-bold px-1.5 py-0.5 rounded-full"
+                      style={{ background: "var(--high)", color: "#fff" }}
+                    >
+                      {nearbyAlerts.length}
+                    </span>
+                  )}
+                  {m.id === "mine" && myReports.length > 0 && (
+                    <span
+                      className="absolute top-3 right-3 font-mono text-[0.65rem] font-bold px-1.5 py-0.5 rounded-full"
+                      style={{ background: "var(--assigned)", color: "#fff" }}
+                    >
+                      {myReports.length}
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {tab === "report" && (
           <div className="flex flex-col gap-4">
             <button
