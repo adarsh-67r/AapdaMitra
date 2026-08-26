@@ -1,6 +1,7 @@
 import GlowBackground from "./GlowBackground";
 import HomepageNav from "./HomepageNav";
 import Hero from "./Hero";
+import TheProblem from "./TheProblem";
 import HowItWorks from "./HowItWorks";
 import FeatureHighlights from "./FeatureHighlights";
 import EmergencyNumbers from "./EmergencyNumbers";
@@ -13,6 +14,7 @@ export default function Homepage() {
       <GlowBackground />
       <HomepageNav />
       <Hero />
+      <TheProblem />
       <HowItWorks />
       <FeatureHighlights />
       <EmergencyNumbers />

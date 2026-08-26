@@ -11,7 +11,7 @@ const FEATURES = [
 
 export default function FeatureHighlights() {
   return (
-    <div className="relative z-10 px-6 md:px-10 py-14">
+    <div id="features" className="relative z-10 px-6 md:px-10 py-14 scroll-mt-20">
       <motion.h3
         initial={{ opacity: 0, y: 14, filter: "blur(8px)" }}
         whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
