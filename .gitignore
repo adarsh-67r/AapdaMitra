@@ -28,6 +28,7 @@ docs/superpowers/
 
 # Locally-installed third-party agent skills — machine-local tooling.
 .agents/
+.codex/
 skills-lock.json
 
 # Personal hackathon submission materials — not part of the shipped app.
