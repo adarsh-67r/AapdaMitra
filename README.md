@@ -11,12 +11,12 @@ When disaster strikes, the gap that costs lives isn't a lack of information — 
 
 ## What it does
 
-- **Live alert ingestion** — continuously pulls and de-duplicates disaster alerts from the SACHET early-warning feed, geocoded and ready to plot.
-- **Citizen reporting** — anyone can report an incident in seconds: photo, GPS location, description — no login friction, no app-store-only gatekeeping.
-- **One map, both layers** — authorities see citizen reports and available resources (ambulances, shelters, rescue teams) on the same live map, refreshed continuously.
-- **Nearest-available dispatch** — a haversine-distance allocator picks the closest available resource to a report and dispatches it in one action, not a spreadsheet lookup.
-- **Broadcast advisories** — authorities can push a public advisory that shows up instantly across every connected citizen client.
-- **Shelter & resource visibility** — citizens can see nearby shelters and live alerts without needing to know who to call.
+- **Live alert ingestion** — continuously pulls and de-duplicates disaster alerts from **SACHET**, NDMA's official multi-agency CAP feed. That single feed carries **IMD** regional weather/cyclone warnings, **Central Water Commission** flood alerts, and alerts from 15+ **state SDMAs** — each one tagged in the UI with the agency that issued it.
+- **Citizen reporting** — report an incident in seconds: photo, GPS location, severity, description. One SOS button files a critical report instantly.
+- **One map, both layers** — authorities see citizen reports and available resources (ambulances, shelters, rescue teams) on the same live map, with a report-density heatmap over the top.
+- **Nearest-available dispatch** — a haversine-distance allocator picks the closest available resource and dispatches it in one click, guarded against two operators double-booking the same unit.
+- **Broadcast advisories** — authorities push a public advisory that appears across every connected citizen client.
+- **Public live map** — a no-login map of India showing every active alert and resource, for anyone to check.
 
 Built to work under real disaster-response conditions: fast to load, resilient to flaky connections, and legible at a glance — the dashboard is designed to be read in seconds by someone coordinating a response, not studied like a report.
 
@@ -27,7 +27,7 @@ A from-scratch backend (no vendor auth/API lock-in) behind two purpose-built fro
 ```
 apps/
   backend/       FastAPI service — auth, alerts, reports, resources, allocation
-  dashboard/     Next.js authority dashboard (live map, allocator, resource & broadcast tools)
+  web/           Next.js app — public homepage, live map, authority console, citizen view
   citizen-app/   Expo/React Native citizen app (report incidents, view alerts/shelters)
 supabase/
   migrations/    Schema + security migrations for the PostgreSQL database
@@ -58,7 +58,7 @@ Run the test suite with `pytest` — the allocator, alert-parsing, and auth-core
 
 Core routes: `/auth/signup`, `/auth/login`, `/auth/request-password-reset`, `/auth/reset-password`, `/alerts`, `/reports`, `/resources`, `/allocate`, `/internal/ingest-alerts`.
 
-### Dashboard (authority)
+### Web (homepage + authority console + citizen view)
 
 ```bash
 cd apps/web
@@ -67,6 +67,8 @@ npm run dev
 ```
 
 Set `NEXT_PUBLIC_API_URL` to your running backend (see `.env.local.example`).
+
+Routes: `/` (homepage, or the console/citizen view once signed in), `/map` (public live map, no login).
 
 ### Citizen app
 

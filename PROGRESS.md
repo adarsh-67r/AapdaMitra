@@ -1,33 +1,54 @@
 # Progress
 
-Status snapshot for AapdaMitra (PS-05). Last updated 2026-08-25.
+Status snapshot for AapdaMitra (PS-05). Last updated 2026-08-27.
 
-## Done
+## Shipped
 
-- **Backend**: FastAPI service — auth (signup/login/password reset), alerts (SACHET ingestion + broadcast), citizen reports with photo upload, resource management, nearest-available allocation.
-- **Dashboard**: authority web app — live map (reports + resources), inspector/allocation panel, resource management, broadcast advisories, embedded citizen view. Fully migrated off Supabase Auth/Realtime onto the FastAPI backend, polling-based.
-- **Citizen app**: Expo app — submit reports with photo + location, browse alerts and shelters, track own reports. Fully migrated onto the FastAPI backend.
-- **Alert ingestion cron**: scheduled job hitting the backend every 10 minutes to keep alerts fresh and the free-tier instance warm.
-- **Database lockdown**: Supabase's own REST API no longer has direct read/write access to app tables — all access goes through the backend.
+**Backend** — FastAPI service, deployed and running
+- Email + password auth (bcrypt, JWT), password reset
+- SACHET (NDMA) alert ingestion on a 10-minute cron — deduplicated, geocoded, and tagged with the
+  **issuing agency** (IMD regional centres, Central Water Commission, state SDMAs)
+- Citizen reports with photo upload, ownership-checked
+- Resource registry with capacity/status
+- **Nearest-available allocator** (haversine), guarded against concurrent double-dispatch
+- Authority broadcast advisories
+
+**Web app** (`apps/web`)
+- Public homepage — glassmorphic design, Framer Motion scroll animations, India hazard-context stats
+- `/map` — public live map of India (alerts + resources), no login required
+- Authority console — map-first layout, slide-over reports queue and inspector, live heatmap,
+  resource management, broadcast tool
+- Citizen view — option-grid menu (report / alerts / shelters / my reports / emergency contacts),
+  SOS button, photo attach, location permission on load
+
+**Citizen app** (`apps/citizen-app`) — Expo/React Native
+- Report submission with photo + GPS, alerts, shelters, own-report tracking
+- Fully migrated onto the FastAPI backend
+
+**Security & infrastructure**
+- Supabase's own REST API has no direct access to app tables — everything goes through our backend
+- Full pre-release code review completed; all Critical and Important findings fixed and verified
 
 ## In progress
 
-Working through the findings from a full pre-release review of the backend rewrite:
-
-- Fixing a data-exposure gap left over from disabling row-level security (tightening database grants — code is done, verifying against the live deployment).
-- Fixing a bug where photo uploads silently fail on the citizen app's native build (worked in the browser preview, not on a real phone).
-- Ownership checks on the photo-upload endpoint, a double-booking race in the allocator under concurrent requests, resources not returning to the available pool after a report is reopened, and expired-login handling across both apps.
+- **Citizen app redesign** — the web citizen view got the new glass design system and the option-grid
+  menu; the Expo app has not yet. Since the citizen interface is meant to ship on both, the native app
+  needs the same treatment.
 
 ## Known gaps / not yet started
 
-- No self-serve "forgot password" screen in either frontend yet — the backend supports it, the UI doesn't.
-- Authority signup is currently open to anyone who picks that role at signup — fine for a demo/judged environment, needs an invite gate before any wider release.
-- No automated tests for the shared auth-state logic in the frontends (backend's allocator/parsing/auth-core logic is unit-tested).
-- Homepage / public-facing landing page redesign — deferred until the backend migration and review fixes above are fully closed out.
+- **SMS/IVR fallback** for no-internet zones — an expected outcome of PS-05. Currently a *simulated*
+  channel panel in the dashboard (clearly labelled); real telephony integration is the next build phase.
+- **Authority access is unguarded** — demo accounts are embedded client-side for the hackathon demo, and
+  role selection at signup is open. Needs an invite gate before any use beyond a judged demo.
+- No self-serve "forgot password" screen — the backend supports it, no UI yet.
+- No automated tests for frontend auth state (backend allocator/parsing/auth-core are unit-tested).
+- `npm run lint` in `apps/web` is currently broken — `typescript-eslint` does not yet support the
+  installed TypeScript 7. Pre-existing, unrelated to app code.
 
 ## Stack
 
-- Backend: Python, FastAPI, Postgres (hosted on Supabase, accessed directly — not through Supabase's client libraries)
-- Dashboard: Next.js, React, Leaflet
+- Backend: Python, FastAPI, PostgreSQL (Supabase-hosted, accessed directly — not via Supabase client libraries)
+- Web: Next.js, React, Leaflet + leaflet.heat, Framer Motion, Tailwind
 - Citizen app: Expo, React Native
 - Deployment: Render (backend), external cron for alert ingestion
