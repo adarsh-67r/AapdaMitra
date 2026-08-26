@@ -2,7 +2,7 @@
 
 import CitizenWebView from "@/components/CitizenWebView";
 import DashboardShell from "@/components/DashboardShell";
-import LoginScreen from "@/components/LoginScreen";
+import Homepage from "@/components/homepage/Homepage";
 import { useAuth } from "@/lib/use-auth";
 
 export default function Home() {
@@ -17,7 +17,7 @@ export default function Home() {
   }
 
   if (status === "signed-out") {
-    return <LoginScreen />;
+    return <Homepage />;
   }
 
   if (status === "citizen") {
