@@ -88,6 +88,14 @@ export default function ReportsQueue({ reports, selectedReportId, onSelectReport
                     {r.status}
                   </span>
                 </div>
+                {r.cluster_size > 1 && (
+                  <span
+                    className="font-mono text-[0.65rem] font-bold self-start px-2 py-0.5 rounded-full"
+                    style={{ background: "var(--critical)", color: "#fff" }}
+                  >
+                    ⚠ CLUSTER · {r.cluster_size} REPORTS NEARBY
+                  </span>
+                )}
                 {r.description && (
                   <p className="text-sm leading-snug line-clamp-2">{r.description}</p>
                 )}

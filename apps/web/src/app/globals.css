@@ -82,6 +82,38 @@ body {
   background: var(--panel-alt);
 }
 
+/* An active dispatch draws as a marching-ants line from the assigned resource to
+   the report, so movement (not just a connection) is visible on the map. */
+.dispatch-line {
+  animation: dispatch-march 1s linear infinite;
+}
+@keyframes dispatch-march {
+  to {
+    stroke-dashoffset: -16;
+  }
+}
+
+/* Reports that clustered into one developing incident get a slowly rotating halo. */
+.cluster-halo {
+  animation: cluster-pulse 2.5s ease-in-out infinite;
+  transform-origin: center;
+}
+@keyframes cluster-pulse {
+  0%, 100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dispatch-line,
+  .cluster-halo {
+    animation: none;
+  }
+}
+
 /* leaflet.css itself sets `mix-blend-mode: plus-lighter` on tile images (a
    retina-tile rendering optimization). On some browser/GPU combinations this
    composites as solid black instead of blending normally — tiles download

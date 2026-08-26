@@ -78,6 +78,21 @@ export default function InspectorPanel({
           <span className="font-mono text-xs font-semibold text-text-muted uppercase">{report.status}</span>
         </div>
 
+        {report.cluster_size > 1 && (
+          <div
+            className="rounded-md p-3 text-sm border"
+            style={{ background: "var(--panel-alt)", borderColor: "var(--critical)" }}
+          >
+            <div className="font-semibold" style={{ color: "var(--critical)" }}>
+              ⚠ Escalated — incident cluster
+            </div>
+            <div className="text-text-muted mt-1 text-xs leading-relaxed">
+              {report.cluster_size} reports filed within 2 km in the last 30 minutes. Likely one developing
+              incident, not isolated calls.
+            </div>
+          </div>
+        )}
+
         {report.description && (
           <p className="text-sm bg-panel-alt p-3 rounded-md leading-relaxed">{report.description}</p>
         )}
@@ -96,6 +111,7 @@ export default function InspectorPanel({
                 <div className="text-sm font-semibold">{nearest.name}</div>
                 <div className="font-mono text-xs text-text-muted mt-0.5">
                   {nearest.type.replace("_", " ")} · {nearestDistance} km
+                  {nearest.capacity ? ` · capacity ${nearest.capacity}` : ""}
                 </div>
               </div>
             ) : (

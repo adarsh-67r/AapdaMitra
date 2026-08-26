@@ -142,7 +142,8 @@ export default function DashboardMapClient({
     for (const r of resources) {
       L.marker([r.lat, r.lng], { icon: resourceIcon(r) })
         .bindPopup(
-          `<b>${r.name}</b><div>${r.type.replace("_", " ")} — ${r.status}</div><div>capacity: ${r.capacity}</div>`
+          `<b>${r.name}</b><div>${r.type.replace("_", " ")} — ${r.status}</div>` +
+            (r.capacity ? `<div>capacity: ${r.capacity}</div>` : "")
         )
         .addTo(group);
     }
@@ -151,14 +152,30 @@ export default function DashboardMapClient({
       if (rep.status === "assigned" && rep.assigned_resource_id) {
         const resource = resourceById.get(rep.assigned_resource_id);
         if (resource) {
+          // Marching-ants dash (animated in globals.css) so an active dispatch
+          // reads as movement toward the report, not a static connector.
           L.polyline(
             [
               [rep.lat, rep.lng],
               [resource.lat, resource.lng],
             ],
-            { color: "#208AEF", weight: 2, dashArray: "6 6" }
+            { color: "#208AEF", weight: 2.5, dashArray: "8 8", className: "dispatch-line" }
           ).addTo(group);
         }
+      }
+
+      // A report that is part of a multi-report cluster gets a halo, so a
+      // developing incident is visible on the map at a glance.
+      if (rep.cluster_size > 1 && rep.status !== "resolved") {
+        L.circleMarker([rep.lat, rep.lng], {
+          radius: 20,
+          color: REPORT_COLOR.critical,
+          weight: 2,
+          opacity: 0.7,
+          fill: false,
+          dashArray: "4 4",
+          className: "cluster-halo",
+        }).addTo(group);
       }
 
       const isSelected = rep.id === selectedReportId;

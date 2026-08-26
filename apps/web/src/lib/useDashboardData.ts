@@ -32,6 +32,8 @@ export interface Report {
   status: "open" | "assigned" | "resolved";
   assigned_resource_id: string | null;
   created_at: string;
+  cluster_id: string | null;
+  cluster_size: number;
 }
 
 const POLL_INTERVAL_MS = 12000;

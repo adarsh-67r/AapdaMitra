@@ -75,7 +75,7 @@ def ingest_alerts(
                 a["severity_level"], a["warning_message"], "sachet_ndma",
                 # The agency that actually issued the alert (IMD regional centres,
                 # CWC, state SDMAs). `source` stays the ingestion channel.
-                a.get("alert_source"), geo["lat"], geo["lng"],
+                a.get("alert_source"), a.get("actual_lang"), geo["lat"], geo["lng"],
                 parse_sachet_time(a["effective_start_time"]), parse_sachet_time(a["effective_end_time"]),
             ))
         except (KeyError, TypeError):
@@ -86,9 +86,9 @@ def ingest_alerts(
         with conn.cursor() as cur:
             cur.executemany(
                 """insert into alerts (external_id, disaster_type, area_description, severity_color,
-                                        severity_level, warning_message, source, issuing_agency, lat, lng,
-                                        effective_start, effective_end, fetched_at)
-                   values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, now())
+                                        severity_level, warning_message, source, issuing_agency, language,
+                                        lat, lng, effective_start, effective_end, fetched_at)
+                   values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, now())
                    on conflict (external_id) do update set
                      disaster_type = excluded.disaster_type,
                      area_description = excluded.area_description,
@@ -96,6 +96,7 @@ def ingest_alerts(
                      severity_level = excluded.severity_level,
                      warning_message = excluded.warning_message,
                      issuing_agency = excluded.issuing_agency,
+                     language = excluded.language,
                      lat = excluded.lat,
                      lng = excluded.lng,
                      effective_start = excluded.effective_start,

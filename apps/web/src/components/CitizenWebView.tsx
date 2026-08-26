@@ -44,9 +44,23 @@ interface AlertRow {
   severity_color: "green" | "yellow" | "orange" | "red";
   warning_message: string | null;
   issuing_agency: string | null;
+  language: string | null;
   lat: number;
   lng: number;
 }
+
+const LANGUAGE_LABEL: Record<string, string> = {
+  en: "English",
+  hi: "हिन्दी",
+  ml: "മലയാളം",
+  te: "తెలుగు",
+  or: "ଓଡ଼ିଆ",
+  ta: "தமிழ்",
+  bn: "বাংলা",
+  mr: "मराठी",
+  gu: "ગુજરાતી",
+  kn: "ಕನ್ನಡ",
+};
 
 interface ResourceRow {
   id: string;
@@ -54,6 +68,7 @@ interface ResourceRow {
   name: string;
   lat: number;
   lng: number;
+  capacity: number | null;
   status: "available" | "full" | "dispatched";
 }
 
@@ -137,7 +152,9 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
         lng: r.lng,
         color: r.status === "available" ? "#2E9E4A" : r.status === "full" ? "#D64545" : "#E08A00",
         title: r.name,
-        description: `${r.type.replace("_", " ")} — ${r.status}`,
+        description: `${r.type.replace("_", " ")} — ${r.status}${
+          r.capacity ? ` · capacity ${r.capacity}` : ""
+        }`,
       })),
     [resources]
   );
@@ -355,11 +372,18 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
                       <span className="w-2 h-2 rounded-full" style={{ background: SEVERITY_COLOR[a.severity_color] }} />
                       <span className="text-sm font-semibold">{a.disaster_type}</span>
                     </div>
-                    {a.issuing_agency && (
-                      <span className="font-mono text-[0.65rem] px-2 py-0.5 rounded-full bg-white/[0.06] border border-white/10 text-text-muted whitespace-nowrap">
-                        {a.issuing_agency}
-                      </span>
-                    )}
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      {a.language && a.language !== "en" && (
+                        <span className="text-[0.65rem] px-2 py-0.5 rounded-full bg-accent/15 border border-accent/30 text-accent whitespace-nowrap">
+                          {LANGUAGE_LABEL[a.language] ?? a.language.toUpperCase()}
+                        </span>
+                      )}
+                      {a.issuing_agency && (
+                        <span className="font-mono text-[0.65rem] px-2 py-0.5 rounded-full bg-white/[0.06] border border-white/10 text-text-muted whitespace-nowrap">
+                          {a.issuing_agency}
+                        </span>
+                      )}
+                    </div>
                   </div>
                   {a.area_description && <span className="text-xs text-text-muted">{a.area_description}</span>}
                   {a.warning_message && <p className="text-sm">{a.warning_message}</p>}
