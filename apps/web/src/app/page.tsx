@@ -10,7 +10,7 @@ export default function Home() {
 
   if (status === "loading") {
     return (
-      <div className="flex items-center justify-center h-screen bg-bg text-text-muted text-sm">
+      <div className="flex items-center justify-center h-[100dvh] bg-bg text-text-muted text-sm">
         Loading…
       </div>
     );

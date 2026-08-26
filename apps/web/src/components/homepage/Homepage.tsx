@@ -11,7 +11,7 @@ import Footer from "./Footer";
 
 export default function Homepage() {
   return (
-    <div className="relative min-h-screen bg-bg text-text overflow-hidden">
+    <div className="relative min-h-[100dvh] bg-bg text-text overflow-hidden">
       <GlowBackground />
       <HomepageNav />
       <Hero />

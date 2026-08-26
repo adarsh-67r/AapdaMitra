@@ -1,6 +1,7 @@
 "use client";
 
 import { MotionConfig } from "framer-motion";
+import { ToastProvider } from "@/components/Toast";
 
 /**
  * Framer Motion does not honour the OS "reduce motion" setting on its own — it
@@ -14,5 +15,9 @@ import { MotionConfig } from "framer-motion";
  * bother a motion-sensitive user.
  */
 export default function MotionProvider({ children }: { children: React.ReactNode }) {
-  return <MotionConfig reducedMotion="user">{children}</MotionConfig>;
+  return (
+    <MotionConfig reducedMotion="user">
+      <ToastProvider>{children}</ToastProvider>
+    </MotionConfig>
+  );
 }

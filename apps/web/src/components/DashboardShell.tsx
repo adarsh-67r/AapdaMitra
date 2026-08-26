@@ -34,7 +34,7 @@ export default function DashboardShell({ onSignOut }: { onSignOut: () => void })
   }, [autoAllocate, allocating, reports, allocate]);
 
   return (
-    <div className="flex flex-col h-screen bg-bg text-text">
+    <div className="flex flex-col h-[100dvh] bg-bg text-text">
       <header className="flex items-center justify-between px-7 py-4 border-b border-white/10 bg-white/[0.03] backdrop-blur-xl">
         <div className="flex items-center gap-3.5">
           <div className="w-8 h-8 border border-accent rounded-md flex items-center justify-center">

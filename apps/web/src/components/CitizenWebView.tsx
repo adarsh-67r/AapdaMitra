@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import CitizenMap from "@/components/CitizenMap";
 import ThemeToggle from "@/components/ThemeToggle";
 import { apiFetch, apiFetchJson } from "@/lib/api-client";
+import { useToast } from "@/components/Toast";
 import { haversineKm } from "@/lib/geo-client";
 import type { MapPin } from "@/components/CitizenMapClient";
 import {
@@ -98,6 +99,7 @@ const SEVERITY_COLOR: Record<AlertRow["severity_color"], string> = {
 const POLL_INTERVAL_MS = 12000;
 
 export default function CitizenWebView({ onSignOut }: { onSignOut: () => void }) {
+  const toast = useToast();
   const [tab, setTab] = useState<Tab | null>(null);
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [severity, setSeverity] = useState<Severity>("medium");
@@ -172,7 +174,7 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
 
   async function submitReport(overrideSeverity?: Severity, overrideDescription?: string) {
     if (!location) {
-      alert("Location not available yet — allow location access and try again.");
+      toast("error", "Location not available yet — allow location access and try again.");
       return;
     }
     setSubmitting(true);
@@ -200,17 +202,17 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
       setDescription("");
       setSeverity("medium");
       clearPhoto();
-      alert("Report submitted. Authorities have been notified.");
+      toast("success", "Report submitted. Authorities have been notified.");
       loadAll();
     } catch (e) {
-      alert(`Submission failed: ${e instanceof Error ? e.message : "unknown error"}`);
+      toast("error", `Submission failed: ${e instanceof Error ? e.message : "unknown error"}`);
     } finally {
       setSubmitting(false);
     }
   }
 
   return (
-    <div className="flex flex-col h-screen bg-bg text-text">
+    <div className="flex flex-col h-[100dvh] bg-bg text-text">
       <header className="flex items-center justify-between px-6 py-3.5 border-b border-white/10 bg-white/[0.03] backdrop-blur-xl">
         <div className="flex items-center gap-3">
           <div className="w-7 h-7 border border-accent rounded-md flex items-center justify-center">

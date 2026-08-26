@@ -127,7 +127,7 @@ export default function MapPage() {
   ];
 
   return (
-    <div className="flex flex-col h-screen bg-bg text-text">
+    <div className="flex flex-col h-[100dvh] bg-bg text-text">
       <header className="flex items-center justify-between px-6 py-3.5 border-b border-border">
         <Link href="/" className="text-base font-bold tracking-tight">
           AapdaMitra
