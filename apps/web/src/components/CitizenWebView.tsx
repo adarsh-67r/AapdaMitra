@@ -323,7 +323,7 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
                   <button
                     key={s}
                     onClick={() => setSeverity(s)}
-                    className="px-3 py-1.5 rounded-full text-xs font-semibold uppercase cursor-pointer border"
+                    className="px-3 py-1.5 rounded-full text-xs font-semibold uppercase cursor-pointer border transition-transform duration-[120ms] ease-out active:scale-[0.96]"
                     style={
                       severity === s
                         ? { background: "var(--accent)", color: "var(--accent-contrast)", borderColor: "var(--accent)" }

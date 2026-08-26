@@ -35,7 +35,7 @@ export default function ReportsQueue({ reports, selectedReportId, onSelectReport
   const filtered = filter === "all" ? reports : reports.filter((r) => r.status === filter);
 
   return (
-    <section className="flex flex-col h-full bg-panel border border-border rounded-2xl shadow-[0_20px_50px_-20px_rgba(0,0,0,0.6)] overflow-hidden">
+    <section className="flex flex-col h-full bg-panel/85 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-[0_32px_80px_-24px_rgba(0,0,0,0.85)] overflow-hidden">
       <div className="px-4 py-3.5 border-b border-border flex items-center justify-between">
         <span className="text-base font-semibold">Report Queue</span>
         <span className="font-mono text-xs text-text-muted">{String(filtered.length).padStart(3, "0")}</span>
@@ -46,7 +46,7 @@ export default function ReportsQueue({ reports, selectedReportId, onSelectReport
           <button
             key={f.id}
             onClick={() => setFilter(f.id)}
-            className="font-mono text-xs pb-2 cursor-pointer"
+            className="font-mono text-xs pb-2 cursor-pointer transition-transform duration-[120ms] ease-out active:scale-[0.96]"
             style={{
               color: filter === f.id ? "var(--text)" : "var(--text-muted)",
               fontWeight: filter === f.id ? 600 : 400,
@@ -57,9 +57,9 @@ export default function ReportsQueue({ reports, selectedReportId, onSelectReport
         ))}
       </div>
 
-      <div className="flex-1 overflow-y-auto flex flex-col gap-px bg-border">
+      <div className="flex-1 overflow-y-auto flex flex-col gap-px bg-white/[0.06]">
         {filtered.length === 0 ? (
-          <div className="text-center text-sm text-text-muted py-10 bg-panel">No reports.</div>
+          <div className="text-center text-sm text-text-muted py-10">No reports.</div>
         ) : (
           filtered.map((r) => {
             const severityColor = SEVERITY_COLOR[r.severity];
@@ -68,7 +68,7 @@ export default function ReportsQueue({ reports, selectedReportId, onSelectReport
               <button
                 key={r.id}
                 onClick={() => onSelectReport(r.id)}
-                className="text-left bg-panel px-4 py-3 flex flex-col gap-2 cursor-pointer"
+                className="text-left bg-panel/80 px-4 py-3 flex flex-col gap-2 cursor-pointer transition-colors duration-[120ms] hover:bg-panel active:bg-panel"
                 style={{
                   borderLeft: `3px dashed ${severityColor}`,
                   opacity: r.status === "resolved" ? 0.6 : 1,

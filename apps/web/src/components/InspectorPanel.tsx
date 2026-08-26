@@ -37,7 +37,7 @@ export default function InspectorPanel({
 
   if (!report) {
     return (
-      <section className="flex flex-col h-full bg-panel border border-border rounded-2xl shadow-[0_20px_50px_-20px_rgba(0,0,0,0.6)] items-center justify-center px-4">
+      <section className="flex flex-col h-full bg-panel/85 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-[0_32px_80px_-24px_rgba(0,0,0,0.85)] items-center justify-center px-4">
         <p className="text-sm text-text-muted text-center">
           Select a report from the queue or map to inspect it.
         </p>
@@ -55,7 +55,7 @@ export default function InspectorPanel({
   const availableResources = resources.filter((r) => r.status === "available" || r.id === report.assigned_resource_id);
 
   return (
-    <section className="flex flex-col h-full bg-panel border border-border rounded-2xl shadow-[0_20px_50px_-20px_rgba(0,0,0,0.6)] overflow-y-auto">
+    <section className="flex flex-col h-full bg-panel/85 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-[0_32px_80px_-24px_rgba(0,0,0,0.85)] overflow-y-auto">
       <div className="px-4 py-3.5 border-b border-border flex items-center justify-between">
         <span className="text-base font-semibold">Inspector</span>
         {onClose && (

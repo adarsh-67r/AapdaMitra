@@ -57,7 +57,7 @@ export default function DashboardShell({ onSignOut }: { onSignOut: () => void })
           <div className="flex items-center gap-1 p-1 rounded-full bg-white/[0.04] border border-white/10">
             <button
               onClick={() => setShowQueue((v) => !v)}
-              className="font-mono text-xs px-3 py-1.5 rounded-full cursor-pointer transition-colors"
+              className="font-mono text-xs px-3 py-1.5 rounded-full cursor-pointer transition-[colors,transform] duration-[120ms] ease-out active:scale-[0.98]"
               style={
                 showQueue
                   ? { background: "var(--accent)", color: "var(--accent-contrast)" }
@@ -68,13 +68,13 @@ export default function DashboardShell({ onSignOut }: { onSignOut: () => void })
             </button>
             <button
               onClick={() => setShowResources(true)}
-              className="font-mono text-xs px-3 py-1.5 rounded-full text-text-muted hover:text-text cursor-pointer transition-colors"
+              className="font-mono text-xs px-3 py-1.5 rounded-full text-text-muted hover:text-text cursor-pointer transition-[colors,transform] duration-[120ms] ease-out active:scale-[0.98]"
             >
               Resources
             </button>
             <button
               onClick={() => setShowBroadcast(true)}
-              className="font-mono text-xs px-3 py-1.5 rounded-full text-text-muted hover:text-text cursor-pointer transition-colors"
+              className="font-mono text-xs px-3 py-1.5 rounded-full text-text-muted hover:text-text cursor-pointer transition-[colors,transform] duration-[120ms] ease-out active:scale-[0.98]"
             >
               Broadcast
             </button>

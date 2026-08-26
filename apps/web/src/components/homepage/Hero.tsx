@@ -35,7 +35,7 @@ export default function Hero() {
 
   return (
     <motion.div
-      className="relative z-10 grid grid-cols-1 lg:grid-cols-[1.15fr_1fr] gap-10 lg:gap-16 px-6 md:px-10 pt-10 pb-16 md:pt-16 md:pb-24 items-center min-h-[86dvh]"
+      className="relative z-10 grid grid-cols-1 lg:grid-cols-[1.15fr_1fr] gap-10 lg:gap-16 px-6 md:px-10 pt-10 pb-16 md:pt-16 md:pb-24 items-center min-h-[86dvh] overflow-x-clip"
       initial="hidden"
       animate="show"
       variants={{ show: { transition: { staggerChildren: 0.1, delayChildren: 0.15 } } }}
@@ -78,7 +78,7 @@ export default function Hero() {
       <motion.div
         variants={fadeUp}
         transition={heroTransition}
-        className="lg:scale-[1.12] lg:origin-left xl:-mr-10"
+        className="min-w-0"
       >
         <LiveMapPreview />
       </motion.div>
