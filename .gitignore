@@ -34,3 +34,5 @@ skills-lock.json
 # Personal hackathon submission materials — not part of the shipped app.
 presentation/
 DEPLOY.md
+PRODUCT.md
+.impeccable/
