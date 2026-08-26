@@ -6,8 +6,8 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 /**
  * The hero's map doesn't decorate — it performs the product's core loop on
  * repeat: a report lands, the nearest available resource is matched, a dispatch
- * line draws between them, and the pair resolves. Anyone who watches the hero
- * for eight seconds has seen what the allocator does.
+ * line draws between them, and the pair resolves. One cycle runs in a few
+ * seconds, so a visitor sees what the allocator does without waiting for it.
  */
 
 // Static context markers — the standing picture the loop plays out on top of.
@@ -50,12 +50,12 @@ export default function LiveMapPreview() {
   useEffect(() => {
     if (reduceMotion) return;
     const timers = [
-      setTimeout(() => setPhase("matched"), 1400),
-      setTimeout(() => setPhase("dispatched"), 2800),
+      setTimeout(() => setPhase("matched"), 900),
+      setTimeout(() => setPhase("dispatched"), 1800),
       setTimeout(() => {
         setScene((s) => (s + 1) % SCENES.length);
         setPhase("reported");
-      }, 5200),
+      }, 3400),
     ];
     return () => timers.forEach(clearTimeout);
   }, [scene, reduceMotion]);
@@ -130,7 +130,7 @@ export default function LiveMapPreview() {
                   initial={{ pathLength: 0, opacity: 0 }}
                   animate={{ pathLength: 1, opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  transition={{ duration: 0.7, ease: [0.23, 1, 0.32, 1] }}
+                  transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
                 />
               )}
             </AnimatePresence>
@@ -152,7 +152,7 @@ export default function LiveMapPreview() {
                   className="absolute -inset-2.5 rounded-full border"
                   style={{ borderColor: "var(--medium)" }}
                   animate={{ scale: [0.6, 2.4], opacity: [0.7, 0] }}
-                  transition={{ duration: 1.8, repeat: Infinity, ease: "easeOut" }}
+                  transition={{ duration: 1.4, repeat: Infinity, ease: "easeOut" }}
                 />
               )}
               <span
