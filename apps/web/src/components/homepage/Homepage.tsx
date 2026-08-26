@@ -1,4 +1,5 @@
 import GlowBackground from "./GlowBackground";
+import ScrollProgress from "./ScrollProgress";
 import HomepageNav from "./HomepageNav";
 import Hero from "./Hero";
 import TheProblem from "./TheProblem";
@@ -12,6 +13,7 @@ import Footer from "./Footer";
 export default function Homepage() {
   return (
     <div className="relative min-h-[100dvh] bg-bg text-text overflow-hidden">
+      <ScrollProgress />
       <GlowBackground />
       <HomepageNav />
       <Hero />

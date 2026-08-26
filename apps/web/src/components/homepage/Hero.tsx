@@ -3,7 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { useRef } from "react";
+import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import LiveMapPreview from "./LiveMapPreview";
 import { useAuth } from "@/lib/use-auth";
 import { EASE_OUT } from "@/lib/motion";
@@ -19,6 +20,15 @@ const fadeUp = {
 const heroTransition = { duration: 0.7, ease: EASE_OUT } as const;
 
 export default function Hero() {
+  const heroRef = useRef<HTMLDivElement>(null);
+  const reduceMotion = useReducedMotion();
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
+  // The panel travels less than the copy, so the two layers separate in depth
+  // as the hero scrolls away.
+  const panelY = useTransform(scrollYProgress, [0, 1], [0, reduceMotion ? 0 : -70]);
+  const copyY = useTransform(scrollYProgress, [0, 1], [0, reduceMotion ? 0 : 40]);
+  const copyOpacity = useTransform(scrollYProgress, [0, 0.8], [1, reduceMotion ? 1 : 0.25]);
+
   const { login } = useAuth();
   const router = useRouter();
   const [entering, setEntering] = useState(false);
@@ -35,12 +45,13 @@ export default function Hero() {
 
   return (
     <motion.div
+      ref={heroRef}
       className="relative z-10 grid grid-cols-1 lg:grid-cols-[1.15fr_1fr] gap-10 lg:gap-16 px-6 md:px-10 pt-10 pb-16 md:pt-16 md:pb-24 items-center min-h-[86dvh] overflow-x-clip"
       initial="hidden"
       animate="show"
       variants={{ show: { transition: { staggerChildren: 0.1, delayChildren: 0.15 } } }}
     >
-      <div>
+      <motion.div style={{ y: copyY, opacity: copyOpacity }}>
         <motion.p variants={fadeUp} transition={heroTransition} className="font-mono text-[0.7rem] tracking-[0.2em] text-accent mb-5">
           REAL-TIME DISASTER COORDINATION
         </motion.p>
@@ -73,11 +84,12 @@ export default function Hero() {
             View Live Map
           </Link>
         </motion.div>
-      </div>
+      </motion.div>
 
       <motion.div
         variants={fadeUp}
         transition={heroTransition}
+        style={{ y: panelY }}
         className="min-w-0"
       >
         <LiveMapPreview />
