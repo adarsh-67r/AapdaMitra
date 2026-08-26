@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { pickNearestAvailable, haversineKm } from "@/lib/allocator-preview";
 import type { Report, Resource } from "@/lib/useDashboardData";
+import { AlertTriangleIcon, CheckIcon, CloseIcon } from "@/components/icons";
 
 const SEVERITY_COLOR: Record<Report["severity"], string> = {
   low: "var(--text-muted)",
@@ -59,7 +60,7 @@ export default function InspectorPanel({
         <span className="text-base font-semibold">Inspector</span>
         {onClose && (
           <button onClick={onClose} className="font-mono text-xs text-text-muted hover:text-text cursor-pointer">
-            ✕
+            <CloseIcon size={16} />
           </button>
         )}
       </div>
@@ -83,8 +84,8 @@ export default function InspectorPanel({
             className="rounded-md p-3 text-sm border"
             style={{ background: "var(--panel-alt)", borderColor: "var(--critical)" }}
           >
-            <div className="font-semibold" style={{ color: "var(--critical)" }}>
-              ⚠ Escalated — incident cluster
+            <div className="font-semibold flex items-center gap-1.5" style={{ color: "var(--critical)" }}>
+              <AlertTriangleIcon size={15} /> Escalated — incident cluster
             </div>
             <div className="text-text-muted mt-1 text-xs leading-relaxed">
               {report.cluster_size} reports filed within 2 km in the last 30 minutes. Likely one developing
@@ -135,8 +136,8 @@ export default function InspectorPanel({
         )}
 
         {report.status === "resolved" && (
-          <div className="rounded-md p-3.5 text-sm border text-center" style={{ background: "var(--panel-alt)", borderColor: "var(--available)", color: "var(--available)" }}>
-            ✓ Resolved
+          <div className="rounded-md p-3.5 text-sm border flex items-center justify-center gap-1.5" style={{ background: "var(--panel-alt)", borderColor: "var(--available)", color: "var(--available)" }}>
+            <CheckIcon size={15} /> Resolved
           </div>
         )}
 

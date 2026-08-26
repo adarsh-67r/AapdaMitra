@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { Report } from "@/lib/useDashboardData";
+import { AlertTriangleIcon } from "@/components/icons";
 
 const SEVERITY_COLOR: Record<Report["severity"], string> = {
   low: "var(--text-muted)",
@@ -90,10 +91,10 @@ export default function ReportsQueue({ reports, selectedReportId, onSelectReport
                 </div>
                 {r.cluster_size > 1 && (
                   <span
-                    className="font-mono text-[0.65rem] font-bold self-start px-2 py-0.5 rounded-full"
+                    className="font-mono text-[0.65rem] font-bold self-start px-2 py-0.5 rounded-full inline-flex items-center gap-1"
                     style={{ background: "var(--critical)", color: "#fff" }}
                   >
-                    ⚠ CLUSTER · {r.cluster_size} REPORTS NEARBY
+                    <AlertTriangleIcon size={12} /> CLUSTER · {r.cluster_size} REPORTS NEARBY
                   </span>
                 )}
                 {r.description && (

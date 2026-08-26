@@ -6,15 +6,26 @@ import ThemeToggle from "@/components/ThemeToggle";
 import { apiFetch, apiFetchJson } from "@/lib/api-client";
 import { haversineKm } from "@/lib/geo-client";
 import type { MapPin } from "@/components/CitizenMapClient";
+import {
+  AlertTriangleIcon,
+  CameraIcon,
+  MapPinIcon,
+  PhoneIcon,
+  ReportsIcon,
+  ShelterIcon,
+  SosIcon,
+} from "@/components/icons";
 
 type Tab = "report" | "alerts" | "shelters" | "mine" | "emergency";
 
-const MENU: { id: Tab; label: string; icon: string; description: string }[] = [
-  { id: "report", label: "Report Incident", icon: "📍", description: "Photo, location, severity — filed in under a minute" },
-  { id: "alerts", label: "Live Alerts", icon: "⚠️", description: "Official warnings near you, updated continuously" },
-  { id: "shelters", label: "Find Shelter", icon: "🏠", description: "Nearest shelters and resources on the map" },
-  { id: "mine", label: "My Reports", icon: "🗂️", description: "Track the status of what you've reported" },
-  { id: "emergency", label: "Emergency Contacts", icon: "☎️", description: "Fire, police, ambulance, disaster helplines" },
+type IconComponent = (props: { size?: number; className?: string }) => React.ReactElement;
+
+const MENU: { id: Tab; label: string; Icon: IconComponent; description: string }[] = [
+  { id: "report", label: "Report Incident", Icon: MapPinIcon, description: "Photo, location, severity — filed in under a minute" },
+  { id: "alerts", label: "Live Alerts", Icon: AlertTriangleIcon, description: "Official warnings near you, updated continuously" },
+  { id: "shelters", label: "Find Shelter", Icon: ShelterIcon, description: "Nearest shelters and resources on the map" },
+  { id: "mine", label: "My Reports", Icon: ReportsIcon, description: "Track the status of what you've reported" },
+  { id: "emergency", label: "Emergency Contacts", Icon: PhoneIcon, description: "Fire, police, ambulance, disaster helplines" },
 ];
 
 const TAB_LABEL: Record<Tab, string> = {
@@ -236,10 +247,11 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
             <button
               onClick={() => submitReport("critical", "SOS — immediate emergency assistance needed")}
               disabled={submitting || !location}
-              className="w-full py-5 rounded-2xl text-lg font-bold uppercase tracking-wide disabled:opacity-50 cursor-pointer"
+              className="w-full py-5 rounded-2xl text-lg font-bold uppercase tracking-wide disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2.5"
               style={{ background: "var(--critical)", color: "#fff" }}
             >
-              🆘 SOS — Send Emergency Alert Now
+              <SosIcon size={22} />
+              SOS — Send Emergency Alert Now
             </button>
             <p className="text-xs text-text-muted text-center -mt-2">
               Instantly files a critical report at your current location.
@@ -252,7 +264,7 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
                   onClick={() => setTab(m.id)}
                   className="group relative flex flex-col items-start gap-2 p-5 rounded-2xl bg-white/[0.04] backdrop-blur-md border border-white/10 hover:border-accent hover:bg-white/[0.07] hover:-translate-y-0.5 active:translate-y-0 transition-[transform,border-color,background-color] duration-200 text-left cursor-pointer min-h-[142px]"
                 >
-                  <span className="text-3xl mb-0.5">{m.icon}</span>
+                  <m.Icon size={26} className="text-accent mb-1" />
                   <span className="text-base font-semibold leading-tight">{m.label}</span>
                   <span className="text-xs text-text-muted leading-snug">{m.description}</span>
                   {m.id === "alerts" && nearbyAlerts.length > 0 && (
@@ -282,10 +294,11 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
             <button
               onClick={() => submitReport("critical", "SOS — immediate emergency assistance needed")}
               disabled={submitting || !location}
-              className="w-full py-5 rounded-lg text-lg font-bold uppercase tracking-wide disabled:opacity-50 cursor-pointer"
+              className="w-full py-5 rounded-2xl text-lg font-bold uppercase tracking-wide disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2.5"
               style={{ background: "var(--critical)", color: "#fff" }}
             >
-              🆘 SOS — Send Emergency Alert Now
+              <SosIcon size={22} />
+              SOS — Send Emergency Alert Now
             </button>
             <p className="text-xs text-text-muted text-center -mt-2">
               Instantly files a critical report at your current location.
@@ -293,8 +306,15 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
 
             <div className="bg-white/[0.04] backdrop-blur-md border border-white/10 rounded-2xl p-4 flex flex-col gap-3">
               <span className="text-sm font-semibold">Report an Incident</span>
-              <div className="text-xs text-text-muted font-mono">
-                {location ? `📍 ${location.lat.toFixed(4)}, ${location.lng.toFixed(4)}` : "Locating…"}
+              <div className="text-xs text-text-muted font-mono flex items-center gap-1.5">
+                {location ? (
+                  <>
+                    <MapPinIcon size={13} />
+                    {location.lat.toFixed(4)}, {location.lng.toFixed(4)}
+                  </>
+                ) : (
+                  "Locating…"
+                )}
               </div>
               <div className="flex gap-2">
                 {SEVERITIES.map((s) => (
@@ -337,7 +357,8 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
                 </div>
               ) : (
                 <label className="flex items-center justify-center gap-2 py-2.5 rounded border border-dashed border-border text-sm text-text-muted cursor-pointer hover:border-accent hover:text-text transition-colors">
-                  📷 Attach a photo
+                  <CameraIcon size={17} />
+                  Attach a photo
                   <input
                     type="file"
                     accept="image/*"

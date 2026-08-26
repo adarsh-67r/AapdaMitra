@@ -30,10 +30,16 @@ const REPORT_COLOR: Record<Report["severity"], string> = {
   critical: "#D64545",
 };
 
-const RESOURCE_EMOJI: Record<Resource["type"], string> = {
-  shelter: "🏠",
-  rescue_team: "🚑",
-  supply_stock: "📦",
+// Marker glyphs as inline SVG paths, matching the app's drawn icon set
+// (24x24 box, 1.75 stroke, round caps). Leaflet builds markers from HTML
+// strings, so these can't reuse the React components in components/icons.tsx —
+// but they must stay geometrically identical to them.
+const RESOURCE_GLYPH: Record<Resource["type"], string> = {
+  shelter: '<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.8V20a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9.8"/>',
+  rescue_team:
+    '<path d="M3 7h11v9H3z"/><path d="M14 10h3.5l2.5 3v3H14z"/><circle cx="7" cy="18.5" r="1.8"/><circle cx="17" cy="18.5" r="1.8"/><path d="M8.5 10.5h3M10 9v3"/>',
+  supply_stock:
+    '<path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/>',
 };
 
 const RESOURCE_STATUS_COLOR: Record<Resource["status"], string> = {
@@ -42,6 +48,11 @@ const RESOURCE_STATUS_COLOR: Record<Resource["status"], string> = {
   dispatched: "#E08A00",
 };
 
+function svgGlyph(paths: string) {
+  return `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white"
+    stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">${paths}</svg>`;
+}
+
 function resourceIcon(resource: Resource) {
   return L.divIcon({
     html: `<div style="
@@ -49,7 +60,7 @@ function resourceIcon(resource: Resource) {
       width:28px;height:28px;border-radius:50%;
       display:flex;align-items:center;justify-content:center;
       border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,.4);
-      font-size:14px;">${RESOURCE_EMOJI[resource.type]}</div>`,
+      ">${svgGlyph(RESOURCE_GLYPH[resource.type])}</div>`,
     className: "",
     iconSize: [28, 28],
     iconAnchor: [14, 14],
