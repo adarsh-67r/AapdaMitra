@@ -59,7 +59,7 @@ export default function InspectorPanel({
       <div className="px-4 py-3.5 border-b border-border flex items-center justify-between">
         <span className="text-base font-semibold">Inspector</span>
         {onClose && (
-          <button onClick={onClose} className="font-mono text-xs text-text-muted hover:text-text cursor-pointer">
+          <button onClick={onClose} aria-label="Close inspector" className="font-mono text-xs text-text-muted hover:text-text cursor-pointer">
             <CloseIcon size={16} />
           </button>
         )}
@@ -121,7 +121,7 @@ export default function InspectorPanel({
             <button
               onClick={() => onAllocate(report.id)}
               disabled={allocating || !nearest}
-              className="w-full py-2.5 rounded text-sm font-bold tracking-wide uppercase disabled:opacity-50 cursor-pointer"
+              className="w-full py-2.5 rounded text-sm font-bold tracking-wide uppercase disabled:opacity-50 cursor-pointer transition-transform duration-150 ease-out active:scale-[0.97]"
               style={{ background: "var(--accent)", color: "var(--accent-contrast)" }}>
               {allocating ? "Allocating…" : "Allocate Nearest Resource"}
             </button>

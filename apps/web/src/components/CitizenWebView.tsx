@@ -247,7 +247,7 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
             <button
               onClick={() => submitReport("critical", "SOS — immediate emergency assistance needed")}
               disabled={submitting || !location}
-              className="w-full py-5 rounded-2xl text-lg font-bold uppercase tracking-wide disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2.5"
+              className="w-full py-5 rounded-2xl text-lg font-bold uppercase tracking-wide disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2.5 transition-transform duration-150 ease-out active:scale-[0.97]"
               style={{ background: "var(--critical)", color: "#fff" }}
             >
               <SosIcon size={22} />
@@ -294,7 +294,7 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
             <button
               onClick={() => submitReport("critical", "SOS — immediate emergency assistance needed")}
               disabled={submitting || !location}
-              className="w-full py-5 rounded-2xl text-lg font-bold uppercase tracking-wide disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2.5"
+              className="w-full py-5 rounded-2xl text-lg font-bold uppercase tracking-wide disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2.5 transition-transform duration-150 ease-out active:scale-[0.97]"
               style={{ background: "var(--critical)", color: "#fff" }}
             >
               <SosIcon size={22} />
@@ -372,7 +372,7 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
               <button
                 onClick={() => submitReport()}
                 disabled={submitting || !location}
-                className="py-2.5 rounded text-sm font-bold uppercase disabled:opacity-50 cursor-pointer"
+                className="py-2.5 rounded text-sm font-bold uppercase disabled:opacity-50 cursor-pointer transition-transform duration-150 ease-out active:scale-[0.97]"
                 style={{ background: "var(--accent)", color: "var(--accent-contrast)" }}
               >
                 {submitting ? "Submitting…" : "Submit Report"}

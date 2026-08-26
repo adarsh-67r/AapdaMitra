@@ -23,7 +23,13 @@ export default function GlowBackground() {
             filter: "blur(70px)",
             ...b.style,
           }}
-          animate={{ x: [0, b.dx, 0], y: [0, b.dy, 0] }}
+          animate={{
+            transform: [
+              "translate(0px, 0px)",
+              `translate(${b.dx}px, ${b.dy}px)`,
+              "translate(0px, 0px)",
+            ],
+          }}
           transition={{ duration: b.duration, repeat: Infinity, ease: "easeInOut" }}
         />
       ))}

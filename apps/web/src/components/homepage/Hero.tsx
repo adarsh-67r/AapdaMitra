@@ -57,6 +57,7 @@ export default function Hero() {
             onClick={reportIncident}
             disabled={entering}
             whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.97 }}
             transition={{ type: "spring", stiffness: 300, damping: 18 }}
             className="inline-flex items-center font-mono text-sm font-semibold px-6 py-3.5 min-h-11 rounded-full bg-accent text-accent-contrast cursor-pointer disabled:opacity-60"
           >
