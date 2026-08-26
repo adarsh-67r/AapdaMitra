@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import CitizenMap from "@/components/CitizenMap";
 import ThemeToggle from "@/components/ThemeToggle";
-import { apiFetchJson } from "@/lib/api-client";
+import { apiFetch, apiFetchJson } from "@/lib/api-client";
 import { haversineKm } from "@/lib/geo-client";
 import type { MapPin } from "@/components/CitizenMapClient";
 
@@ -43,6 +43,7 @@ interface AlertRow {
   area_description: string | null;
   severity_color: "green" | "yellow" | "orange" | "red";
   warning_message: string | null;
+  issuing_agency: string | null;
   lat: number;
   lng: number;
 }
@@ -76,6 +77,20 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
   const [severity, setSeverity] = useState<Severity>("medium");
   const [description, setDescription] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [photo, setPhoto] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+
+  function pickPhoto(file: File | null) {
+    if (photoPreview) URL.revokeObjectURL(photoPreview);
+    setPhoto(file);
+    setPhotoPreview(file ? URL.createObjectURL(file) : null);
+  }
+
+  function clearPhoto() {
+    if (photoPreview) URL.revokeObjectURL(photoPreview);
+    setPhoto(null);
+    setPhotoPreview(null);
+  }
 
   const [alerts, setAlerts] = useState<AlertRow[]>([]);
   const [resources, setResources] = useState<ResourceRow[]>([]);
@@ -134,7 +149,7 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
     }
     setSubmitting(true);
     try {
-      await apiFetchJson("/reports", {
+      const report = await apiFetchJson<{ id: string }>("/reports", {
         method: "POST",
         body: JSON.stringify({
           lat: location.lat,
@@ -143,8 +158,20 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
           description: overrideDescription ?? description,
         }),
       });
+
+      // Photo is attached in a second call: the backend proxies the upload to
+      // storage and needs an existing report id to attach it to. Only the
+      // detailed form path carries a photo — the SOS button never does.
+      if (photo && !overrideSeverity) {
+        const form = new FormData();
+        form.append("file", photo);
+        const res = await apiFetch(`/reports/${report.id}/photo`, { method: "POST", body: form });
+        if (!res.ok) throw new Error(`report saved, but photo upload failed (${res.status})`);
+      }
+
       setDescription("");
       setSeverity("medium");
+      clearPhoto();
       alert("Report submitted. Authorities have been notified.");
       loadAll();
     } catch (e) {
@@ -275,6 +302,35 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
                 rows={4}
                 className="bg-panel-alt border border-border rounded px-3 py-2 text-sm outline-none resize-none"
               />
+
+              {photoPreview ? (
+                <div className="flex items-center gap-3">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={photoPreview}
+                    alt="Attached photo preview"
+                    className="w-20 h-20 object-cover rounded-lg border border-white/10"
+                  />
+                  <button
+                    onClick={clearPhoto}
+                    className="font-mono text-xs text-text-muted hover:text-critical cursor-pointer"
+                  >
+                    Remove photo
+                  </button>
+                </div>
+              ) : (
+                <label className="flex items-center justify-center gap-2 py-2.5 rounded border border-dashed border-border text-sm text-text-muted cursor-pointer hover:border-accent hover:text-text transition-colors">
+                  📷 Attach a photo
+                  <input
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    className="hidden"
+                    onChange={(e) => pickPhoto(e.target.files?.[0] ?? null)}
+                  />
+                </label>
+              )}
+
               <button
                 onClick={() => submitReport()}
                 disabled={submitting || !location}
@@ -294,9 +350,16 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
             ) : (
               nearbyAlerts.map((a) => (
                 <div key={a.id} className="bg-white/[0.04] backdrop-blur-md border border-white/10 rounded-2xl p-3.5 flex flex-col gap-1">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full" style={{ background: SEVERITY_COLOR[a.severity_color] }} />
-                    <span className="text-sm font-semibold">{a.disaster_type}</span>
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full" style={{ background: SEVERITY_COLOR[a.severity_color] }} />
+                      <span className="text-sm font-semibold">{a.disaster_type}</span>
+                    </div>
+                    {a.issuing_agency && (
+                      <span className="font-mono text-[0.65rem] px-2 py-0.5 rounded-full bg-white/[0.06] border border-white/10 text-text-muted whitespace-nowrap">
+                        {a.issuing_agency}
+                      </span>
+                    )}
                   </div>
                   {a.area_description && <span className="text-xs text-text-muted">{a.area_description}</span>}
                   {a.warning_message && <p className="text-sm">{a.warning_message}</p>}
