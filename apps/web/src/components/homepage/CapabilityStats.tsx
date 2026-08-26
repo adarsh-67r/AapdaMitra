@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import CountUp from "./CountUp";
 import { enter } from "@/lib/motion";
 
 const STATS = [
@@ -15,7 +16,9 @@ export default function CapabilityStats() {
       <motion.div {...enter} className="rounded-2xl bg-white/[0.04] backdrop-blur-md border border-white/10 p-7 md:p-9 flex flex-wrap justify-center gap-10 text-center">
         {STATS.map((s) => (
           <div key={s.label}>
-            <b className="block text-4xl font-bold text-accent leading-none">{s.value}</b>
+            <b className="block text-4xl md:text-5xl font-bold text-accent leading-none">
+              <CountUp value={s.value} />
+            </b>
             <span className="font-mono text-xs text-text-muted mt-2 block">{s.label}</span>
           </div>
         ))}

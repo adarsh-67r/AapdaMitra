@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
+import CountUp from "./CountUp";
 import { enter } from "@/lib/motion";
 
 const HAZARDS = [
@@ -26,7 +27,9 @@ function Bar({ label, value, note, index }: { label: string; value: number; note
     <div ref={ref}>
       <div className="flex justify-between items-baseline mb-1.5">
         <span className="text-sm font-medium">{label}</span>
-        <span className="font-mono text-sm font-bold text-accent">{value}%</span>
+        <span className="font-mono text-sm font-bold text-accent">
+          <CountUp value={`${value}%`} />
+        </span>
       </div>
       <div className="h-2.5 rounded-full bg-white/[0.06] overflow-hidden">
         <motion.div
