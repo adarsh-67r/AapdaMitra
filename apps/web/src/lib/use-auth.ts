@@ -20,10 +20,9 @@ function decodeRole(token: string): Role | null {
 }
 
 // Module-level store shared by every useAuth() call site. Without this,
-// page.tsx and LoginScreen.tsx would each get their own isolated useState,
-// so a successful login/signup in LoginScreen.tsx would never be seen by
-// page.tsx's render branch (the app would stay stuck on the login screen
-// forever after a real sign-in).
+// each call site would get its own isolated useState, so a successful
+// login/signup would never be seen by page.tsx's render branch (the app
+// would stay stuck on the same view forever after a real sign-in).
 let status: AuthStatus = "loading";
 const listeners = new Set<() => void>();
 

@@ -1,8 +1,11 @@
 "use client";
 
-import Link from "next/link";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import LiveMapPreview from "./LiveMapPreview";
+import { useAuth } from "@/lib/use-auth";
+import { DEMO_CITIZEN, DEMO_AUTHORITY } from "@/lib/demo-accounts";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 14, filter: "blur(8px)" },
@@ -10,6 +13,21 @@ const fadeUp = {
 };
 
 export default function Hero() {
+  const { login } = useAuth();
+  const router = useRouter();
+  const [pending, setPending] = useState<"citizen" | "authority" | null>(null);
+
+  async function enterAs(role: "citizen" | "authority") {
+    setPending(role);
+    try {
+      const demo = role === "citizen" ? DEMO_CITIZEN : DEMO_AUTHORITY;
+      await login(demo.email, demo.password);
+      router.push("/");
+    } catch {
+      setPending(null);
+    }
+  }
+
   return (
     <motion.div
       className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-9 px-6 md:px-10 py-8 md:py-14 items-center min-h-[70vh] md:min-h-[480px]"
@@ -28,21 +46,24 @@ export default function Hero() {
           Live alerts, citizen reports, and available resources — on one map, updated as it happens.
         </motion.p>
         <motion.div variants={fadeUp} transition={{ duration: 0.7 }} className="flex flex-wrap gap-3.5">
-          <Link href="/login">
-            <motion.span
-              whileHover={{ scale: 1.05 }}
-              transition={{ type: "spring", stiffness: 300, damping: 18 }}
-              className="inline-flex items-center font-mono text-sm font-semibold px-6 py-3.5 min-h-11 rounded-full bg-accent text-accent-contrast cursor-pointer"
-            >
-              Report Incident
-            </motion.span>
-          </Link>
-          <Link
-            href="/login"
-            className="font-mono text-sm px-6 py-3.5 min-h-11 inline-flex items-center rounded-full bg-white/5 border border-white/10 backdrop-blur-md hover:bg-white/10 transition-colors"
+          <motion.button
+            type="button"
+            onClick={() => enterAs("citizen")}
+            disabled={pending !== null}
+            whileHover={{ scale: 1.05 }}
+            transition={{ type: "spring", stiffness: 300, damping: 18 }}
+            className="inline-flex items-center font-mono text-sm font-semibold px-6 py-3.5 min-h-11 rounded-full bg-accent text-accent-contrast cursor-pointer disabled:opacity-60"
           >
-            View Live Map
-          </Link>
+            {pending === "citizen" ? "Entering…" : "Report Incident"}
+          </motion.button>
+          <button
+            type="button"
+            onClick={() => enterAs("authority")}
+            disabled={pending !== null}
+            className="font-mono text-sm px-6 py-3.5 min-h-11 inline-flex items-center rounded-full bg-white/5 border border-white/10 backdrop-blur-md hover:bg-white/10 transition-colors disabled:opacity-60"
+          >
+            {pending === "authority" ? "Entering…" : "View Live Map"}
+          </button>
         </motion.div>
       </div>
 

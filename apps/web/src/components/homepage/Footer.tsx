@@ -1,4 +1,4 @@
-import Link from "next/link";
+import EnterAppLink from "./EnterAppLink";
 
 export default function Footer() {
   return (
@@ -11,12 +11,12 @@ export default function Footer() {
         </p>
         <div className="flex gap-10 font-mono text-xs text-text-muted">
           <div className="flex flex-col gap-2">
-            <Link href="/login" className="hover:text-text transition-colors">
+            <EnterAppLink role="citizen" className="text-left hover:text-text transition-colors">
               Report Incident
-            </Link>
-            <Link href="/login" className="hover:text-text transition-colors">
+            </EnterAppLink>
+            <EnterAppLink role="authority" className="text-left hover:text-text transition-colors">
               Live Map
-            </Link>
+            </EnterAppLink>
           </div>
           <div className="flex flex-col gap-2">
             <a href="#problem" className="hover:text-text transition-colors">
