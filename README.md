@@ -3,7 +3,7 @@
 **Real-time disaster early-warning and resource coordination — built for PS-05.**
 
 [![Backend](https://img.shields.io/badge/backend-FastAPI-009688)](apps/backend)
-[![Dashboard](https://img.shields.io/badge/dashboard-Next.js-000000)](apps/dashboard)
+[![Dashboard](https://img.shields.io/badge/dashboard-Next.js-000000)](apps/web)
 [![Citizen App](https://img.shields.io/badge/citizen%20app-Expo%20%2F%20React%20Native-4630EB)](apps/citizen-app)
 [![Database](https://img.shields.io/badge/database-PostgreSQL-4169E1)](supabase/migrations)
 
@@ -61,7 +61,7 @@ Core routes: `/auth/signup`, `/auth/login`, `/auth/request-password-reset`, `/au
 ### Dashboard (authority)
 
 ```bash
-cd apps/dashboard
+cd apps/web
 npm install
 npm run dev
 ```

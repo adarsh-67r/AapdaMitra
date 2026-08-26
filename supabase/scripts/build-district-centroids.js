@@ -3,14 +3,14 @@
 // ingestion route to place district warnings on the map.
 //
 // Run with: node build-district-centroids.js
-// Output: apps/dashboard/src/lib/district-centroids.json
+// Output: apps/web/src/lib/district-centroids.json
 
 const fs = require("fs");
 const path = require("path");
 
 const RAW_PATH = path.join(__dirname, "..", "district_raw.geojson");
 const OUT_PATH = path.join(
-  __dirname, "..", "..", "apps", "dashboard", "src", "lib", "district-centroids.json"
+  __dirname, "..", "..", "apps", "web", "src", "lib", "district-centroids.json"
 );
 
 function ringArea(ring) {
