@@ -7,21 +7,35 @@ import '@/global.css';
 
 import { Platform } from 'react-native';
 
+// These mirror the web app's design tokens (apps/web/src/app/globals.css) so the
+// citizen interface looks the same whether it's opened in a browser or the app.
 export const Colors = {
   light: {
-    text: '#000000',
-    background: '#ffffff',
-    backgroundElement: '#F0F0F3',
-    backgroundSelected: '#E0E1E6',
-    textSecondary: '#60646C',
+    text: '#14181c',
+    background: '#f4f5f2',
+    backgroundElement: '#ffffff',
+    backgroundSelected: '#eef0ec',
+    textSecondary: '#6b7280',
   },
   dark: {
-    text: '#ffffff',
-    background: '#000000',
-    backgroundElement: '#212225',
-    backgroundSelected: '#2E3135',
-    textSecondary: '#B0B4BA',
+    text: '#eef2f6',
+    background: '#0b0f14',
+    backgroundElement: '#12181f',
+    backgroundSelected: '#0e141a',
+    textSecondary: '#8b96a3',
   },
+} as const;
+
+/** Shared across both themes — status and accent colours from the web tokens. */
+export const Brand = {
+  accent: '#2dd4bf',
+  accentContrast: '#06201c',
+  critical: '#ff6b5e',
+  high: '#ff9d5c',
+  medium: '#eab84d',
+  available: '#4ade80',
+  assigned: '#38bdf8',
+  border: '#232c35',
 } as const;
 
 export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;

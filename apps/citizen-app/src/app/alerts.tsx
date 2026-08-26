@@ -5,7 +5,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { Spacing } from "@/constants/theme";
+import { Brand, Spacing } from "@/constants/theme";
 import { apiFetchJson } from "@/lib/api-client";
 import { haversineKm } from "@/lib/geo";
 
@@ -15,6 +15,8 @@ interface Alert {
   area_description: string | null;
   severity_color: "green" | "yellow" | "orange" | "red";
   warning_message: string | null;
+  issuing_agency: string | null;
+  language: string | null;
   lat: number;
   lng: number;
   effective_end: string | null;
@@ -25,6 +27,21 @@ const COLOR_HEX: Record<Alert["severity_color"], string> = {
   yellow: "#D8B400",
   orange: "#E08A00",
   red: "#D64545",
+};
+
+// SACHET publishes each alert in a single language, and roughly half are not
+// English — label them so the text isn't unexplained.
+const LANGUAGE_LABEL: Record<string, string> = {
+  en: "English",
+  hi: "हिन्दी",
+  ml: "മലയാളം",
+  te: "తెలుగు",
+  or: "ଓଡ଼ିଆ",
+  ta: "தமிழ்",
+  bn: "বাংলা",
+  mr: "मराठी",
+  gu: "ગુજરાતી",
+  kn: "ಕನ್ನಡ",
 };
 
 const NEARBY_RADIUS_KM = 150;
@@ -98,6 +115,24 @@ export default function AlertsScreen() {
                   />
                   <ThemedText type="smallBold">{item.disaster_type}</ThemedText>
                 </ThemedView>
+                {(item.issuing_agency || (item.language && item.language !== "en")) && (
+                  <ThemedView style={styles.badgeRow}>
+                    {item.language && item.language !== "en" && (
+                      <ThemedView style={[styles.badge, styles.langBadge]}>
+                        <ThemedText type="small" style={styles.langBadgeText}>
+                          {LANGUAGE_LABEL[item.language] ?? item.language.toUpperCase()}
+                        </ThemedText>
+                      </ThemedView>
+                    )}
+                    {item.issuing_agency && (
+                      <ThemedView type="backgroundSelected" style={styles.badge}>
+                        <ThemedText type="small" themeColor="textSecondary">
+                          {item.issuing_agency}
+                        </ThemedText>
+                      </ThemedView>
+                    )}
+                  </ThemedView>
+                )}
                 {item.area_description && (
                   <ThemedText type="small" themeColor="textSecondary">
                     {item.area_description}
@@ -125,4 +160,18 @@ const styles = StyleSheet.create({
   card: { borderRadius: Spacing.three, padding: Spacing.three, gap: Spacing.one },
   cardHeader: { flexDirection: "row", alignItems: "center", gap: Spacing.two, backgroundColor: "transparent" },
   dot: { width: 10, height: 10, borderRadius: 5 },
+  badgeRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: Spacing.one,
+    backgroundColor: "transparent",
+    marginTop: Spacing.half,
+  },
+  badge: {
+    paddingHorizontal: Spacing.two,
+    paddingVertical: Spacing.half,
+    borderRadius: Spacing.five,
+  },
+  langBadge: { backgroundColor: `${Brand.accent}26` },
+  langBadgeText: { color: Brand.accent },
 });

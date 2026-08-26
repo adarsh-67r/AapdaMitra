@@ -15,7 +15,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { Spacing } from "@/constants/theme";
+import { Brand, Spacing } from "@/constants/theme";
 import { apiFetch, apiFetchJson } from "@/lib/api-client";
 import { enqueueReport, flushQueue, subscribeToQueue } from "@/lib/offline-queue";
 
@@ -189,7 +189,7 @@ export default function ReportScreen() {
 
           <Pressable style={styles.submitButton} onPress={submit} disabled={submitting}>
             {submitting ? (
-              <ActivityIndicator color="#fff" />
+              <ActivityIndicator color={Brand.accentContrast} />
             ) : (
               <ThemedText style={styles.submitText}>Submit Report</ThemedText>
             )}
@@ -236,14 +236,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.one,
   },
-  severityChipSelected: { backgroundColor: "#208AEF", borderColor: "#208AEF" },
+  severityChipSelected: { backgroundColor: Brand.accent, borderColor: Brand.accent },
   preview: { width: "100%", height: 160, borderRadius: Spacing.two, marginTop: Spacing.two },
   submitButton: {
-    backgroundColor: "#208AEF",
+    backgroundColor: Brand.accent,
     borderRadius: Spacing.two,
     paddingVertical: Spacing.three,
     alignItems: "center",
     marginTop: Spacing.two,
   },
-  submitText: { color: "#fff", fontWeight: "600", fontSize: 16 },
+  submitText: { color: Brand.accentContrast, fontWeight: "700", fontSize: 16 },
 });

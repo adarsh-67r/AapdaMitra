@@ -5,6 +5,7 @@ import { ActivityIndicator, useColorScheme } from 'react-native';
 
 import { LoginScreen } from '@/components/login-screen';
 import { ThemedView } from '@/components/themed-view';
+import { Brand } from '@/constants/theme';
 import { useAuth } from '@/lib/use-auth';
 
 SplashScreen.preventAutoHideAsync();
@@ -26,11 +27,12 @@ export default function RootLayout() {
       ) : status === "signed-out" ? (
         <LoginScreen />
       ) : (
-        <Tabs screenOptions={{ headerShown: false }}>
+        <Tabs screenOptions={{ headerShown: false, tabBarActiveTintColor: Brand.accent }}>
           <Tabs.Screen name="index" options={{ title: 'Report' }} />
           <Tabs.Screen name="alerts" options={{ title: 'Alerts' }} />
           <Tabs.Screen name="shelters" options={{ title: 'Shelters' }} />
           <Tabs.Screen name="my-reports" options={{ title: 'My Reports' }} />
+          <Tabs.Screen name="emergency" options={{ title: 'Emergency' }} />
         </Tabs>
       )}
     </ThemeProvider>
