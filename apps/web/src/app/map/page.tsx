@@ -5,9 +5,15 @@ import Link from "next/link";
 import CitizenMap from "@/components/CitizenMap";
 import type { MapPin } from "@/components/CitizenMapClient";
 import ThemeToggle from "@/components/ThemeToggle";
-import { useAuth } from "@/lib/use-auth";
-import { apiFetchJson } from "@/lib/api-client";
 import { DEMO_CITIZEN } from "@/lib/demo-accounts";
+
+// This page must NOT touch the shared auth store or localStorage token —
+// it's a public, unauthenticated-feeling view, not part of the logged-in
+// app. It gets its own local, in-memory token via a direct API call, used
+// only for the fetches on this page, and never written to localStorage or
+// the shared useAuth() status (so visiting /map never signs the visitor
+// into the rest of the app).
+const API_BASE = process.env.NEXT_PUBLIC_API_URL!;
 
 interface AlertRow {
   id: string;
@@ -44,27 +50,49 @@ const RESOURCE_COLOR: Record<ResourceRow["status"], string> = {
 const INDIA_CENTER: [number, number] = [22.9734, 78.6569];
 const POLL_INTERVAL_MS = 12000;
 
+async function fetchLocalToken(): Promise<string> {
+  const res = await fetch(`${API_BASE}/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(DEMO_CITIZEN),
+  });
+  if (!res.ok) throw new Error("could not load live data");
+  const data = (await res.json()) as { token: string };
+  return data.token;
+}
+
 export default function MapPage() {
-  const { status, login } = useAuth();
+  const [token, setToken] = useState<string | null>(null);
   const [alerts, setAlerts] = useState<AlertRow[]>([]);
   const [resources, setResources] = useState<ResourceRow[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (status === "loading" || status === "signed-out") {
-      login(DEMO_CITIZEN.email, DEMO_CITIZEN.password).catch(() => setError("Could not load live data."));
-    }
-  }, [status, login]);
+    let cancelled = false;
+    fetchLocalToken()
+      .then((t) => {
+        if (!cancelled) setToken(t);
+      })
+      .catch(() => {
+        if (!cancelled) setError("Could not load live data.");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
-    if (status !== "citizen" && status !== "authority") return;
+    if (!token) return;
     let cancelled = false;
     async function poll() {
       try {
-        const [a, r] = await Promise.all([
-          apiFetchJson<AlertRow[]>("/alerts"),
-          apiFetchJson<ResourceRow[]>("/resources"),
+        const headers = { Authorization: `Bearer ${token}` };
+        const [alertsRes, resourcesRes] = await Promise.all([
+          fetch(`${API_BASE}/alerts`, { headers }),
+          fetch(`${API_BASE}/resources`, { headers }),
         ]);
+        if (!alertsRes.ok || !resourcesRes.ok) throw new Error("request failed");
+        const [a, r] = await Promise.all([alertsRes.json(), resourcesRes.json()]);
         if (!cancelled) {
           setAlerts(a);
           setResources(r);
@@ -79,7 +107,7 @@ export default function MapPage() {
       cancelled = true;
       clearInterval(interval);
     };
-  }, [status]);
+  }, [token]);
 
   const pins: MapPin[] = [
     ...alerts.map((a) => ({
