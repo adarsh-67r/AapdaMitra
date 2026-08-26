@@ -8,6 +8,6 @@ const CitizenMapClientImpl = dynamic(() => import("./CitizenMapClient"), {
   loading: () => <div style={{ padding: 24 }}>Loading map…</div>,
 });
 
-export default function CitizenMap(props: { pins: MapPin[]; center?: [number, number] }) {
+export default function CitizenMap(props: { pins: MapPin[]; center?: [number, number]; zoom?: number }) {
   return <CitizenMapClientImpl {...props} />;
 }

@@ -20,14 +20,22 @@ export interface MapPin {
 
 const DEFAULT_CENTER: [number, number] = [13.0674, 80.2376]; // Chennai — demo region
 
-export default function CitizenMapClient({ pins, center }: { pins: MapPin[]; center?: [number, number] }) {
+export default function CitizenMapClient({
+  pins,
+  center,
+  zoom,
+}: {
+  pins: MapPin[];
+  center?: [number, number];
+  zoom?: number;
+}) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<L.Map | null>(null);
   const layerGroupRef = useRef<L.LayerGroup | null>(null);
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
-    const map = L.map(containerRef.current, { center: center ?? DEFAULT_CENTER, zoom: 12 });
+    const map = L.map(containerRef.current, { center: center ?? DEFAULT_CENTER, zoom: zoom ?? 12 });
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: "&copy; OpenStreetMap contributors",
       maxZoom: 19,

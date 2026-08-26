@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import LiveMapPreview from "./LiveMapPreview";
 import { useAuth } from "@/lib/use-auth";
-import { DEMO_CITIZEN, DEMO_AUTHORITY } from "@/lib/demo-accounts";
+import { DEMO_CITIZEN } from "@/lib/demo-accounts";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 14, filter: "blur(8px)" },
@@ -15,16 +16,15 @@ const fadeUp = {
 export default function Hero() {
   const { login } = useAuth();
   const router = useRouter();
-  const [pending, setPending] = useState<"citizen" | "authority" | null>(null);
+  const [entering, setEntering] = useState(false);
 
-  async function enterAs(role: "citizen" | "authority") {
-    setPending(role);
+  async function reportIncident() {
+    setEntering(true);
     try {
-      const demo = role === "citizen" ? DEMO_CITIZEN : DEMO_AUTHORITY;
-      await login(demo.email, demo.password);
+      await login(DEMO_CITIZEN.email, DEMO_CITIZEN.password);
       router.push("/");
     } catch {
-      setPending(null);
+      setEntering(false);
     }
   }
 
@@ -40,30 +40,29 @@ export default function Hero() {
           REAL-TIME DISASTER COORDINATION
         </motion.p>
         <motion.h1 variants={fadeUp} transition={{ duration: 0.7 }} className="text-4xl md:text-5xl font-bold leading-[1.05] tracking-tight mb-5">
-          See the whole picture. Dispatch in one click.
+          Disasters don&apos;t wait. Neither should help.
         </motion.h1>
-        <motion.p variants={fadeUp} transition={{ duration: 0.7 }} className="text-base text-text-muted max-w-[40ch] mb-7">
-          Live alerts, citizen reports, and available resources — on one map, updated as it happens.
+        <motion.p variants={fadeUp} transition={{ duration: 0.7 }} className="text-base text-text-muted max-w-[44ch] mb-7">
+          AapdaMitra puts live alerts, citizen reports, and nearby resources on one map — so the nearest team gets
+          dispatched in the time it takes to click, not call.
         </motion.p>
         <motion.div variants={fadeUp} transition={{ duration: 0.7 }} className="flex flex-wrap gap-3.5">
           <motion.button
             type="button"
-            onClick={() => enterAs("citizen")}
-            disabled={pending !== null}
+            onClick={reportIncident}
+            disabled={entering}
             whileHover={{ scale: 1.05 }}
             transition={{ type: "spring", stiffness: 300, damping: 18 }}
             className="inline-flex items-center font-mono text-sm font-semibold px-6 py-3.5 min-h-11 rounded-full bg-accent text-accent-contrast cursor-pointer disabled:opacity-60"
           >
-            {pending === "citizen" ? "Entering…" : "Report Incident"}
+            {entering ? "Entering…" : "Report Incident"}
           </motion.button>
-          <button
-            type="button"
-            onClick={() => enterAs("authority")}
-            disabled={pending !== null}
-            className="font-mono text-sm px-6 py-3.5 min-h-11 inline-flex items-center rounded-full bg-white/5 border border-white/10 backdrop-blur-md hover:bg-white/10 transition-colors disabled:opacity-60"
+          <Link
+            href="/map"
+            className="font-mono text-sm px-6 py-3.5 min-h-11 inline-flex items-center rounded-full bg-white/5 border border-white/10 backdrop-blur-md hover:bg-white/10 transition-colors"
           >
-            {pending === "authority" ? "Entering…" : "View Live Map"}
-          </button>
+            View Live Map
+          </Link>
         </motion.div>
       </div>
 

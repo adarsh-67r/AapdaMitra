@@ -1,3 +1,4 @@
+import Link from "next/link";
 import EnterAppLink from "./EnterAppLink";
 
 export default function Footer() {
@@ -14,9 +15,9 @@ export default function Footer() {
             <EnterAppLink role="citizen" className="text-left hover:text-text transition-colors">
               Report Incident
             </EnterAppLink>
-            <EnterAppLink role="authority" className="text-left hover:text-text transition-colors">
+            <Link href="/map" className="hover:text-text transition-colors">
               Live Map
-            </EnterAppLink>
+            </Link>
           </div>
           <div className="flex flex-col gap-2">
             <a href="#problem" className="hover:text-text transition-colors">
