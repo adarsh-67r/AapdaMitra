@@ -58,7 +58,10 @@ export default function Hero() {
             disabled={entering}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.97 }}
-            transition={{ type: "spring", stiffness: 300, damping: 18 }}
+            // Critically damped: a hover carries no momentum, so the button
+            // should settle rather than overshoot. Bounce is reserved for
+            // motion the user actually threw.
+            transition={{ type: "spring", bounce: 0, duration: 0.35 }}
             className="inline-flex items-center font-mono text-sm font-semibold px-6 py-3.5 min-h-11 rounded-full bg-accent text-accent-contrast cursor-pointer disabled:opacity-60"
           >
             {entering ? "Entering…" : "Report Incident"}

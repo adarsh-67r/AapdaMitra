@@ -118,6 +118,38 @@ html {
   font-variant-numeric: tabular-nums;
 }
 
+/* This interface is built almost entirely from translucent glass surfaces. For
+   anyone who has asked the OS to reduce transparency — often precisely because
+   layered translucency is hard for them to read — that design is the problem.
+   Drop the blur and make every glass surface opaque, keeping the layout and the
+   hierarchy exactly as they were. */
+@media (prefers-reduced-transparency: reduce) {
+  [class*="backdrop-blur"] {
+    backdrop-filter: none !important;
+  }
+  .bg-white\/\[0\.02\],
+  .bg-white\/\[0\.03\],
+  .bg-white\/\[0\.04\],
+  .bg-white\/\[0\.06\],
+  .bg-white\/\[0\.07\],
+  .bg-white\/5,
+  .bg-white\/10,
+  .bg-panel\/55,
+  .bg-panel\/70 {
+    background-color: var(--panel) !important;
+  }
+}
+
+/* Same surfaces, but for a user who asked for more contrast: give the glass a
+   defined edge instead of a barely-there hairline. */
+@media (prefers-contrast: more) {
+  [class*="backdrop-blur"] {
+    backdrop-filter: none !important;
+    background-color: var(--panel) !important;
+    border-color: var(--text-muted) !important;
+  }
+}
+
 .tick {
   background: repeating-linear-gradient(90deg, var(--border) 0 1px, transparent 1px 12px);
 }
