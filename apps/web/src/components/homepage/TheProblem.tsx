@@ -1,15 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { enter } from "@/lib/motion";
 
 export default function TheProblem() {
   return (
     <div id="problem" className="relative z-10 px-6 md:px-10 py-14 scroll-mt-20">
       <motion.div
-        initial={{ opacity: 0, y: 18, filter: "blur(8px)" }}
-        whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-        viewport={{ once: true, margin: "-10%" }}
-        transition={{ duration: 0.6 }}
+        {...enter}
         className="rounded-2xl bg-white/[0.04] backdrop-blur-md border border-white/10 p-6 md:p-9"
       >
         <p className="font-mono text-xs tracking-widest text-accent mb-4">THE PROBLEM</p>

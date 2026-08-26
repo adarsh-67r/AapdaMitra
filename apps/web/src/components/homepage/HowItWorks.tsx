@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { enter, enterStaggered } from "@/lib/motion";
 
 const STEPS = [
   { n: "01", title: "Report", body: "A citizen files a report with a photo and exact location, no login friction." },
@@ -11,23 +12,14 @@ const STEPS = [
 export default function HowItWorks() {
   return (
     <div id="how-it-works" className="relative z-10 px-6 md:px-10 py-14 scroll-mt-20">
-      <motion.h3
-        initial={{ opacity: 0, y: 14, filter: "blur(8px)" }}
-        whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-        viewport={{ once: true, margin: "-10%" }}
-        transition={{ duration: 0.6 }}
-        className="text-2xl font-bold mb-6"
-      >
+      <motion.h3 {...enter} className="text-2xl font-bold mb-6">
         How it works
       </motion.h3>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {STEPS.map((s, i) => (
           <motion.div
             key={s.n}
-            initial={{ opacity: 0, y: 18, filter: "blur(8px)" }}
-            whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            viewport={{ once: true, margin: "-10%" }}
-            transition={{ duration: 0.6, delay: i * 0.08 }}
+            {...enterStaggered(i)}
             className="rounded-2xl bg-white/[0.04] backdrop-blur-md border border-white/10 p-5"
           >
             <div className="font-mono text-xs text-accent">{s.n}</div>

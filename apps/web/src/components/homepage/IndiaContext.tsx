@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
+import { enter } from "@/lib/motion";
 
 const HAZARDS = [
   { label: "Flood-prone landmass", value: 12, note: "~45M hectares (NDMA estimate)" },
@@ -43,22 +44,10 @@ function Bar({ label, value, note, index }: { label: string; value: number; note
 export default function IndiaContext() {
   return (
     <div className="relative z-10 px-6 md:px-10 py-14">
-      <motion.p
-        initial={{ opacity: 0, y: 14, filter: "blur(8px)" }}
-        whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-        viewport={{ once: true, margin: "-10%" }}
-        transition={{ duration: 0.6 }}
-        className="font-mono text-xs tracking-widest text-accent mb-2"
-      >
+      <motion.p {...enter} className="font-mono text-xs tracking-widest text-accent mb-2">
         BUILT FOR INDIA'S HAZARD MAP
       </motion.p>
-      <motion.h3
-        initial={{ opacity: 0, y: 14, filter: "blur(8px)" }}
-        whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-        viewport={{ once: true, margin: "-10%" }}
-        transition={{ duration: 0.6 }}
-        className="text-2xl font-bold mb-8 max-w-[36ch]"
-      >
+      <motion.h3 {...enter} className="text-2xl font-bold mb-8 max-w-[36ch]">
         No single hazard, no single region — a coordination layer has to cover the whole country
       </motion.h3>
 

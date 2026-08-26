@@ -6,12 +6,17 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import LiveMapPreview from "./LiveMapPreview";
 import { useAuth } from "@/lib/use-auth";
+import { EASE_OUT } from "@/lib/motion";
 import { DEMO_CITIZEN } from "@/lib/demo-accounts";
 
+// The hero is the one authored entrance on the page — it keeps the blur-in that
+// the quieter section reveals deliberately drop.
 const fadeUp = {
   hidden: { opacity: 0, y: 14, filter: "blur(8px)" },
   show: { opacity: 1, y: 0, filter: "blur(0px)" },
 };
+
+const heroTransition = { duration: 0.7, ease: EASE_OUT } as const;
 
 export default function Hero() {
   const { login } = useAuth();
@@ -36,17 +41,17 @@ export default function Hero() {
       variants={{ show: { transition: { staggerChildren: 0.1, delayChildren: 0.15 } } }}
     >
       <div>
-        <motion.p variants={fadeUp} transition={{ duration: 0.7 }} className="font-mono text-xs tracking-widest text-accent mb-4">
+        <motion.p variants={fadeUp} transition={heroTransition} className="font-mono text-xs tracking-widest text-accent mb-4">
           REAL-TIME DISASTER COORDINATION
         </motion.p>
-        <motion.h1 variants={fadeUp} transition={{ duration: 0.7 }} className="text-4xl md:text-5xl font-bold leading-[1.05] tracking-tight mb-5">
+        <motion.h1 variants={fadeUp} transition={heroTransition} className="text-4xl md:text-5xl font-bold leading-[1.05] tracking-tight mb-5">
           Disasters don&apos;t wait. Neither should help.
         </motion.h1>
-        <motion.p variants={fadeUp} transition={{ duration: 0.7 }} className="text-base text-text-muted max-w-[44ch] mb-7">
+        <motion.p variants={fadeUp} transition={heroTransition} className="text-base text-text-muted max-w-[44ch] mb-7">
           AapdaMitra puts live alerts, citizen reports, and nearby resources on one map — so the nearest team gets
           dispatched in the time it takes to click, not call.
         </motion.p>
-        <motion.div variants={fadeUp} transition={{ duration: 0.7 }} className="flex flex-wrap gap-3.5">
+        <motion.div variants={fadeUp} transition={heroTransition} className="flex flex-wrap gap-3.5">
           <motion.button
             type="button"
             onClick={reportIncident}
@@ -66,7 +71,7 @@ export default function Hero() {
         </motion.div>
       </div>
 
-      <motion.div variants={fadeUp} transition={{ duration: 0.7 }}>
+      <motion.div variants={fadeUp} transition={heroTransition}>
         <LiveMapPreview />
       </motion.div>
     </motion.div>

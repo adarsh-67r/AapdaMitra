@@ -250,7 +250,7 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
                 <button
                   key={m.id}
                   onClick={() => setTab(m.id)}
-                  className="group relative flex flex-col items-start gap-2 p-5 rounded-2xl bg-white/[0.04] backdrop-blur-md border border-white/10 hover:border-accent hover:bg-white/[0.07] hover:-translate-y-0.5 transition-all duration-200 text-left cursor-pointer min-h-[142px]"
+                  className="group relative flex flex-col items-start gap-2 p-5 rounded-2xl bg-white/[0.04] backdrop-blur-md border border-white/10 hover:border-accent hover:bg-white/[0.07] hover:-translate-y-0.5 active:translate-y-0 transition-[transform,border-color,background-color] duration-200 text-left cursor-pointer min-h-[142px]"
                 >
                   <span className="text-3xl mb-0.5">{m.icon}</span>
                   <span className="text-base font-semibold leading-tight">{m.label}</span>
