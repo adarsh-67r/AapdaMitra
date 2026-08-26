@@ -186,7 +186,7 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
         </div>
       )}
 
-      <main className="flex-1 overflow-y-auto p-5 max-w-2xl w-full mx-auto">
+      <main className="flex-1 overflow-y-auto px-5 py-6 max-w-3xl w-full mx-auto">
         {tab === null && (
           <div className="flex flex-col gap-4">
             <button
@@ -201,15 +201,15 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
               Instantly files a critical report at your current location.
             </p>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5 mt-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-3">
               {MENU.map((m) => (
                 <button
                   key={m.id}
                   onClick={() => setTab(m.id)}
-                  className="relative flex flex-col items-start gap-2 p-4 rounded-2xl bg-white/[0.04] backdrop-blur-md border border-white/10 hover:border-accent hover:bg-white/[0.07] transition-colors text-left cursor-pointer min-h-[128px]"
+                  className="group relative flex flex-col items-start gap-2 p-5 rounded-2xl bg-white/[0.04] backdrop-blur-md border border-white/10 hover:border-accent hover:bg-white/[0.07] hover:-translate-y-0.5 transition-all duration-200 text-left cursor-pointer min-h-[142px]"
                 >
-                  <span className="text-2xl">{m.icon}</span>
-                  <span className="text-sm font-semibold leading-tight">{m.label}</span>
+                  <span className="text-3xl mb-0.5">{m.icon}</span>
+                  <span className="text-base font-semibold leading-tight">{m.label}</span>
                   <span className="text-xs text-text-muted leading-snug">{m.description}</span>
                   {m.id === "alerts" && nearbyAlerts.length > 0 && (
                     <span

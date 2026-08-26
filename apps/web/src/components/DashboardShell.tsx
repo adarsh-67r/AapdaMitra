@@ -49,8 +49,38 @@ export default function DashboardShell({ onSignOut }: { onSignOut: () => void })
           </span>
         </div>
 
-        <div className="flex items-center gap-3.5">
-          <label className="flex items-center gap-2 text-sm text-text-muted cursor-pointer select-none">
+        <div className="flex items-center gap-4 flex-wrap justify-end">
+          <span className="font-mono text-xs font-semibold px-3 py-1.5 rounded-full bg-available/10 border border-available/40 text-available tracking-wide">
+            ● SACHET LIVE
+          </span>
+
+          <div className="flex items-center gap-1 p-1 rounded-full bg-white/[0.04] border border-white/10">
+            <button
+              onClick={() => setShowQueue((v) => !v)}
+              className="font-mono text-xs px-3 py-1.5 rounded-full cursor-pointer transition-colors"
+              style={
+                showQueue
+                  ? { background: "var(--accent)", color: "var(--accent-contrast)" }
+                  : { color: "var(--text-muted)" }
+              }
+            >
+              Reports ({reports.length})
+            </button>
+            <button
+              onClick={() => setShowResources(true)}
+              className="font-mono text-xs px-3 py-1.5 rounded-full text-text-muted hover:text-text cursor-pointer transition-colors"
+            >
+              Resources
+            </button>
+            <button
+              onClick={() => setShowBroadcast(true)}
+              className="font-mono text-xs px-3 py-1.5 rounded-full text-text-muted hover:text-text cursor-pointer transition-colors"
+            >
+              Broadcast
+            </button>
+          </div>
+
+          <label className="flex items-center gap-2 font-mono text-xs text-text-muted cursor-pointer select-none">
             <input
               type="checkbox"
               checked={autoAllocate}
@@ -58,43 +88,21 @@ export default function DashboardShell({ onSignOut }: { onSignOut: () => void })
             />
             Auto-allocate
           </label>
-          <button
-            onClick={() => setShowQueue((v) => !v)}
-            className="font-mono text-xs px-2.5 py-1.5 rounded border border-border cursor-pointer"
-            style={showQueue ? { background: "var(--accent)", color: "var(--accent-contrast)", borderColor: "var(--accent)" } : undefined}
-          >
-            Reports ({reports.length})
-          </button>
-          <button
-            onClick={() => setShowResources(true)}
-            className="font-mono text-xs px-2.5 py-1.5 rounded border border-border cursor-pointer"
-          >
-            Manage Resources
-          </button>
-          <button
-            onClick={() => setShowBroadcast(true)}
-            className="font-mono text-xs px-2.5 py-1.5 rounded border border-border cursor-pointer"
-          >
-            Broadcast Advisory
-          </button>
-          <ThemeToggle />
-          <span className="font-mono text-xs font-semibold px-3 py-1.5 rounded bg-panel-alt border border-available text-available tracking-wide">
-            ● SACHET LIVE
-          </span>
-          <button
-            onClick={onSignOut}
-            className="font-mono text-xs text-text-muted hover:text-text cursor-pointer"
-          >
-            Sign out
-          </button>
+
+          <div className="flex items-center gap-3.5 pl-4 border-l border-white/10">
+            <ThemeToggle />
+            <button
+              onClick={onSignOut}
+              className="font-mono text-xs text-text-muted hover:text-text cursor-pointer"
+            >
+              Sign out
+            </button>
+          </div>
         </div>
       </header>
 
       <StatsBar alerts={alerts} resources={resources} reports={reports} />
-
-      <div className="mt-4">
-        <FallbackPanel events={fallbackEvents} onTriggerDemo={triggerDemoEvent} />
-      </div>
+      <FallbackPanel events={fallbackEvents} onTriggerDemo={triggerDemoEvent} />
 
       <main className="relative flex-1 px-7 pb-4 min-h-0">
         <div className="relative h-full min-h-[320px] bg-panel/70 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden flex flex-col shadow-[0_20px_50px_-25px_rgba(0,0,0,0.5)]">
