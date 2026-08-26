@@ -43,9 +43,16 @@ function Step({
   const end = (index + 1) / STEPS.length;
   const mid = (start + end) / 2;
 
-  const opacity = useTransform(progress, [start - 0.08, mid, end + 0.02], [0.15, 1, 0.15]);
-  const y = useTransform(progress, [start - 0.08, mid, end + 0.02], [40, 0, -40]);
-  const scale = useTransform(progress, [start - 0.08, mid, end + 0.02], [0.96, 1, 0.96]);
+  // Keyframe offsets must be monotonically non-decreasing and inside [0, 1] —
+  // the earlier version padded the first step's range to -0.08, which the Web
+  // Animations API rejects outright.
+  const from = Math.max(0, start - 0.08);
+  const to = Math.min(1, end + 0.02);
+  const range = [from, mid, to];
+
+  const opacity = useTransform(progress, range, [0.15, 1, 0.15]);
+  const y = useTransform(progress, range, [40, 0, -40]);
+  const scale = useTransform(progress, range, [0.96, 1, 0.96]);
 
   return (
     <motion.div style={{ opacity, y, scale }} className="flex gap-5 md:gap-7 items-start">
