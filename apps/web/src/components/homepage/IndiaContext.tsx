@@ -47,7 +47,7 @@ export default function IndiaContext() {
       <motion.p {...enter} className="font-mono text-xs tracking-widest text-accent mb-2">
         BUILT FOR INDIA'S HAZARD MAP
       </motion.p>
-      <motion.h3 {...enter} className="text-2xl font-bold mb-8 max-w-[36ch]">
+      <motion.h3 {...enter} className="text-3xl md:text-4xl font-bold tracking-[-0.02em] text-balance mb-10 max-w-[24ch]">
         No single hazard, no single region — a coordination layer has to cover the whole country
       </motion.h3>
 

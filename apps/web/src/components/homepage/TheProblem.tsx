@@ -11,7 +11,7 @@ export default function TheProblem() {
         className="rounded-2xl bg-white/[0.04] backdrop-blur-md border border-white/10 p-6 md:p-9"
       >
         <p className="font-mono text-xs tracking-widest text-accent mb-4">THE PROBLEM</p>
-        <p className="text-lg md:text-xl font-semibold leading-snug max-w-[42ch] mb-4">
+        <p className="text-2xl md:text-3xl lg:text-4xl font-bold leading-[1.15] tracking-[-0.02em] text-balance max-w-[24ch] mb-6">
           During floods, cyclones, and landslides, help doesn&apos;t fail for lack of caring — it fails for lack of a
           shared picture.
         </p>

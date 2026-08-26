@@ -35,19 +35,19 @@ export default function Hero() {
 
   return (
     <motion.div
-      className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-9 px-6 md:px-10 py-8 md:py-14 items-center min-h-[70vh] md:min-h-[480px]"
+      className="relative z-10 grid grid-cols-1 lg:grid-cols-[1.15fr_1fr] gap-10 lg:gap-16 px-6 md:px-10 pt-10 pb-16 md:pt-16 md:pb-24 items-center min-h-[86dvh]"
       initial="hidden"
       animate="show"
       variants={{ show: { transition: { staggerChildren: 0.1, delayChildren: 0.15 } } }}
     >
       <div>
-        <motion.p variants={fadeUp} transition={heroTransition} className="font-mono text-xs tracking-widest text-accent mb-4">
+        <motion.p variants={fadeUp} transition={heroTransition} className="font-mono text-[0.7rem] tracking-[0.2em] text-accent mb-5">
           REAL-TIME DISASTER COORDINATION
         </motion.p>
-        <motion.h1 variants={fadeUp} transition={heroTransition} className="text-4xl md:text-5xl font-bold leading-[1.05] tracking-tight mb-5">
+        <motion.h1 variants={fadeUp} transition={heroTransition} className="text-[2.75rem] leading-[0.95] sm:text-6xl lg:text-7xl xl:text-[5.25rem] font-bold tracking-[-0.035em] text-balance mb-6">
           Disasters don&apos;t wait. Neither should help.
         </motion.h1>
-        <motion.p variants={fadeUp} transition={heroTransition} className="text-base text-text-muted max-w-[44ch] mb-7">
+        <motion.p variants={fadeUp} transition={heroTransition} className="text-base md:text-lg text-text-muted max-w-[46ch] leading-relaxed mb-9">
           AapdaMitra puts live alerts, citizen reports, and nearby resources on one map — so the nearest team gets
           dispatched in the time it takes to click, not call.
         </motion.p>
@@ -62,20 +62,24 @@ export default function Hero() {
             // should settle rather than overshoot. Bounce is reserved for
             // motion the user actually threw.
             transition={{ type: "spring", bounce: 0, duration: 0.35 }}
-            className="inline-flex items-center font-mono text-sm font-semibold px-6 py-3.5 min-h-11 rounded-full bg-accent text-accent-contrast cursor-pointer disabled:opacity-60"
+            className="inline-flex items-center font-mono text-sm font-semibold px-7 py-4 min-h-12 rounded-full bg-accent text-accent-contrast cursor-pointer disabled:opacity-60 shadow-[0_12px_36px_-12px_var(--accent)]"
           >
             {entering ? "Entering…" : "Report Incident"}
           </motion.button>
           <Link
             href="/map"
-            className="font-mono text-sm px-6 py-3.5 min-h-11 inline-flex items-center rounded-full bg-white/5 border border-white/10 backdrop-blur-md hover:bg-white/10 transition-colors"
+            className="font-mono text-sm px-7 py-4 min-h-12 inline-flex items-center rounded-full bg-white/5 border border-white/10 backdrop-blur-md hover:bg-white/10 transition-colors"
           >
             View Live Map
           </Link>
         </motion.div>
       </div>
 
-      <motion.div variants={fadeUp} transition={heroTransition}>
+      <motion.div
+        variants={fadeUp}
+        transition={heroTransition}
+        className="lg:scale-[1.12] lg:origin-left xl:-mr-10"
+      >
         <LiveMapPreview />
       </motion.div>
     </motion.div>

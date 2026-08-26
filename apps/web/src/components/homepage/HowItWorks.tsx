@@ -12,7 +12,7 @@ const STEPS = [
 export default function HowItWorks() {
   return (
     <div id="how-it-works" className="relative z-10 px-6 md:px-10 py-14 scroll-mt-20">
-      <motion.h3 {...enter} className="text-2xl font-bold mb-6">
+      <motion.h3 {...enter} className="text-3xl md:text-4xl font-bold tracking-[-0.02em] text-balance mb-8">
         How it works
       </motion.h3>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

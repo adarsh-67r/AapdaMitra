@@ -13,7 +13,7 @@ const FEATURES = [
 export default function FeatureHighlights() {
   return (
     <div id="features" className="relative z-10 px-6 md:px-10 py-14 scroll-mt-20">
-      <motion.h3 {...enter} className="text-2xl font-bold mb-6">
+      <motion.h3 {...enter} className="text-3xl md:text-4xl font-bold tracking-[-0.02em] text-balance mb-8">
         What the system does
       </motion.h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

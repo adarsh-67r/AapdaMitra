@@ -22,17 +22,24 @@ const LEGEND = [
 
 export default function LiveMapPreview() {
   return (
-    <div className="rounded-[26px] bg-white/5 border border-white/10 p-2">
-      <div className="relative rounded-[20px] bg-panel/55 backdrop-blur-2xl border border-white/5 p-5 md:p-6 shadow-[0_30px_70px_-25px_rgba(0,0,0,0.7)]">
+    <div className="rounded-[28px] bg-white/5 border border-white/10 p-2 md:p-2.5">
+      <div className="relative rounded-[20px] bg-panel/55 backdrop-blur-2xl border border-white/5 p-5 md:p-6 shadow-[0_40px_90px_-30px_rgba(0,0,0,0.85)]">
         <div className="flex justify-between font-mono text-xs tracking-wider text-text-muted mb-3.5">
           <span>
             <span className="text-accent animate-pulse">●</span> LIVE MAP
           </span>
           <span>3 alerts &middot; 6 reports</span>
         </div>
-        <div className="relative h-52 rounded-xl bg-panel-alt overflow-hidden">
+        <div
+          className="relative h-52 md:h-72 rounded-xl bg-panel-alt overflow-hidden"
+          style={{
+            backgroundImage:
+              "linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px)",
+            backgroundSize: "28px 28px",
+          }}
+        >
           <motion.div
-            className="absolute inset-0 origin-center opacity-40"
+            className="absolute inset-0 origin-center opacity-60"
             style={{
               background: "conic-gradient(from 0deg, transparent 0deg, var(--accent) 18deg, transparent 40deg)",
             }}
@@ -47,7 +54,10 @@ export default function LiveMapPreview() {
                 animate={{ scale: [0.6, 2.2], opacity: [0.6, 0] }}
                 transition={{ duration: 2.4, repeat: Infinity, ease: "easeOut", delay: i * 0.3 }}
               />
-              <span className="block w-2.5 h-2.5 rounded-full" style={{ background: m.color }} />
+              <span
+                className="block w-2.5 h-2.5 rounded-full"
+                style={{ background: m.color, boxShadow: `0 0 12px ${m.color}` }}
+              />
             </div>
           ))}
         </div>

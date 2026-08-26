@@ -3,9 +3,9 @@
 import { motion } from "framer-motion";
 
 const BLOBS = [
-  { color: "var(--accent)", size: 420, style: { top: "-120px", left: "-80px" }, opacity: 0.35, dx: 30, dy: 20, duration: 14 },
-  { color: "var(--high)", size: 380, style: { bottom: "-140px", right: "-60px" }, opacity: 0.22, dx: -25, dy: -15, duration: 17 },
-  { color: "var(--assigned)", size: 300, style: { top: "30%", right: "15%" }, opacity: 0.18, dx: 15, dy: -25, duration: 12 },
+  { color: "var(--accent)", size: 620, style: { top: "-180px", left: "-140px" }, opacity: 0.5, dx: 30, dy: 20, duration: 14 },
+  { color: "var(--high)", size: 560, style: { bottom: "-200px", right: "-120px" }, opacity: 0.34, dx: -25, dy: -15, duration: 17 },
+  { color: "var(--assigned)", size: 420, style: { top: "26%", right: "12%" }, opacity: 0.26, dx: 15, dy: -25, duration: 12 },
 ];
 
 export default function GlowBackground() {
@@ -20,7 +20,7 @@ export default function GlowBackground() {
             height: b.size,
             background: b.color,
             opacity: b.opacity,
-            filter: "blur(70px)",
+            filter: "blur(90px)",
             ...b.style,
           }}
           animate={{
