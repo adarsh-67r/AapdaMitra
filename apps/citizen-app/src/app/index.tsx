@@ -1,9 +1,10 @@
 import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  AppState,
   Image,
   Pressable,
   ScrollView,
@@ -16,6 +17,7 @@ import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { Spacing } from "@/constants/theme";
 import { apiFetch, apiFetchJson } from "@/lib/api-client";
+import { enqueueReport, flushQueue, subscribeToQueue } from "@/lib/offline-queue";
 
 type Severity = "low" | "medium" | "high" | "critical";
 const SEVERITIES: Severity[] = ["low", "medium", "high", "critical"];
@@ -27,6 +29,19 @@ export default function ReportScreen() {
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locating, setLocating] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [pendingCount, setPendingCount] = useState(0);
+
+  useEffect(() => subscribeToQueue(setPendingCount), []);
+
+  // Retry queued reports on mount and whenever the app comes back to the
+  // foreground — the most likely moment for connectivity to have returned.
+  useEffect(() => {
+    flushQueue();
+    const sub = AppState.addEventListener("change", (state) => {
+      if (state === "active") flushQueue();
+    });
+    return () => sub.remove();
+  }, []);
 
   async function captureLocation() {
     setLocating(true);
@@ -82,7 +97,23 @@ export default function ReportScreen() {
       setPhotoUri(null);
       setSeverity("medium");
     } catch (e) {
-      Alert.alert("Submission failed", e instanceof Error ? e.message : "unknown error");
+      // Couldn't reach the server — hold the report locally and replay it when
+      // the network returns, rather than making the citizen retype it.
+      await enqueueReport({
+        lat: location.lat,
+        lng: location.lng,
+        severity,
+        description,
+        photoUri,
+      });
+      setDescription("");
+      setPhotoUri(null);
+      setSeverity("medium");
+      Alert.alert(
+        "Saved offline",
+        "No connection right now. Your report is saved and will be sent automatically when you're back online."
+      );
+      console.warn("report queued offline:", e instanceof Error ? e.message : e);
     } finally {
       setSubmitting(false);
     }
@@ -95,6 +126,17 @@ export default function ReportScreen() {
           <ThemedText type="title" style={styles.title}>
             Report an Incident
           </ThemedText>
+
+          {pendingCount > 0 && (
+            <ThemedView type="backgroundElement" style={styles.pendingBanner}>
+              <ThemedText type="smallBold">
+                {pendingCount} report{pendingCount === 1 ? "" : "s"} waiting to send
+              </ThemedText>
+              <ThemedText type="small">
+                Saved on this device. They&apos;ll upload automatically once you&apos;re back online.
+              </ThemedText>
+            </ThemedView>
+          )}
 
           <ThemedView type="backgroundElement" style={styles.card}>
             <ThemedText type="smallBold">Location</ThemedText>
@@ -164,6 +206,13 @@ const styles = StyleSheet.create({
   scroll: { padding: Spacing.three, gap: Spacing.three },
   title: { fontSize: 28, lineHeight: 34 },
   card: { borderRadius: Spacing.three, padding: Spacing.three, gap: Spacing.two },
+  pendingBanner: {
+    borderRadius: Spacing.three,
+    padding: Spacing.three,
+    gap: Spacing.one,
+    borderWidth: 1,
+    borderColor: "#E08A00",
+  },
   secondaryButton: {
     borderWidth: 1,
     borderColor: "#8888",
