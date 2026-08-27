@@ -50,14 +50,14 @@ export default function DashboardShell({ onSignOut }: { onSignOut: () => void })
         </div>
 
         <div className="flex items-center gap-4 flex-wrap justify-end">
-          <span className="font-mono text-xs font-semibold px-3 py-1.5 rounded-full bg-available/10 border border-available/40 text-available tracking-wide">
+          <span className="font-mono text-xs font-semibold px-2.5 py-1 bg-available/10 border border-available/40 text-available tracking-wide">
             ● SACHET LIVE
           </span>
 
-          <div className="flex items-center gap-1 p-1 rounded-full bg-panel border border-border">
+          <div className="flex items-center gap-px p-px bg-border border border-border">
             <button
               onClick={() => setShowQueue((v) => !v)}
-              className="font-mono text-xs px-3 py-1.5 rounded-full cursor-pointer transition-[colors,transform] duration-[120ms] ease-out active:scale-[0.98]"
+              className="lg:hidden font-mono text-xs px-3 py-1.5 cursor-pointer transition-[colors,transform] duration-[120ms] ease-out active:scale-[0.98]"
               style={
                 showQueue
                   ? { background: "var(--accent)", color: "var(--accent-contrast)" }
@@ -68,13 +68,13 @@ export default function DashboardShell({ onSignOut }: { onSignOut: () => void })
             </button>
             <button
               onClick={() => setShowResources(true)}
-              className="font-mono text-xs px-3 py-1.5 rounded-full text-text-muted hover:text-text cursor-pointer transition-[colors,transform] duration-[120ms] ease-out active:scale-[0.98]"
+              className="font-mono text-xs px-3 py-1.5 bg-panel text-text-muted hover:text-text cursor-pointer transition-[colors,transform] duration-[120ms] ease-out active:scale-[0.98]"
             >
               Resources
             </button>
             <button
               onClick={() => setShowBroadcast(true)}
-              className="font-mono text-xs px-3 py-1.5 rounded-full text-text-muted hover:text-text cursor-pointer transition-[colors,transform] duration-[120ms] ease-out active:scale-[0.98]"
+              className="font-mono text-xs px-3 py-1.5 bg-panel text-text-muted hover:text-text cursor-pointer transition-[colors,transform] duration-[120ms] ease-out active:scale-[0.98]"
             >
               Broadcast
             </button>
@@ -104,35 +104,46 @@ export default function DashboardShell({ onSignOut }: { onSignOut: () => void })
       <StatsBar alerts={alerts} resources={resources} reports={reports} />
       <FallbackPanel events={fallbackEvents} onTriggerDemo={triggerDemoEvent} />
 
-      <main className="relative flex-1 px-7 pb-4 min-h-0">
-        <div className="relative h-full min-h-[320px] bg-panel border border-border rounded-sm overflow-hidden flex flex-col ">
-          <div className="tick h-3.5 border-b border-border shrink-0" />
-          <div className="flex flex-1 min-h-0">
-            <div className="tick-v w-3.5 border-r border-border shrink-0" />
-            <div className="flex-1 relative bg-panel-alt">
-              {loading ? (
-                <div className="flex items-center justify-center h-full text-sm text-text-muted">
-                  Loading…
-                </div>
-              ) : (
-                <DashboardMap
-                  alerts={alerts}
-                  resources={resources}
-                  reports={reports}
-                  selectedReportId={selectedReportId}
-                  onSelectReport={setSelectedReportId}
-                />
-              )}
+      <main className="relative flex-1 px-7 pb-4 min-h-0 flex gap-3">
+        {/* Persistent worklist. Selecting here drives the map, so the operator
+            never loses sight of either one. */}
+        <aside className="hidden lg:block w-[320px] shrink-0 min-h-0">
+          <ReportsQueue
+            reports={reports}
+            selectedReportId={selectedReportId}
+            onSelectReport={setSelectedReportId}
+          />
+        </aside>
+
+        <div className="relative flex-1 min-w-0 min-h-0">
+          <div className="relative h-full min-h-[320px] bg-panel border border-border rounded-sm overflow-hidden flex flex-col">
+            <div className="tick h-3.5 border-b border-border shrink-0" />
+            <div className="flex flex-1 min-h-0">
+              <div className="tick-v w-3.5 border-r border-border shrink-0" />
+              <div className="flex-1 relative bg-panel-alt">
+                {loading ? (
+                  <div className="flex items-center justify-center h-full text-sm text-text-muted">
+                    Loading…
+                  </div>
+                ) : (
+                  <DashboardMap
+                    alerts={alerts}
+                    resources={resources}
+                    reports={reports}
+                    selectedReportId={selectedReportId}
+                    onSelectReport={setSelectedReportId}
+                  />
+                )}
+              </div>
             </div>
           </div>
-        </div>
 
         <AnimatePresence>
           {showQueue && (
             <>
               <motion.div
                 key="queue-backdrop"
-                className="absolute inset-0 bg-black/30 z-10"
+                className="lg:hidden absolute inset-0 bg-black/30 z-10"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -140,7 +151,7 @@ export default function DashboardShell({ onSignOut }: { onSignOut: () => void })
               />
               <motion.div
                 key="queue-panel"
-                className="absolute top-0 left-0 h-full w-[300px] z-20"
+                className="lg:hidden absolute top-0 left-0 h-full w-[300px] z-20"
                 initial={{ x: "-100%" }}
                 animate={{ x: 0 }}
                 exit={{ x: "-100%" }}
@@ -182,6 +193,7 @@ export default function DashboardShell({ onSignOut }: { onSignOut: () => void })
             </motion.div>
           )}
         </AnimatePresence>
+        </div>
       </main>
 
       {showResources && (

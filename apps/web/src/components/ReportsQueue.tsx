@@ -91,7 +91,7 @@ export default function ReportsQueue({ reports, selectedReportId, onSelectReport
                 </div>
                 {r.cluster_size > 1 && (
                   <span
-                    className="font-mono text-[0.65rem] font-bold self-start px-2 py-0.5 rounded-full inline-flex items-center gap-1"
+                    className="font-mono text-[0.65rem] font-bold self-start px-2 py-0.5 inline-flex items-center gap-1"
                     style={{ background: "var(--critical)", color: "#fff" }}
                   >
                     <AlertTriangleIcon size={12} /> CLUSTER · {r.cluster_size} REPORTS NEARBY
