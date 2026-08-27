@@ -103,7 +103,7 @@ export default function HowItWorks() {
             <motion.div
               key={s.n}
               {...enterStaggered(i)}
-              className="rounded-2xl bg-white/[0.04] backdrop-blur-md border border-white/10 p-5"
+              className="rounded-sm bg-panel border border-border p-5"
             >
               <div className="font-mono text-xs" style={{ color: s.accent }}>
                 {s.n}

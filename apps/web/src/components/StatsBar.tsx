@@ -60,7 +60,7 @@ export default function StatsBar({ alerts, resources, reports }: Props) {
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 px-7 pt-4 pb-3">
-      <div className="rounded-2xl bg-white/[0.04] backdrop-blur-md border border-white/10 px-5 py-4 flex items-center gap-4">
+      <div className="rounded-sm bg-panel border border-border px-5 py-4 flex items-center gap-4">
         <RadialGauge value={criticalOpen} total={Math.max(openReports, 1)} />
         <div>
           <div className="font-mono text-xs uppercase tracking-wider text-text-muted">Critical / Open</div>
@@ -69,7 +69,7 @@ export default function StatsBar({ alerts, resources, reports }: Props) {
         </div>
       </div>
 
-      <div className="rounded-2xl bg-white/[0.04] backdrop-blur-md border border-white/10 px-5 py-4 flex flex-col justify-center gap-2.5">
+      <div className="rounded-sm bg-panel border border-border px-5 py-4 flex flex-col justify-center gap-2.5">
         <span className="font-mono text-xs uppercase tracking-wider text-text-muted">Resources Available</span>
         <div className="flex items-baseline gap-2">
           <span className="font-mono text-[26px] font-bold text-available">
@@ -80,7 +80,7 @@ export default function StatsBar({ alerts, resources, reports }: Props) {
         <TickBar fraction={resources.length ? availableResources / resources.length : 0} color="var(--available)" />
       </div>
 
-      <div className="rounded-2xl bg-white/[0.04] backdrop-blur-md border border-white/10 px-5 py-4 flex flex-col justify-center gap-2.5">
+      <div className="rounded-sm bg-panel border border-border px-5 py-4 flex flex-col justify-center gap-2.5">
         <span className="font-mono text-xs uppercase tracking-wider text-text-muted">Severe Alerts</span>
         <div className="flex items-baseline gap-2">
           <span className="font-mono text-[26px] font-bold text-high">
@@ -91,7 +91,7 @@ export default function StatsBar({ alerts, resources, reports }: Props) {
         <TickBar fraction={alerts.length ? severeAlerts / alerts.length : 0} color="var(--high)" />
       </div>
 
-      <div className="rounded-2xl bg-white/[0.04] backdrop-blur-md border border-white/10 px-5 py-4 flex flex-col justify-center gap-2.5">
+      <div className="rounded-sm bg-panel border border-border px-5 py-4 flex flex-col justify-center gap-2.5">
         <span className="font-mono text-xs uppercase tracking-wider text-text-muted">Assigned / Resolved</span>
         <div className="flex items-baseline gap-2 font-mono">
           <span className="text-[26px] font-bold text-assigned">{assigned}</span>

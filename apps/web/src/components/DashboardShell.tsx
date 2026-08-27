@@ -35,7 +35,7 @@ export default function DashboardShell({ onSignOut }: { onSignOut: () => void })
 
   return (
     <div className="flex flex-col h-[100dvh] bg-bg text-text">
-      <header className="flex items-center justify-between px-7 py-4 border-b border-white/10 bg-white/[0.03] backdrop-blur-xl">
+      <header className="flex items-center justify-between px-7 py-4 border-b border-border bg-panel ">
         <div className="flex items-center gap-3.5">
           <div className="w-8 h-8 border border-accent rounded-md flex items-center justify-center">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -54,7 +54,7 @@ export default function DashboardShell({ onSignOut }: { onSignOut: () => void })
             ● SACHET LIVE
           </span>
 
-          <div className="flex items-center gap-1 p-1 rounded-full bg-white/[0.04] border border-white/10">
+          <div className="flex items-center gap-1 p-1 rounded-full bg-panel border border-border">
             <button
               onClick={() => setShowQueue((v) => !v)}
               className="font-mono text-xs px-3 py-1.5 rounded-full cursor-pointer transition-[colors,transform] duration-[120ms] ease-out active:scale-[0.98]"
@@ -89,7 +89,7 @@ export default function DashboardShell({ onSignOut }: { onSignOut: () => void })
             Auto-allocate
           </label>
 
-          <div className="flex items-center gap-3.5 pl-4 border-l border-white/10">
+          <div className="flex items-center gap-3.5 pl-4 border-l border-border">
             <ThemeToggle />
             <button
               onClick={onSignOut}
@@ -105,7 +105,7 @@ export default function DashboardShell({ onSignOut }: { onSignOut: () => void })
       <FallbackPanel events={fallbackEvents} onTriggerDemo={triggerDemoEvent} />
 
       <main className="relative flex-1 px-7 pb-4 min-h-0">
-        <div className="relative h-full min-h-[320px] bg-panel/70 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden flex flex-col shadow-[0_20px_50px_-25px_rgba(0,0,0,0.5)]">
+        <div className="relative h-full min-h-[320px] bg-panel border border-border rounded-sm overflow-hidden flex flex-col ">
           <div className="tick h-3.5 border-b border-border shrink-0" />
           <div className="flex flex-1 min-h-0">
             <div className="tick-v w-3.5 border-r border-border shrink-0" />

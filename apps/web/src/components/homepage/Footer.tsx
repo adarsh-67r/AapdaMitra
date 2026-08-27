@@ -3,7 +3,7 @@ import EnterAppLink from "./EnterAppLink";
 
 export default function Footer() {
   return (
-    <footer className="relative z-10 px-6 md:px-10 pt-14 pb-10 border-t border-white/10">
+    <footer className="relative z-10 px-6 md:px-10 pt-14 pb-10 border-t border-border">
       <div className="flex flex-wrap justify-between gap-10">
         <div className="max-w-[30ch]">
           <p className="text-2xl md:text-3xl font-bold tracking-[-0.02em] leading-[1.15] mb-3">
@@ -59,7 +59,7 @@ export default function Footer() {
         </nav>
       </div>
 
-      <div className="mt-12 pt-6 border-t border-white/[0.06] font-mono text-[0.68rem] text-text-muted">
+      <div className="mt-12 pt-6 border-t border-border font-mono text-[0.68rem] text-text-muted">
         <span>Alerts ingested from SACHET (NDMA) — carrying IMD, CWC and state SDMA warnings</span>
       </div>
     </footer>

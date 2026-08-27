@@ -50,7 +50,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               animate={{ opacity: 1, transform: "translateY(0%)" }}
               exit={{ opacity: 0, transform: "translateY(100%)" }}
               transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
-              className="pointer-events-auto max-w-md w-full flex items-start gap-2.5 px-4 py-3 rounded-xl bg-panel border shadow-[0_16px_40px_-16px_rgba(0,0,0,0.7)]"
+              className="pointer-events-auto max-w-md w-full flex items-start gap-2.5 px-4 py-3 rounded-xl bg-panel border "
               style={{ borderColor: t.tone === "error" ? "var(--critical)" : "var(--available)" }}
             >
               <span

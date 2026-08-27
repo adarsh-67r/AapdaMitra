@@ -18,7 +18,7 @@ function StatusPill({ status }: { status: Feature["status"] }) {
   return (
     <span
       className={
-        "font-mono text-[0.7rem] tracking-wide mt-4 self-start px-2.5 py-1 rounded-full " +
+"font-mono text-[0.7rem] tracking-wide mt-4 self-start px-2.5 py-1 rounded-full " +
         (status === "Live" ? "bg-available/15 text-available" : "bg-medium/15 text-medium")
       }
     >
@@ -40,7 +40,7 @@ function CardBody({ feature }: { feature: Feature }) {
 }
 
 const CARD_CLASS =
-  "h-full rounded-2xl bg-white/[0.04] backdrop-blur-md border border-white/10 p-5 flex flex-col justify-between min-h-[180px] hover:border-accent/40 transition-colors";
+"h-full rounded-sm bg-panel border border-border p-5 flex flex-col justify-between min-h-[180px] hover:border-accent/40 transition-colors";
 
 /**
  * Cards deal in like a hand being laid down: each starts lower, rotated and

@@ -65,8 +65,8 @@ export default function LiveMapPreview() {
   const showLine = phase === "dispatched";
 
   return (
-    <div className="rounded-[28px] bg-white/5 border border-white/10 p-2 md:p-2.5">
-      <div className="relative rounded-[20px] bg-panel/55 backdrop-blur-2xl border border-white/5 p-5 md:p-6 shadow-[0_40px_90px_-30px_rgba(0,0,0,0.85)]">
+    <div className="rounded-[28px] bg-panel border border-border p-2 md:p-2.5">
+      <div className="relative rounded-[20px] bg-panel border border-border p-5 md:p-6 ">
         <div className="flex justify-between font-mono text-xs tracking-wider text-text-muted mb-3.5">
           <span>
             <span className="text-accent animate-pulse">●</span> LIVE MAP
@@ -89,7 +89,7 @@ export default function LiveMapPreview() {
           className="relative h-52 md:h-72 rounded-xl bg-panel-alt overflow-hidden"
           style={{
             backgroundImage:
-              "linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px)",
+"linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px)",
             backgroundSize: "28px 28px",
           }}
         >
@@ -98,7 +98,7 @@ export default function LiveMapPreview() {
               className="absolute inset-0 origin-center opacity-60"
               style={{
                 background:
-                  "conic-gradient(from 0deg, transparent 0deg, var(--accent) 18deg, transparent 40deg)",
+"conic-gradient(from 0deg, transparent 0deg, var(--accent) 18deg, transparent 40deg)",
               }}
               animate={{ rotate: 360 }}
               transition={{ duration: 4, repeat: Infinity, ease: "linear" }}

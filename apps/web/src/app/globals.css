@@ -1,41 +1,54 @@
 @import "tailwindcss";
 @import "leaflet/dist/leaflet.css";
 
-/* "Field instrument" theme tokens. Dark is the default; [data-theme="light"]
-   overrides. A single teal accent is kept separate from the severity colors
-   (critical/high/medium/available/assigned) so it's never confused with
-   status meaning. */
+/* "Operations instrument" theme tokens.
+
+   The ground is paper, not screen: a warm bone stock, warm near-black ink, and
+   one signal red. Every neutral is tinted warm — mixing a warm bone with cool
+   grey is the single fastest way to make a palette look assembled rather than
+   chosen.
+
+   Accent and critical are deliberately THE SAME red, because on this surface
+   they mean the same thing: attention, now. That only works because no filled
+   button ever uses it — primary actions are ink-on-bone, so a red element is
+   always information and never a control. The rest of the severity ramp walks
+   away from that red through amber to green and blue.
+
+   Light is the default. Dark is the same instrument under a darkroom lamp, not
+   a separate design. */
 :root,
-[data-theme="dark"] {
-  --bg: #0b0f14;
-  --panel: #12181f;
-  --panel-alt: #0e141a;
-  --border: #232c35;
-  --text: #eef2f6;
-  --text-muted: #8b96a3;
-  --accent: #2dd4bf;
-  --accent-contrast: #06201c;
-  --critical: #ff6b5e;
-  --high: #ff9d5c;
-  --medium: #eab84d;
-  --available: #4ade80;
-  --assigned: #38bdf8;
+[data-theme="light"] {
+  --bg: #f2efe6;
+  --panel: #fbfaf5;
+  --panel-alt: #e7e2d4;
+  --border: #cdc6b5;
+  --rule: #1b1a16;
+  --text: #1b1a16;
+  --text-muted: #6d6759;
+  --accent: #b3322a;
+  --accent-contrast: #fbfaf5;
+  --critical: #b3322a;
+  --high: #ad5f11;
+  --medium: #866c13;
+  --available: #2c6742;
+  --assigned: #1d537c;
 }
 
-[data-theme="light"] {
-  --bg: #f4f5f2;
-  --panel: #ffffff;
-  --panel-alt: #eef0ec;
-  --border: #dde0d9;
-  --text: #14181c;
-  --text-muted: #6b7280;
-  --accent: #0f9c8f;
-  --accent-contrast: #ffffff;
-  --critical: #d6473a;
-  --high: #c9701a;
-  --medium: #a3811f;
-  --available: #188a53;
-  --assigned: #0d76ad;
+[data-theme="dark"] {
+  --bg: #14120f;
+  --panel: #1c1a16;
+  --panel-alt: #0f0e0c;
+  --border: #35312a;
+  --rule: #f2efe6;
+  --text: #f2efe6;
+  --text-muted: #98917f;
+  --accent: #e0574a;
+  --accent-contrast: #14120f;
+  --critical: #e0574a;
+  --high: #d4872f;
+  --medium: #c4a844;
+  --available: #56ad78;
+  --assigned: #57a0d4;
 }
 
 @theme inline {
@@ -43,6 +56,7 @@
   --color-panel: var(--panel);
   --color-panel-alt: var(--panel-alt);
   --color-border: var(--border);
+  --color-rule: var(--rule);
   --color-text: var(--text);
   --color-text-muted: var(--text-muted);
   --color-accent: var(--accent);
@@ -118,30 +132,59 @@ html {
   font-variant-numeric: tabular-nums;
 }
 
-/* This interface is built almost entirely from translucent glass surfaces. For
-   anyone who has asked the OS to reduce transparency — often precisely because
-   layered translucency is hard for them to read — that design is the problem.
-   Drop the blur and make every glass surface opaque, keeping the layout and the
-   hierarchy exactly as they were.
-
-   Keyed off `backdrop-blur` rather than a list of opacity utilities: every
-   glass surface here carries it, and a structural selector keeps covering new
-   ones instead of going stale the moment someone adds `bg-panel/85`. */
-@media (prefers-reduced-transparency: reduce) {
-  [class*="backdrop-blur"] {
-    backdrop-filter: none !important;
-    background-color: var(--panel) !important;
+/* For a user who asked for more contrast, give every ruled cell a defined edge
+   instead of the hairline the paper stock normally wants. */
+@media (prefers-contrast: more) {
+  .panel,
+  .panel-alt,
+  .control {
+    border-color: var(--rule);
   }
 }
 
-/* Same surfaces, but for a user who asked for more contrast: give the glass a
-   defined edge instead of a barely-there hairline. */
-@media (prefers-contrast: more) {
-  [class*="backdrop-blur"] {
-    backdrop-filter: none !important;
-    background-color: var(--panel) !important;
-    border-color: var(--text-muted) !important;
-  }
+/* Surfaces are ruled, not floated. A panel is a bordered cell drawn on the same
+   paper as everything else: opaque, hairline edge, corners barely rounded, no
+   blur and no elevation shadow. Depth here comes from rules and spacing, which
+   is what makes it read as an instrument rather than a stack of glass cards. */
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+}
+.panel-alt {
+  background: var(--panel-alt);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+}
+
+/* Controls are ink on paper, never accent-filled — that is what keeps the
+   signal red unambiguously informational everywhere else. */
+.control {
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  background: transparent;
+  color: var(--text);
+  transition: background-color 160ms ease-out, color 160ms ease-out;
+}
+.control:hover {
+  background: var(--rule);
+  color: var(--bg);
+}
+.control:active {
+  transform: translateY(1px);
+}
+.control-primary {
+  background: var(--rule);
+  color: var(--bg);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  transition: opacity 160ms ease-out;
+}
+.control-primary:hover {
+  opacity: 0.84;
+}
+.control-primary:active {
+  transform: translateY(1px);
 }
 
 .tick {

@@ -60,7 +60,7 @@ function resourceIcon(resource: Resource) {
       width:28px;height:28px;border-radius:50%;
       display:flex;align-items:center;justify-content:center;
       border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,.4);
-      ">${svgGlyph(RESOURCE_GLYPH[resource.type])}</div>`,
+">${svgGlyph(RESOURCE_GLYPH[resource.type])}</div>`,
     className: "",
     iconSize: [28, 28],
     iconAnchor: [14, 14],

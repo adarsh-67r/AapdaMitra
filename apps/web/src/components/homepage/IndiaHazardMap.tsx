@@ -201,7 +201,7 @@ function BeltList() {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
       {BELTS.map((b) => (
-        <div key={b.id} className="rounded-2xl bg-white/[0.04] backdrop-blur-md border border-white/10 p-5">
+        <div key={b.id} className="rounded-sm bg-panel border border-border p-5">
           <div className="font-mono text-xs mb-2" style={{ color: b.color }}>
             {b.hazard.toUpperCase()} · {b.label.toUpperCase()}
           </div>

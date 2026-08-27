@@ -5,7 +5,7 @@ import { motion, useReducedMotion, useScroll, useTransform, type MotionValue } f
 import { enter } from "@/lib/motion";
 
 const HEADLINE =
-  "During floods, cyclones and landslides, help doesn't fail for lack of caring. It fails for lack of a shared picture.";
+"During floods, cyclones and landslides, help doesn't fail for lack of caring. It fails for lack of a shared picture.";
 
 const WORDS = HEADLINE.split(" ");
 // The two words the sentence turns on.
@@ -45,7 +45,7 @@ export default function TheProblem() {
       <div id="problem" className="relative z-10 px-6 md:px-10 py-14 scroll-mt-20">
         <motion.div
           {...enter}
-          className="rounded-2xl bg-white/[0.04] backdrop-blur-md border border-white/10 p-6 md:p-9"
+          className="rounded-sm bg-panel border border-border p-6 md:p-9"
         >
           <p className="font-mono text-xs tracking-widest text-accent mb-4">THE PROBLEM</p>
           <p className="text-2xl md:text-4xl font-bold leading-[1.15] tracking-[-0.02em] max-w-[24ch] mb-6">

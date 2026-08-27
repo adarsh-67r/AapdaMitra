@@ -12,8 +12,8 @@ interface Props {
 
 export default function FallbackPanel({ events, onTriggerDemo }: Props) {
   return (
-    <div className="mx-7 mb-3 rounded-2xl bg-white/[0.04] backdrop-blur-md border border-white/10 overflow-hidden">
-      <div className="px-4 py-2.5 border-b border-white/10 flex items-center justify-between flex-wrap gap-2">
+    <div className="mx-7 mb-3 rounded-sm bg-panel border border-border overflow-hidden">
+      <div className="px-4 py-2.5 border-b border-border flex items-center justify-between flex-wrap gap-2">
         <span className="text-sm font-semibold">No-Internet Fallback Channel</span>
         <div className="flex items-center gap-2">
           <span className="font-mono text-xs px-2 py-0.5 rounded bg-panel-alt text-text-muted">

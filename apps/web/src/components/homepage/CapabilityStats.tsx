@@ -13,7 +13,7 @@ const STATS = [
 export default function CapabilityStats() {
   return (
     <div className="relative z-10 px-6 md:px-10 py-14">
-      <motion.div {...enter} className="rounded-2xl bg-white/[0.04] backdrop-blur-md border border-white/10 p-7 md:p-9 flex flex-wrap justify-center gap-10 text-center">
+      <motion.div {...enter} className="rounded-sm bg-panel border border-border p-7 md:p-9 flex flex-wrap justify-center gap-10 text-center">
         {STATS.map((s) => (
           <div key={s.label}>
             <b className="block text-4xl md:text-5xl font-bold text-accent leading-none">

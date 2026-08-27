@@ -1,28 +1,30 @@
 import type { Metadata } from "next";
-import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
+import { IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import MotionProvider from "@/components/MotionProvider";
 import "./globals.css";
 
-const spaceGrotesk = Space_Grotesk({
+const plexSans = IBM_Plex_Sans({
   variable: "--font-sans",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
-const jetbrainsMono = JetBrains_Mono({
+const plexMono = IBM_Plex_Mono({
   variable: "--font-mono",
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
 });
 
 export const metadata: Metadata = {
   title: "AapdaMitra — Real-Time Disaster Coordination",
   description:
-    "Live disaster alerts, citizen incident reports, and nearest-available resource dispatch on one map.",
+"Live disaster alerts, citizen incident reports, and nearest-available resource dispatch on one map.",
 };
 
 // Sets data-theme before hydration so there's no flash of the wrong palette.
 const themeInitScript = `
   try {
-    var t = localStorage.getItem('theme') || 'dark';
+    var t = localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', t);
   } catch (e) {}
 `;
@@ -31,9 +33,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      data-theme="dark"
+      data-theme="light"
       suppressHydrationWarning
-      className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      className={`${plexSans.variable} ${plexMono.variable} h-full antialiased`}
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />

@@ -213,7 +213,7 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
 
   return (
     <div className="flex flex-col h-[100dvh] bg-bg text-text">
-      <header className="flex items-center justify-between px-6 py-3.5 border-b border-white/10 bg-white/[0.03] backdrop-blur-xl">
+      <header className="flex items-center justify-between px-6 py-3.5 border-b border-border bg-panel ">
         <div className="flex items-center gap-3">
           <div className="w-7 h-7 border border-accent rounded-md flex items-center justify-center">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -231,7 +231,7 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
       </header>
 
       {tab !== null && (
-        <div className="flex items-center gap-3 px-6 py-2.5 border-b border-white/10 bg-white/[0.02] backdrop-blur-xl">
+        <div className="flex items-center gap-3 px-6 py-2.5 border-b border-border bg-panel ">
           <button
             onClick={() => setTab(null)}
             className="font-mono text-xs text-text-muted hover:text-text cursor-pointer flex items-center gap-1.5"
@@ -249,7 +249,7 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
             <button
               onClick={() => submitReport("critical", "SOS — immediate emergency assistance needed")}
               disabled={submitting || !location}
-              className="w-full py-5 rounded-2xl text-lg font-bold uppercase tracking-wide disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2.5 transition-transform duration-150 ease-out active:scale-[0.97]"
+              className="w-full py-5 rounded-sm text-lg font-bold uppercase tracking-wide disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2.5 transition-transform duration-150 ease-out active:scale-[0.97]"
               style={{ background: "var(--critical)", color: "#fff" }}
             >
               <SosIcon size={22} />
@@ -264,7 +264,7 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
                 <button
                   key={m.id}
                   onClick={() => setTab(m.id)}
-                  className="group relative flex flex-col items-start gap-2 p-5 rounded-2xl bg-white/[0.04] backdrop-blur-md border border-white/10 hover:border-accent hover:bg-white/[0.07] hover:-translate-y-0.5 active:translate-y-0 transition-[transform,border-color,background-color] duration-200 text-left cursor-pointer min-h-[142px]"
+                  className="group relative flex flex-col items-start gap-2 p-5 rounded-sm bg-panel border border-border hover:border-accent hover:bg-panel-alt hover:-translate-y-0.5 active:translate-y-0 transition-[transform,border-color,background-color] duration-200 text-left cursor-pointer min-h-[142px]"
                 >
                   <m.Icon size={26} className="text-accent mb-1" />
                   <span className="text-base font-semibold leading-tight">{m.label}</span>
@@ -296,7 +296,7 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
             <button
               onClick={() => submitReport("critical", "SOS — immediate emergency assistance needed")}
               disabled={submitting || !location}
-              className="w-full py-5 rounded-2xl text-lg font-bold uppercase tracking-wide disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2.5 transition-transform duration-150 ease-out active:scale-[0.97]"
+              className="w-full py-5 rounded-sm text-lg font-bold uppercase tracking-wide disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2.5 transition-transform duration-150 ease-out active:scale-[0.97]"
               style={{ background: "var(--critical)", color: "#fff" }}
             >
               <SosIcon size={22} />
@@ -306,7 +306,7 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
               Instantly files a critical report at your current location.
             </p>
 
-            <div className="bg-white/[0.04] backdrop-blur-md border border-white/10 rounded-2xl p-4 flex flex-col gap-3">
+            <div className="bg-panel border border-border rounded-sm p-4 flex flex-col gap-3">
               <span className="text-sm font-semibold">Report an Incident</span>
               <div className="text-xs text-text-muted font-mono flex items-center gap-1.5">
                 {location ? (
@@ -315,7 +315,7 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
                     {location.lat.toFixed(4)}, {location.lng.toFixed(4)}
                   </>
                 ) : (
-                  "Locating…"
+"Locating…"
                 )}
               </div>
               <div className="flex gap-2">
@@ -348,7 +348,7 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
                   <img
                     src={photoPreview}
                     alt="Attached photo preview"
-                    className="w-20 h-20 object-cover rounded-lg border border-white/10"
+                    className="w-20 h-20 object-cover rounded-lg border border-border"
                   />
                   <button
                     onClick={clearPhoto}
@@ -389,7 +389,7 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
               <p className="text-sm text-text-muted text-center py-10">No active alerts nearby.</p>
             ) : (
               nearbyAlerts.map((a) => (
-                <div key={a.id} className="bg-white/[0.04] backdrop-blur-md border border-white/10 rounded-2xl p-3.5 flex flex-col gap-1">
+                <div key={a.id} className="bg-panel border border-border rounded-sm p-3.5 flex flex-col gap-1">
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
                       <span className="w-2 h-2 rounded-full" style={{ background: SEVERITY_COLOR[a.severity_color] }} />
@@ -402,7 +402,7 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
                         </span>
                       )}
                       {a.issuing_agency && (
-                        <span className="font-mono text-[0.65rem] px-2 py-0.5 rounded-full bg-white/[0.06] border border-white/10 text-text-muted whitespace-nowrap">
+                        <span className="font-mono text-[0.65rem] px-2 py-0.5 rounded-full bg-panel-alt border border-border text-text-muted whitespace-nowrap">
                           {a.issuing_agency}
                         </span>
                       )}
@@ -417,7 +417,7 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
         )}
 
         {tab === "shelters" && (
-          <div className="h-[70vh] rounded-2xl overflow-hidden border border-white/10">
+          <div className="h-[70vh] rounded-sm overflow-hidden border border-border">
             <CitizenMap pins={resourcePins} center={location ? [location.lat, location.lng] : undefined} />
           </div>
         )}
@@ -428,7 +428,7 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
               <p className="text-sm text-text-muted text-center py-10">You haven&apos;t submitted any reports yet.</p>
             ) : (
               myReports.map((r) => (
-                <div key={r.id} className="bg-white/[0.04] backdrop-blur-md border border-white/10 rounded-2xl p-3.5 flex flex-col gap-1">
+                <div key={r.id} className="bg-panel border border-border rounded-sm p-3.5 flex flex-col gap-1">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-semibold uppercase">{r.severity}</span>
                     <span className="font-mono text-xs uppercase text-text-muted">{r.status}</span>
@@ -447,7 +447,7 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
               <a
                 key={c.number}
                 href={`tel:${c.number}`}
-                className="flex items-center justify-between bg-white/[0.04] backdrop-blur-md border border-white/10 rounded-2xl p-3.5 hover:border-accent"
+                className="flex items-center justify-between bg-panel border border-border rounded-sm p-3.5 hover:border-accent"
               >
                 <span className="text-sm font-medium">{c.name}</span>
                 <span className="font-mono text-base font-bold text-accent">{c.number}</span>

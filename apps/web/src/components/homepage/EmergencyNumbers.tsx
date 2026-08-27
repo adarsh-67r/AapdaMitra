@@ -7,7 +7,7 @@ const NUMBERS = [
 
 export default function EmergencyNumbers() {
   return (
-    <div className="relative z-10 px-6 md:px-10 py-6 border-y border-white/10">
+    <div className="relative z-10 px-6 md:px-10 py-6 border-y border-border">
       <div className="flex flex-wrap gap-x-8 gap-y-3 font-mono text-sm">
         {NUMBERS.map((n) => (
           <span key={n.label} className="text-text-muted">
