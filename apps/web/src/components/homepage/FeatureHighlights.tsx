@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import { motion, useReducedMotion, useScroll, useTransform, type MotionValue } from "framer-motion";
-import { enter, enterStaggered } from "@/lib/motion";
+import { EASE_OUT, enter, enterStaggered } from "@/lib/motion";
 import TiltCard from "./TiltCard";
 
 const FEATURES = [
@@ -14,27 +14,36 @@ const FEATURES = [
 
 type Feature = (typeof FEATURES)[number];
 
-function StatusPill({ status }: { status: Feature["status"] }) {
+/**
+ * Whether a capability is built or planned is the one thing on the card a judge
+ * is actually checking, so it arrives a beat after the card has settled rather
+ * than with it — the card is read, then its status lands.
+ */
+function StatusPill({ status, delay = 0 }: { status: Feature["status"]; delay?: number }) {
   return (
-    <span
+    <motion.span
+      initial={{ opacity: 0, transform: "translateY(6px)" }}
+      whileInView={{ opacity: 1, transform: "translateY(0px)" }}
+      viewport={{ once: true, margin: "-10%" }}
+      transition={{ duration: 0.24, delay: delay + 0.34, ease: EASE_OUT }}
       className={
-"font-mono text-[0.7rem] tracking-wide mt-4 self-start px-2.5 py-1 " +
+        "font-mono text-[0.7rem] tracking-wide mt-4 self-start px-2.5 py-1 " +
         (status === "Live" ? "bg-available/15 text-available" : "bg-medium/15 text-medium")
       }
     >
       {status.toUpperCase()}
-    </span>
+    </motion.span>
   );
 }
 
-function CardBody({ feature }: { feature: Feature }) {
+function CardBody({ feature, delay = 0 }: { feature: Feature; delay?: number }) {
   return (
     <>
       <div>
         <h5 className="font-semibold mb-1.5">{feature.title}</h5>
         <p className="text-sm text-text-muted leading-relaxed">{feature.body}</p>
       </div>
-      <StatusPill status={feature.status} />
+      <StatusPill status={feature.status} delay={delay} />
     </>
   );
 }
@@ -67,7 +76,7 @@ function DealtCard({
   return (
     <motion.div style={{ y, rotate, opacity }}>
       <TiltCard className={CARD_CLASS}>
-        <CardBody feature={feature} />
+        <CardBody feature={feature} delay={index * 0.08} />
       </TiltCard>
     </motion.div>
   );
@@ -88,7 +97,7 @@ export default function FeatureHighlights() {
           reduceMotion ? (
             <motion.div key={f.title} {...enterStaggered(i)}>
               <TiltCard className={CARD_CLASS}>
-                <CardBody feature={f} />
+                <CardBody feature={f} delay={i * 0.08} />
               </TiltCard>
             </motion.div>
           ) : (
