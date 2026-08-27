@@ -3,7 +3,7 @@ import ScrollProgress from "./ScrollProgress";
 import HomepageNav from "./HomepageNav";
 import Hero from "./Hero";
 import TheProblem from "./TheProblem";
-import IndiaContext from "./IndiaContext";
+import IndiaHazardMap from "./IndiaHazardMap";
 import HowItWorks from "./HowItWorks";
 import FeatureHighlights from "./FeatureHighlights";
 import EmergencyNumbers from "./EmergencyNumbers";
@@ -22,7 +22,7 @@ export default function Homepage() {
       <HomepageNav />
       <Hero />
       <TheProblem />
-      <IndiaContext />
+      <IndiaHazardMap />
       <HowItWorks />
       <FeatureHighlights />
       <EmergencyNumbers />
