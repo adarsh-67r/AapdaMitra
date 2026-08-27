@@ -5,6 +5,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { Spacing } from "@/constants/theme";
+import { DEMO_CITIZEN } from "@/lib/demo-accounts";
 import { useAuth } from "@/lib/use-auth";
 
 type Mode = "login" | "signup";
@@ -16,6 +17,23 @@ export function LoginScreen() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  /**
+   * One tap into a real pre-created account. Someone opening this during an
+   * emergency, or a judge with two minutes at a stall, should not have to invent
+   * a password first. Real auth still runs; only the typing is skipped.
+   */
+  async function enterDemo() {
+    setError(null);
+    setLoading(true);
+    try {
+      await login(DEMO_CITIZEN.email, DEMO_CITIZEN.password);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "could not open the demo account");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   async function submit() {
     setError(null);
@@ -75,6 +93,15 @@ export function LoginScreen() {
           </Pressable>
         </ThemedView>
 
+        <Pressable
+          style={styles.demoButton}
+          onPress={enterDemo}
+          disabled={loading}
+          accessibilityRole="button"
+        >
+          <ThemedText style={styles.demoText}>Explore with the demo account</ThemedText>
+        </Pressable>
+
         {error && (
           <ThemedText type="small" style={styles.error}>
             {error}
@@ -103,6 +130,14 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.two,
     fontSize: 16,
   },
+  demoButton: {
+    borderWidth: 1,
+    borderColor: "#8888",
+    borderRadius: Spacing.two,
+    paddingVertical: Spacing.three,
+    alignItems: "center",
+  },
+  demoText: { fontWeight: "600" },
   button: { backgroundColor: "#208AEF", borderRadius: Spacing.two, paddingVertical: Spacing.three, alignItems: "center" },
   buttonText: { color: "#fff", fontWeight: "600" },
   error: { color: "#D64545", textAlign: "center" },
