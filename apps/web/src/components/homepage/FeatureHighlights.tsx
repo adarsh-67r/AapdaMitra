@@ -48,7 +48,7 @@ const SPAN = 0.2;
 const ARRIVED = 0.12;
 
 const CARD_CLASS =
-  "h-full rounded-sm bg-panel border border-border p-5 flex flex-col justify-between min-h-[220px] transition-colors";
+  "h-full rounded-sm bg-panel border border-border p-5 md:p-6 flex flex-col justify-between min-h-[280px] md:min-h-[320px] transition-colors";
 
 function StatusPill({ status }: { status: Feature["status"] }) {
   return (
@@ -139,14 +139,16 @@ function Ticks({ index }: { index: number }) {
 export default function FeatureHighlights() {
   const ref = useRef<HTMLDivElement>(null);
   const reduceMotion = useReducedMotion();
-  // Timed so the arrivals happen while the cards are actually on screen.
+  // Timed so every arrival happens while that card is fully on screen.
   //
-  // Running the sequence from the moment the section's top crosses the fold puts
-  // the first two arrivals below it — the cards are still off-screen when they
-  // animate, so by the time the section is readable they are simply already
-  // there and nothing appears to happen. Starting at 0.6 of the viewport instead
-  // means every one of the four arrives somewhere the reader is looking.
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start 0.6", "end 0.75"] });
+  // Running the sequence from the moment the section's top crosses the fold put
+  // the first two arrivals below it — those cards animated while still
+  // off-screen, so by the time the section was readable they were simply already
+  // there and nothing appeared to happen. This window is the widest that keeps
+  // all four card positions inside the viewport at the moment they arrive; it
+  // has to be rechecked if the card height changes, since a taller section
+  // leaves less room to play the sequence in.
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start 0.5", "end 0.7"] });
   const [active, setActive] = useState(0);
 
   useMotionValueEvent(scrollYProgress, "change", (v) => {

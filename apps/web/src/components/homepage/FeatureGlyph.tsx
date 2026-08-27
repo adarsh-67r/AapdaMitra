@@ -38,7 +38,7 @@ export default function FeatureGlyph({
   return (
     <svg
       viewBox="0 0 72 34"
-      className="w-[72px] h-[34px] mb-3 shrink-0 overflow-visible"
+      className="w-[96px] h-[45px] mb-4 shrink-0 overflow-visible"
       fill="none"
       aria-hidden
     >
