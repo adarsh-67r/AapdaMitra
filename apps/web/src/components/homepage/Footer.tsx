@@ -59,8 +59,7 @@ export default function Footer() {
         </nav>
       </div>
 
-      <div className="mt-12 pt-6 border-t border-white/[0.06] flex flex-wrap justify-between gap-3 font-mono text-[0.68rem] text-text-muted">
-        <span>AapdaMitra · Smart India Hackathon · PS-05</span>
+      <div className="mt-12 pt-6 border-t border-white/[0.06] font-mono text-[0.68rem] text-text-muted">
         <span>Alerts ingested from SACHET (NDMA) — carrying IMD, CWC and state SDMA warnings</span>
       </div>
     </footer>

@@ -62,7 +62,7 @@ function DealtCard({
 
   const y = useTransform(progress, [start, end], [90, 0]);
   const rotate = useTransform(progress, [start, end], [tilt, 0]);
-  const opacity = useTransform(progress, [start, start + 0.2], [0, 1]);
+  const opacity = useTransform(progress, [start, start + 0.18], [0, 1]);
 
   return (
     <motion.div style={{ y, rotate, opacity }}>

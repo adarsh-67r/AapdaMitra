@@ -29,6 +29,7 @@ function Word({ word, index, progress }: { word: string; index: number; progress
 export default function TheProblem() {
   const ref = useRef<HTMLDivElement>(null);
   const reduceMotion = useReducedMotion();
+
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start 0.85", "end 0.4"] });
 
   const body = (
@@ -70,6 +71,7 @@ export default function TheProblem() {
         </span>
       </p>
       {body}
+
     </div>
   );
 }
