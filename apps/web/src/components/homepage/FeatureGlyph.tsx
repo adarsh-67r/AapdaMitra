@@ -56,14 +56,11 @@ interface Driven {
 }
 
 /**
- * The card has fully arrived by start + 0.14, so every diagram runs after that —
+ * The card has fully arrived by start + 0.1, so every diagram runs after that —
  * there is no point performing something behind a card still on its way in.
- *
- * Each capability owns 0.2 of the section's scroll, and the last one starts at
- * 0.6, so a diagram has to finish inside roughly 0.16 of progress or it would
- * still be running when the section ends and would never be seen through.
+ * Kept in step with ARRIVED in FeatureHighlights.
  */
-const AFTER_CARD = 0.14;
+const AFTER_CARD = 0.1;
 
 /** A position being acquired: the pin drops, the fix ripples out once. */
 function ReportGlyph({ progress, start }: Driven) {

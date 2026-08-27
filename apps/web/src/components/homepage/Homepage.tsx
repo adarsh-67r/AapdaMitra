@@ -7,7 +7,6 @@ import TheProblem from "./TheProblem";
 import IndiaHazardMap from "./IndiaHazardMap";
 import HowItWorks from "./HowItWorks";
 import FeatureHighlights from "./FeatureHighlights";
-import EmergencyNumbers from "./EmergencyNumbers";
 import Footer from "./Footer";
 
 // overflow-x-clip, not overflow-hidden: `hidden` makes the wrapper a scroll
@@ -26,7 +25,6 @@ export default function Homepage() {
       <IndiaHazardMap />
       <HowItWorks />
       <FeatureHighlights />
-      <EmergencyNumbers />
       <Footer />
     </div>
   );

@@ -42,10 +42,18 @@ const FEATURES = [
 
 type Feature = (typeof FEATURES)[number];
 
-/** Scroll window each capability owns. */
-const SPAN = 0.2;
+/**
+ * Scroll window each capability owns.
+ *
+ * Deliberately tight. With a wider window the four arrivals consumed 90% of the
+ * section and all four were only on screen together for the final 10% — about
+ * 11vh of scrolling — before the pin released and the whole thing scrolled away.
+ * The point of the section is the complete set, so the sequence finishes around
+ * halfway and the rest of the scroll holds all four, settled and equal.
+ */
+const SPAN = 0.13;
 /** How far into its window a card has fully arrived — its diagram starts after. */
-const ARRIVED = 0.14;
+const ARRIVED = 0.1;
 
 const CARD_CLASS =
   "h-full rounded-sm bg-panel border border-border p-5 flex flex-col justify-between min-h-[220px] transition-colors";
@@ -173,7 +181,7 @@ export default function FeatureHighlights() {
   }
 
   return (
-    <div id="features" ref={ref} className="relative z-10 h-[210vh] scroll-mt-20">
+    <div id="features" ref={ref} className="relative z-10 h-[240vh] scroll-mt-20">
       <div className="sticky top-0 h-[100dvh] flex flex-col justify-center px-6 md:px-10 py-10 overflow-clip">
         <p className="font-mono text-xs tracking-[0.2em] text-accent mb-3">WHAT THE SYSTEM DOES</p>
         <h3 className="text-3xl md:text-5xl font-bold tracking-[-0.025em] text-balance mb-6 max-w-[20ch]">
