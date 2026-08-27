@@ -48,7 +48,7 @@ const SPAN = 0.2;
 const ARRIVED = 0.14;
 
 const CARD_CLASS =
-  "h-full rounded-sm bg-panel border border-border p-5 flex flex-col justify-between min-h-[232px] transition-colors";
+  "h-full rounded-sm bg-panel border border-border p-5 flex flex-col justify-between min-h-[220px] transition-colors";
 
 function StatusPill({ status }: { status: Feature["status"] }) {
   return (
@@ -87,10 +87,14 @@ function CardBody({
 /**
  * One capability arriving as the section is scrolled.
  *
- * It rises into place and stays. This is a list of four things the product does,
- * and someone who has reached the fourth should still be able to see the first —
- * so nothing leaves. Only emphasis moves: the card being introduced holds full
- * strength while the ones already read settle back.
+ * It rises into place and stays at full strength. This is a list of four things
+ * the product does: by the end all four are present and equal, because a reader
+ * comparing them should not have three of them dimmed. Dimming the earlier ones
+ * to spotlight the newest was tried and removed — it made the section feel like
+ * it was taking capabilities away as it went.
+ *
+ * Everything is a pure function of scroll position, so scrolling back up plays
+ * the arrivals in reverse with no extra state.
  */
 function ScrollCard({
   feature,
@@ -105,19 +109,12 @@ function ScrollCard({
 
   const y = useTransform(progress, [start, start + ARRIVED], [56, 0]);
   const opacity = useTransform(progress, [start, start + ARRIVED * 0.7], [0, 1]);
-  const emphasis = useTransform(
-    progress,
-    [start + ARRIVED, start + SPAN, start + SPAN * 1.7],
-    [1, 1, 0.5]
-  );
 
   return (
-    <motion.div style={{ y, opacity }}>
-      <motion.div style={{ opacity: emphasis }}>
-        <TiltCard className={CARD_CLASS}>
-          <CardBody feature={feature} progress={progress} start={start} />
-        </TiltCard>
-      </motion.div>
+    <motion.div style={{ y, opacity }} className="h-full">
+      <TiltCard className={CARD_CLASS}>
+        <CardBody feature={feature} progress={progress} start={start} />
+      </TiltCard>
     </motion.div>
   );
 }
@@ -125,7 +122,7 @@ function ScrollCard({
 /** Which capability is being introduced, as a row of segments. */
 function Ticks({ index }: { index: number }) {
   return (
-    <div className="flex gap-1.5 mt-8" aria-hidden>
+    <div className="flex gap-1.5 mt-6" aria-hidden>
       {FEATURES.map((f, i) => (
         <span
           key={f.title}
@@ -176,13 +173,13 @@ export default function FeatureHighlights() {
   }
 
   return (
-    <div id="features" ref={ref} className="relative z-10 h-[260vh] scroll-mt-20">
-      <div className="sticky top-0 h-[100dvh] flex flex-col justify-center px-6 md:px-10 overflow-clip">
-        <p className="font-mono text-xs tracking-[0.2em] text-accent mb-4">WHAT THE SYSTEM DOES</p>
-        <h3 className="text-3xl md:text-5xl font-bold tracking-[-0.025em] text-balance mb-8 max-w-[20ch]">
+    <div id="features" ref={ref} className="relative z-10 h-[210vh] scroll-mt-20">
+      <div className="sticky top-0 h-[100dvh] flex flex-col justify-center px-6 md:px-10 py-10 overflow-clip">
+        <p className="font-mono text-xs tracking-[0.2em] text-accent mb-3">WHAT THE SYSTEM DOES</p>
+        <h3 className="text-3xl md:text-5xl font-bold tracking-[-0.025em] text-balance mb-6 max-w-[20ch]">
           Four capabilities, end to end
         </h3>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 flex-1 min-h-0 max-h-[58vh]">
           {FEATURES.map((f, i) => (
             <ScrollCard key={f.title} feature={f} index={i} progress={scrollYProgress} />
           ))}
