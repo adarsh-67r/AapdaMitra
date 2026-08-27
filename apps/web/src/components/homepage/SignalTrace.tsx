@@ -7,10 +7,11 @@ import { motion, useReducedMotion, useScroll, useSpring, useTransform } from "fr
  * A route threaded between the page's sections.
  *
  * Each section is a node; one path connects them, drawing itself as you scroll
- * and lighting each node as it arrives there. It wanders across the width on
- * purpose — a straight line down the margin reads as a progress bar, a piece of
- * browser chrome, where a path crossing between sections reads as something
- * travelling.
+ * and lighting each node as it arrives there. It runs down the outer margins,
+ * switching sides between sections — a straight line pinned to one edge reads as
+ * a progress bar, a piece of browser chrome, while a route that changes sides
+ * reads as something travelling. It stays out of the middle because the page has
+ * no reserved gutter and the middle is where the words are.
  *
  * Purely decorative: aria-hidden, behind the content, and static for a reader
  * who asked for reduced motion.
@@ -20,11 +21,15 @@ import { motion, useReducedMotion, useScroll, useSpring, useTransform } from "fr
 const STOPS = ["problem", "hazard-map", "how-it-works", "features", "capabilities"];
 
 /**
- * Where each node sits across the width, as a fraction. Hand-picked rather than
- * generated: it has to wander without landing under the reading column, and a
- * fresh random roll each load cannot promise that.
+ * Where each node sits across the width, as a fraction.
+ *
+ * These stay in the outer margins on alternating sides. The page has no reserved
+ * gutter — sections run nearly full width — so a route that wanders through the
+ * middle crosses body copy, which reads as scribble over the text rather than as
+ * anything travelling. Hugging the edges keeps it clear of the words while still
+ * moving side to side down the page.
  */
-const ACROSS = [0.13, 0.82, 0.28, 0.87, 0.19];
+const ACROSS = [0.055, 0.945, 0.055, 0.945, 0.055];
 
 interface Node {
   id: string;
@@ -99,7 +104,13 @@ export default function SignalTrace() {
   if (!d) return <div ref={ref} className="absolute inset-0" aria-hidden />;
 
   return (
-    <div ref={ref} className="absolute inset-0 z-0 pointer-events-none overflow-hidden" aria-hidden>
+    // Below lg there is no margin to spare, so the route is not drawn at all
+    // rather than laid over the content.
+    <div
+      ref={ref}
+      className="absolute inset-0 z-0 pointer-events-none overflow-hidden hidden lg:block"
+      aria-hidden
+    >
       {/* The path lives in a 0–100 box stretched over the page. Only the line is
           drawn here, and `non-scaling-stroke` keeps its weight even, so the
           extreme aspect ratio of a very tall page cannot deform anything. The
@@ -163,9 +174,10 @@ function routeThrough(pts: { x: number; y: number }[], w: number, h: number): st
   for (let i = 1; i < pts.length; i++) {
     const a = pts[i - 1];
     const b = pts[i];
-    // Ease out of one node and into the next over a third of the gap, so the
-    // turn happens in the middle rather than at the ends.
-    const bow = (b.y - a.y) * 0.34;
+    // A deep bow holds the line against each margin for most of the run and
+    // makes the crossing quick, so it spends as little height as possible over
+    // the middle of the page where the text is.
+    const bow = (b.y - a.y) * 0.46;
     d += ` C ${X(a.x)} ${Y(a.y + bow)}, ${X(b.x)} ${Y(b.y - bow)}, ${X(b.x)} ${Y(b.y)}`;
   }
   return d;

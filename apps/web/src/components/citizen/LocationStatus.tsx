@@ -78,11 +78,27 @@ export default function LocationStatus({
   };
 
   if (status === "locating") {
+    // Some mobile browsers only surface the permission prompt on a real tap, and
+    // an in-app browser may never surface it at all. So even while a request is
+    // outstanding there is always something to press, rather than a spinner that
+    // might never resolve.
     return (
-      <p className="font-mono text-xs text-text-muted flex items-center gap-2" role="status">
-        <span className="w-1.5 h-1.5 rounded-full bg-text-muted animate-pulse" />
-        Locating…
-      </p>
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+        <p className="font-mono text-xs text-text-muted flex items-center gap-2" role="status">
+          <span className="w-1.5 h-1.5 rounded-full bg-text-muted animate-pulse" />
+          Locating…
+        </p>
+        <button onClick={onRetry} className="font-mono text-xs underline text-text-muted hover:text-text cursor-pointer">
+          Use my location
+        </button>
+        <button
+          onClick={() => setPicking((v) => !v)}
+          className="font-mono text-xs underline text-text-muted hover:text-text cursor-pointer"
+        >
+          Name my place
+        </button>
+        {picking && <PlacePicker onPick={pick} />}
+      </div>
     );
   }
 
