@@ -97,30 +97,32 @@ export function useGeolocation(timeoutMs = 10_000) {
   }, [timeoutMs]);
 
   useEffect(() => {
-    // Ask the browser what it already decided before triggering anything. A
-    // permission the user denied once is remembered, and calling
-    // getCurrentPosition again in that state produces no prompt and no visible
-    // response — which is exactly the "it never asks" symptom. Knowing the
-    // state lets the UI say so instead of spinning until the timeout.
+    // Request first, always. Reading the stored permission state is useful — a
+    // permission denied once is remembered, and re-requesting it produces no
+    // prompt and no response — but it must never gate the request.
+    //
+    // iOS Safari does not support "geolocation" as a Permissions API name and
+    // throws synchronously when asked for it. Gating on that call meant the
+    // throw escaped this effect before getCurrentPosition ever ran, so on iOS
+    // the prompt never appeared at all. The query is now strictly an
+    // enhancement: it can only refine the status of a request already in
+    // flight, and any failure is ignored.
+    locate();
+
     let cancelled = false;
-    const permissions = typeof navigator !== "undefined" ? navigator.permissions : undefined;
-    if (!permissions?.query) {
-      locate();
-      return;
+    try {
+      navigator.permissions
+        ?.query({ name: "geolocation" as PermissionName })
+        .then((result) => {
+          if (!cancelled && result.state === "denied") setStatus("denied");
+        })
+        .catch(() => {
+          /* unsupported here; the request itself reports what happened */
+        });
+    } catch {
+      /* Safari throws synchronously for unsupported permission names */
     }
-    permissions
-      .query({ name: "geolocation" as PermissionName })
-      .then((result) => {
-        if (cancelled) return;
-        if (result.state === "denied") {
-          setStatus("denied");
-          return;
-        }
-        locate();
-      })
-      .catch(() => {
-        if (!cancelled) locate();
-      });
+
     return () => {
       cancelled = true;
     };

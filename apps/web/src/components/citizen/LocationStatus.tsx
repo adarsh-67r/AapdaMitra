@@ -25,7 +25,11 @@ type FailedStatus = Exclude<GeoStatus, "ready" | "locating">;
 const EXPLANATION: Record<FailedStatus, { what: string; fix: string }> = {
   denied: {
     what: "This site is blocked from using your location.",
-    fix: "If you never saw a prompt, the browser is remembering an earlier refusal — tap the padlock or (i) in the address bar and allow Location, then try again.",
+    // Two very different remedies. A browser remembers a refusal and will not
+    // ask again, and on iPhone the switch is in the system settings rather than
+    // anywhere in the page — someone hunting the address bar for it will not
+    // find one.
+    fix: "On iPhone: Settings › Privacy & Security › Location Services, turn it on and set Safari Websites to “While Using”. On desktop: tap the padlock or (i) in the address bar and allow Location. Then try again — or just name your place below.",
   },
   timeout: {
     what: "Your device didn't return a location in time.",
@@ -33,7 +37,7 @@ const EXPLANATION: Record<FailedStatus, { what: string; fix: string }> = {
   },
   unavailable: {
     what: "Your device couldn't determine a location.",
-    fix: "Common on a desktop with no GPS. Name your place below instead.",
+    fix: "Common on a desktop with no GPS, and on a phone with Location Services switched off. Name your place below instead.",
   },
   unsupported: {
     what: "This browser doesn't support location lookup.",
