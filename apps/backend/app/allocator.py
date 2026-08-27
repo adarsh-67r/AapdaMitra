@@ -2,11 +2,15 @@ import math
 
 EARTH_RADIUS_KM = 6371
 
-# Beyond this, "dispatch the nearest unit" stops being a useful answer: a team
-# 400 km away is not responding to this incident, and silently assigning one
-# makes the report look handled when it is not. Past the ceiling the allocator
-# reports that nothing is in range so a human can widen the search deliberately.
-MAX_DISPATCH_KM = 150.0
+# No distance ceiling by default: the allocator always answers with the nearest
+# available resource, however far that is. A ceiling was tried and removed by
+# product decision — refusing on distance stalled dispatch in regions with sparse
+# coverage, and an operator would rather see "nearest is 460 km" and decide than
+# be told nothing is available. Callers may still pass max_km to bound a search.
+#
+# Kept as the threshold at which a dispatch is flagged as unusually distant, so
+# distance is surfaced rather than enforced.
+FAR_DISPATCH_KM = 150.0
 
 # How much further an operator should be willing to send a better-suited unit.
 # Expressed in kilometres so the trade-off stays legible: for a critical report,
@@ -59,7 +63,7 @@ def pick_best_resource(
     report: dict,
     resources: list[dict],
     resource_type: str | None = None,
-    max_km: float = MAX_DISPATCH_KM,
+    max_km: float | None = None,
 ) -> tuple[dict | None, float | None]:
     """Choose which resource to send, and say how far it has to travel.
 
@@ -81,7 +85,7 @@ def pick_best_resource(
             continue
 
         distance = haversine_km(report, resource)
-        if distance > max_km:
+        if max_km is not None and distance > max_km:
             continue
 
         score = distance - _capacity_bonus(resource.get("capacity"))

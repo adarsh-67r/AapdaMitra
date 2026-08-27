@@ -3,7 +3,7 @@ from psycopg import Connection
 from pydantic import BaseModel
 from app.db import get_conn
 from app.deps import require_authority
-from app.allocator import MAX_DISPATCH_KM, pick_best_resource
+from app.allocator import FAR_DISPATCH_KM, pick_best_resource
 
 router = APIRouter(tags=["allocate"])
 
@@ -11,9 +11,8 @@ router = APIRouter(tags=["allocate"])
 class AllocateBody(BaseModel):
     report_id: str
     resource_type: str | None = None
-    # Lets an operator deliberately search past the default ceiling when nothing
-    # is nearby. Widening is always a human decision: silently dispatching a unit
-    # hundreds of kilometres away is the failure mode the ceiling exists to stop.
+    # Optional bound on the search. Unset means no limit: allocate the nearest
+    # available resource however far it is, and report the distance.
     max_km: float | None = None
 
 
@@ -34,31 +33,18 @@ def allocate(
         cur.execute("select id, type, name, lat, lng, status, capacity from resources")
         resources = cur.fetchall()
 
-        max_km = body.max_km or MAX_DISPATCH_KM
-        chosen, distance_km = pick_best_resource(report, resources, body.resource_type, max_km)
+        chosen, distance_km = pick_best_resource(
+            report, resources, body.resource_type, body.max_km
+        )
         if not chosen:
             available = sum(1 for r in resources if r["status"] == "available")
-            if available == 0:
-                return {
-                    "assigned": False,
-                    "reason": "No resource is currently available. Free one up under Resources.",
-                    "out_of_range": False,
-                }
-            # Say how far the nearest one actually is, so the operator can judge
-            # whether widening the search is reasonable rather than guessing.
-            nearest, nearest_km = pick_best_resource(
-                report, resources, body.resource_type, max_km=40_000
-            )
             return {
                 "assigned": False,
-                "out_of_range": nearest is not None,
-                "nearest_km": round(nearest_km, 1) if nearest_km is not None else None,
-                "nearest_name": nearest.get("name") if nearest else None,
+                "out_of_range": False,
                 "reason": (
-                    f"Nothing available within {max_km:.0f} km. "
-                    f"The closest is {nearest['name']} at {nearest_km:.0f} km."
-                    if nearest
-                    else f"Nothing available within {max_km:.0f} km of this report."
+                    "No resource is currently available. Free one up under Resources."
+                    if available == 0
+                    else "No resource matches this request."
                 ),
             }
 
@@ -79,4 +65,7 @@ def allocate(
         "resource_id": str(chosen["id"]),
         "resource_name": chosen.get("name"),
         "distance_km": round(distance_km, 2) if distance_km is not None else None,
+        # Distance is reported, never enforced — a long dispatch is legitimate in
+        # a sparsely covered region, but the operator should see that it is long.
+        "far": distance_km is not None and distance_km > FAR_DISPATCH_KM,
     }

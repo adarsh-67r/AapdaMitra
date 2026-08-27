@@ -16,6 +16,12 @@ class CreateReportBody(BaseModel):
     severity: str
     description: str | None = None
     photo_url: str | None = None
+    # Where the citizen says they are, in words, when they named it by hand.
+    place_label: str | None = None
+    # "device" for a real position fix, "manual" for a named place. A manual
+    # position is a city or district centroid and must never be read as an
+    # address, so the console labels it as approximate wherever it is shown.
+    location_source: str = "device"
 
 
 class UpdateReportBody(BaseModel):
@@ -85,9 +91,9 @@ def create_report(
         cluster_id = existing["cluster_id"] if existing else uuid.uuid4()
 
         cur.execute(
-            """insert into reports (citizen_id, lat, lng, severity, description, photo_url, cluster_id)
-               values (%s, %s, %s, %s, %s, %s, %s) returning *""",
-            (user["user_id"], body.lat, body.lng, body.severity, body.description, body.photo_url, cluster_id),
+            """insert into reports (citizen_id, lat, lng, severity, description, photo_url, cluster_id, place_label, location_source)
+               values (%s, %s, %s, %s, %s, %s, %s, %s, %s) returning *""",
+            (user["user_id"], body.lat, body.lng, body.severity, body.description, body.photo_url, cluster_id, body.place_label, body.location_source),
         )
         row = cur.fetchone()
 

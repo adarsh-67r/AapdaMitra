@@ -1,7 +1,7 @@
 import pytest
 
 from app.allocator import (
-    MAX_DISPATCH_KM,
+    FAR_DISPATCH_KM,
     haversine_km,
     pick_best_resource,
     preferred_type_for,
@@ -64,19 +64,27 @@ class TestCapacity:
 
 
 class TestRange:
-    def test_ignores_resource_beyond_max_dispatch_range(self):
+    def test_allocates_however_far_the_only_resource_is(self):
+        # Product decision: never refuse on distance. Sparse regions must still
+        # get a dispatch, with the distance reported so it can be judged.
         far = r("far-away", lat=28.6139, lng=77.209)  # Delhi, ~1750km
         chosen, distance = pick_best_resource(REPORT, [far])
-        assert chosen is None and distance is None
+        assert chosen["id"] == "far-away"
+        assert distance > 1000
+
+    def test_still_prefers_the_nearer_of_two(self):
+        pool = [r("near"), r("far-away", lat=28.6139, lng=77.209)]
+        chosen, _ = pick_best_resource(REPORT, pool)
+        assert chosen["id"] == "near"
 
     def test_reports_the_distance_of_the_chosen_resource(self):
         chosen, distance = pick_best_resource(REPORT, [r("near")])
         assert chosen["id"] == "near"
         assert 0 < distance < 5
 
-    def test_max_range_is_overridable(self):
+    def test_max_range_bounds_a_search_when_a_caller_asks_for_one(self):
         far = r("far-away", lat=12.9716, lng=77.5946)  # Bengaluru, ~290km
-        assert pick_best_resource(REPORT, [far])[0] is None
+        assert pick_best_resource(REPORT, [far], max_km=100)[0] is None
         chosen, _ = pick_best_resource(REPORT, [far], max_km=400)
         assert chosen["id"] == "far-away"
 
@@ -114,5 +122,5 @@ class TestSuitability:
         assert chosen["id"] == "shelter"
 
 
-def test_max_dispatch_km_is_a_sane_default():
-    assert 50 <= MAX_DISPATCH_KM <= 300
+def test_far_dispatch_threshold_is_a_sane_flag_value():
+    assert 50 <= FAR_DISPATCH_KM <= 300
