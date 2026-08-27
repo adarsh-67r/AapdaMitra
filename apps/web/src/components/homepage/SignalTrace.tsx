@@ -98,9 +98,9 @@ export default function SignalTrace() {
 
   return (
     <div ref={ref} className="absolute inset-0 z-0 pointer-events-none" aria-hidden>
+      {/* The viewBox is in real measured pixels, so `none` letterboxes nothing
+          and distorts nothing: one user unit is one pixel. */}
       {ready && (
-        {/* The viewBox is in real measured pixels, so `none` letterboxes nothing
-            and distorts nothing: one user unit is one pixel. */}
         <svg
           className="absolute inset-0 w-full h-full"
           viewBox={`0 0 ${box.w} ${box.h}`}
