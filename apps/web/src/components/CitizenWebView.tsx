@@ -2,6 +2,9 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import CitizenMap from "@/components/CitizenMap";
+import CitizenDashboard from "@/components/citizen/CitizenDashboard";
+import LocationStatus from "@/components/citizen/LocationStatus";
+import { useGeolocation } from "@/lib/use-geolocation";
 import ThemeToggle from "@/components/ThemeToggle";
 import { apiFetch, apiFetchJson } from "@/lib/api-client";
 import { useToast } from "@/components/Toast";
@@ -14,14 +17,16 @@ import {
   PhoneIcon,
   ReportsIcon,
   ShelterIcon,
+  DashboardIcon,
   SosIcon,
 } from "@/components/icons";
 
-type Tab = "report" | "alerts" | "shelters" | "mine" | "emergency";
+type Tab = "dashboard" | "report" | "alerts" | "shelters" | "mine" | "emergency";
 
 type IconComponent = (props: { size?: number; className?: string }) => React.ReactElement;
 
 const MENU: { id: Tab; label: string; Icon: IconComponent; description: string }[] = [
+  { id: "dashboard", label: "Dashboard", Icon: DashboardIcon, description: "Alerts, shelters and teams nearest to where you are" },
   { id: "report", label: "Report Incident", Icon: MapPinIcon, description: "Photo, location, severity — filed in under a minute" },
   { id: "alerts", label: "Live Alerts", Icon: AlertTriangleIcon, description: "Official warnings near you, updated continuously" },
   { id: "shelters", label: "Find Shelter", Icon: ShelterIcon, description: "Nearest shelters and resources on the map" },
@@ -30,6 +35,7 @@ const MENU: { id: Tab; label: string; Icon: IconComponent; description: string }
 ];
 
 const TAB_LABEL: Record<Tab, string> = {
+  dashboard: "Dashboard",
   report: "Report Incident",
   alerts: "Live Alerts",
   shelters: "Find Shelter",
@@ -100,8 +106,9 @@ const POLL_INTERVAL_MS = 12000;
 
 export default function CitizenWebView({ onSignOut }: { onSignOut: () => void }) {
   const toast = useToast();
-  const [tab, setTab] = useState<Tab | null>(null);
-  const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [tab, setTab] = useState<Tab>("dashboard");
+  const geo = useGeolocation();
+  const location = geo.coords;
   const [severity, setSeverity] = useState<Severity>("medium");
   const [description, setDescription] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -145,14 +152,6 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
     return () => clearInterval(interval);
   }, [loadAll]);
 
-  useEffect(() => {
-    if (!navigator.geolocation) return;
-    navigator.geolocation.getCurrentPosition(
-      (pos) => setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-      () => {}
-    );
-  }, []);
-
   const nearbyAlerts = useMemo(() => {
     if (!location) return alerts;
     return alerts.filter((a) => haversineKm(location, a) <= 150);
@@ -185,7 +184,9 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
           lat: location.lat,
           lng: location.lng,
           severity: overrideSeverity ?? severity,
-          description: overrideDescription ?? description,
+          description:
+            (overrideDescription ?? description) +
+            (geo.source === "manual" ? "\n\n[Location set manually — approximate]" : ""),
         }),
       });
 
@@ -213,9 +214,9 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
 
   return (
     <div className="flex flex-col h-[100dvh] bg-bg text-text">
-      <header className="flex items-center justify-between px-6 py-3.5 border-b border-border bg-panel ">
-        <div className="flex items-center gap-3">
-          <div className="w-7 h-7 border border-accent rounded-md flex items-center justify-center">
+      <header className="flex items-center justify-between px-5 md:px-6 py-3 border-b border-border bg-panel shrink-0">
+        <div className="flex items-center gap-2.5">
+          <div className="w-7 h-7 border border-accent flex items-center justify-center" style={{ borderRadius: 2 }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M3 12h4l2-7 4 14 2-7h6" />
             </svg>
@@ -230,73 +231,82 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
         </div>
       </header>
 
-      {tab !== null && (
-        <div className="flex items-center gap-3 px-6 py-2.5 border-b border-border bg-panel ">
-          <button
-            onClick={() => setTab(null)}
-            className="font-mono text-xs text-text-muted hover:text-text cursor-pointer flex items-center gap-1.5"
-          >
-            ← Menu
-          </button>
-          <span className="text-border">|</span>
-          <span className="text-sm font-semibold">{TAB_LABEL[tab]}</span>
-        </div>
-      )}
+      <div className="flex flex-1 min-h-0">
+        {/* Vertical rail. On a phone it becomes a horizontal strip above the
+            content, because a fixed side rail would eat the width the report
+            form needs. */}
+        <nav
+          aria-label="Sections"
+          className="shrink-0 flex md:flex-col gap-px bg-border overflow-x-auto md:overflow-x-visible md:overflow-y-auto md:w-56 border-b md:border-b-0 md:border-r border-border"
+        >
+          {MENU.map((m) => {
+            const active = tab === m.id;
+            const badge =
+              m.id === "alerts" ? nearbyAlerts.length : m.id === "mine" ? myReports.length : 0;
+            return (
+              <button
+                key={m.id}
+                onClick={() => setTab(m.id)}
+                aria-current={active ? "page" : undefined}
+                className={
+                  "relative flex items-center gap-2.5 px-4 py-3 text-left whitespace-nowrap cursor-pointer transition-colors duration-150 " +
+                  (active ? "bg-bg text-text" : "bg-panel text-text-muted hover:text-text hover:bg-panel-alt")
+                }
+              >
+                {/* The active marker is a rule, not a pill — it reads as a
+                    selected row on an instrument. */}
+                <span
+                  aria-hidden
+                  className={
+                    "absolute bg-accent transition-opacity duration-150 " +
+                    "inset-x-0 bottom-0 h-0.5 md:inset-y-0 md:left-0 md:right-auto md:h-auto md:w-0.5 " +
+                    (active ? "opacity-100" : "opacity-0")
+                  }
+                />
+                <m.Icon size={17} className={active ? "text-accent" : undefined} />
+                <span className="text-sm font-medium">{m.label}</span>
+                {badge > 0 && (
+                  <span className="ml-auto font-mono text-[0.65rem] tabular-nums px-1.5 py-0.5 bg-panel-alt border border-border">
+                    {badge}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </nav>
 
-      <main className="flex-1 overflow-y-auto px-5 py-6 max-w-3xl w-full mx-auto">
-        {tab === null && (
-          <div className="flex flex-col gap-4">
-            <button
-              onClick={() => submitReport("critical", "SOS — immediate emergency assistance needed")}
-              disabled={submitting || !location}
-              className="w-full py-5 rounded-sm text-lg font-bold uppercase tracking-wide disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2.5 transition-transform duration-150 ease-out active:scale-[0.97]"
-              style={{ background: "var(--critical)", color: "#fff" }}
-            >
-              <SosIcon size={22} />
-              SOS — Send Emergency Alert Now
-            </button>
-            <p className="text-xs text-text-muted text-center -mt-2">
-              Instantly files a critical report at your current location.
-            </p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-3">
-              {MENU.map((m) => (
-                <button
-                  key={m.id}
-                  onClick={() => setTab(m.id)}
-                  className="group relative flex flex-col items-start gap-2 p-5 rounded-sm bg-panel border border-border hover:border-accent hover:bg-panel-alt hover:-translate-y-0.5 active:translate-y-0 transition-[transform,border-color,background-color] duration-200 text-left cursor-pointer min-h-[142px]"
-                >
-                  <m.Icon size={26} className="text-accent mb-1" />
-                  <span className="text-base font-semibold leading-tight">{m.label}</span>
-                  <span className="text-xs text-text-muted leading-snug">{m.description}</span>
-                  {m.id === "alerts" && nearbyAlerts.length > 0 && (
-                    <span
-                      className="absolute top-3 right-3 font-mono text-[0.65rem] font-bold px-1.5 py-0.5 rounded-full"
-                      style={{ background: "var(--high)", color: "#fff" }}
-                    >
-                      {nearbyAlerts.length}
-                    </span>
-                  )}
-                  {m.id === "mine" && myReports.length > 0 && (
-                    <span
-                      className="absolute top-3 right-3 font-mono text-[0.65rem] font-bold px-1.5 py-0.5 rounded-full"
-                      style={{ background: "var(--assigned)", color: "#fff" }}
-                    >
-                      {myReports.length}
-                    </span>
-                  )}
-                </button>
-              ))}
+        <main className="flex-1 min-w-0 overflow-y-auto px-5 md:px-8 py-6">
+          <div className="max-w-3xl w-full">
+            <div className="flex items-baseline justify-between gap-4 mb-5 pb-3 border-b border-border">
+              <h2 className="text-lg font-semibold">{TAB_LABEL[tab]}</h2>
+              <LocationStatus
+                coords={geo.coords}
+                status={geo.status}
+                source={geo.source}
+                accuracyM={geo.accuracyM}
+                onRetry={geo.retry}
+                onManual={geo.setManual}
+              />
             </div>
-          </div>
-        )}
+
+            {tab === "dashboard" && (
+              <CitizenDashboard
+                coords={geo.coords}
+                source={geo.source}
+                alerts={alerts}
+                resources={resources}
+                myReports={myReports}
+              />
+            )}
+
 
         {tab === "report" && (
           <div className="flex flex-col gap-4">
             <button
               onClick={() => submitReport("critical", "SOS — immediate emergency assistance needed")}
               disabled={submitting || !location}
-              className="w-full py-5 rounded-sm text-lg font-bold uppercase tracking-wide disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2.5 transition-transform duration-150 ease-out active:scale-[0.97]"
+              title={location ? undefined : "Set your location first — use the readout above."}
+              className="w-full py-5 rounded-sm text-lg font-bold uppercase tracking-wide disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2.5 transition-transform duration-150 ease-out active:scale-[0.97]"
               style={{ background: "var(--critical)", color: "#fff" }}
             >
               <SosIcon size={22} />
@@ -308,16 +318,6 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
 
             <div className="bg-panel border border-border rounded-sm p-4 flex flex-col gap-3">
               <span className="text-sm font-semibold">Report an Incident</span>
-              <div className="text-xs text-text-muted font-mono flex items-center gap-1.5">
-                {location ? (
-                  <>
-                    <MapPinIcon size={13} />
-                    {location.lat.toFixed(4)}, {location.lng.toFixed(4)}
-                  </>
-                ) : (
-"Locating…"
-                )}
-              </div>
               <div className="flex gap-2">
                 {SEVERITIES.map((s) => (
                   <button
@@ -374,11 +374,16 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
               <button
                 onClick={() => submitReport()}
                 disabled={submitting || !location}
-                className="py-2.5 rounded text-sm font-bold uppercase disabled:opacity-50 cursor-pointer transition-transform duration-150 ease-out active:scale-[0.97]"
-                style={{ background: "var(--accent)", color: "var(--accent-contrast)" }}
+                title={location ? undefined : "Set your location first — use the readout above."}
+                className="control-primary py-2.5 text-sm font-bold uppercase disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
                 {submitting ? "Submitting…" : "Submit Report"}
               </button>
+              {!location && (
+                <p className="text-xs text-text-muted text-center" role="status">
+                  Set your location above to file a report.
+                </p>
+              )}
             </div>
           </div>
         )}
@@ -455,7 +460,9 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
             ))}
           </div>
         )}
-      </main>
+          </div>
+        </main>
+      </div>
     </div>
   );
 }

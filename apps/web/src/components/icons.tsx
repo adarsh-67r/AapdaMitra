@@ -37,6 +37,17 @@ function Svg({ size = 24, className, label, children }: IconProps & { children: 
   );
 }
 
+export function DashboardIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M4 14a8 8 0 0 1 16 0" />
+      <path d="M4 14h2M18 14h2M12 6V4M6.5 8.5 5 7M17.5 8.5 19 7" />
+      <path d="m12 14 4.2-3.2" />
+      <circle cx="12" cy="14" r="1.4" />
+    </Svg>
+  );
+}
+
 export function MapPinIcon(props: IconProps) {
   return (
     <Svg {...props}>
