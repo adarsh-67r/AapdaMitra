@@ -34,6 +34,8 @@ export interface Report {
   created_at: string;
   cluster_id: string | null;
   cluster_size: number;
+  place_label: string | null;
+  location_source: string | null;
 }
 
 const POLL_INTERVAL_MS = 12000;

@@ -94,6 +94,31 @@ export default function InspectorPanel({
           </div>
         )}
 
+        {/* Where the report says it is. A manually named place is a city or
+            district centroid, so it is labelled — dispatching against it is
+            reasonable, mistaking it for an address is not. */}
+        <div className="bg-panel-alt p-3 flex flex-col gap-1">
+          <span className="font-mono text-[0.6rem] tracking-[0.14em] text-text-muted uppercase">
+            Location
+          </span>
+          {report.place_label ? (
+            <>
+              <span className="text-sm font-medium">{report.place_label}</span>
+              <span className="font-mono text-[0.68rem] text-text-muted tabular-nums">
+                {report.lat.toFixed(4)}, {report.lng.toFixed(4)}
+                {report.location_source === "manual"
+                  ? " · named by the citizen, approximate"
+                  : " · device fix"}
+              </span>
+            </>
+          ) : (
+            <span className="font-mono text-[0.8rem] tabular-nums">
+              {report.lat.toFixed(4)}, {report.lng.toFixed(4)}
+              <span className="text-text-muted"> · device fix</span>
+            </span>
+          )}
+        </div>
+
         {report.description && (
           <p className="text-sm bg-panel-alt p-3 rounded-md leading-relaxed">{report.description}</p>
         )}

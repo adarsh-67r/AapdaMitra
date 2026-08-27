@@ -5,8 +5,9 @@ import {
   CITY_COUNT,
   DISTRICT_COUNT,
   STATES,
+  citiesIn,
+  districtsIn,
   labelFor,
-  placesIn,
   searchPlaces,
   type Place,
 } from "@/lib/india-places";
@@ -136,76 +137,156 @@ export default function LocationStatus({
 }
 
 /**
- * Search first, browse by state second. Nearly 700 places is far too many for
- * one dropdown, and someone reporting an emergency should not have to scroll a
- * list to say where they are.
+ * State, then district, then city.
+ *
+ * The cascade is the reliable path: everyone knows their state, and narrowing
+ * from there always terminates somewhere real. Search sits above it for the
+ * common case where someone can simply type where they are — a person in an
+ * emergency should not be made to drill through three menus to say "Rourkela".
+ *
+ * Not every district has a city in the index; most do not. Where none is known
+ * the district is the answer, and the last step says so instead of showing an
+ * empty list.
  */
 function PlacePicker({ onPick }: { onPick: (p: Place) => void }) {
   const [query, setQuery] = useState("");
   const [state, setState] = useState("");
+  const [district, setDistrict] = useState("");
 
-  const results = useMemo(() => {
-    if (query.trim()) return searchPlaces(query);
-    if (state) return placesIn(state);
-    return [];
-  }, [query, state]);
+  const searchResults = useMemo(() => (query.trim() ? searchPlaces(query) : []), [query]);
+  const districts = useMemo(() => (state ? districtsIn(state) : []), [state]);
+  const cities = useMemo(
+    () => (state && district ? citiesIn(state, district) : []),
+    [state, district]
+  );
+  const districtPlace = useMemo(
+    () => districts.find((d) => d.district === district) ?? null,
+    [districts, district]
+  );
 
   return (
-    <div className="panel p-2.5 flex flex-col gap-2 w-full sm:w-80">
-      <input
-        autoFocus
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder={`Search ${CITY_COUNT} cities, ${DISTRICT_COUNT} districts…`}
-        aria-label="Search for your city or district"
-        className="bg-panel-alt border border-border px-2.5 py-2 text-sm outline-none w-full"
-      />
+    <div className="panel p-2.5 flex flex-col gap-2.5 w-full sm:w-80">
+      <label className="flex flex-col gap-1">
+        <span className="sr-only">Search for your city or district</span>
+        <input
+          autoFocus
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder={`Search ${CITY_COUNT} cities, ${DISTRICT_COUNT} districts…`}
+          className="bg-panel-alt border border-border px-2.5 py-2 text-sm outline-none w-full"
+        />
+      </label>
 
-      {!query.trim() && (
-        <label className="flex flex-col gap-1">
-          <span className="sr-only">Browse by state</span>
-          <select
-            value={state}
-            onChange={(e) => setState(e.target.value)}
-            className="bg-panel-alt border border-border px-2 py-1.5 font-mono text-xs w-full cursor-pointer"
-          >
-            <option value="">Or browse by state…</option>
-            {STATES.map((st) => (
-              <option key={st} value={st}>
-                {st}
-              </option>
-            ))}
-          </select>
-        </label>
-      )}
-
-      {results.length > 0 && (
-        <ul className="max-h-56 overflow-y-auto flex flex-col divide-y divide-border border border-border">
-          {results.map((p) => (
-            <li key={`${p.kind}-${p.state}-${p.district}-${p.name}`}>
-              <button
-                onClick={() => onPick(p)}
-                className="w-full text-left px-2.5 py-1.5 hover:bg-panel-alt cursor-pointer flex items-baseline justify-between gap-2"
-              >
-                <span className="min-w-0">
-                  <span className="text-sm">{p.name}</span>
-                  <span className="block font-mono text-[0.65rem] text-text-muted truncate">
-                    {p.kind === "city" && p.name !== p.district ? `${p.district} · ` : ""}
-                    {p.state}
+      {query.trim() ? (
+        searchResults.length > 0 ? (
+          <ul className="max-h-56 overflow-y-auto flex flex-col divide-y divide-border border border-border">
+            {searchResults.map((p) => (
+              <li key={`${p.kind}-${p.state}-${p.district}-${p.name}`}>
+                <button
+                  onClick={() => onPick(p)}
+                  className="w-full text-left px-2.5 py-1.5 hover:bg-panel-alt cursor-pointer flex items-baseline justify-between gap-2"
+                >
+                  <span className="min-w-0">
+                    <span className="text-sm">{p.name}</span>
+                    <span className="block font-mono text-[0.65rem] text-text-muted truncate">
+                      {p.kind === "city" && p.name !== p.district ? `${p.district} · ` : ""}
+                      {p.state}
+                    </span>
                   </span>
-                </span>
-                <span className="font-mono text-[0.6rem] text-text-muted uppercase shrink-0">
-                  {p.kind}
-                </span>
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
+                  <span className="font-mono text-[0.6rem] text-text-muted uppercase shrink-0">
+                    {p.kind}
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-xs text-text-muted px-1 py-2">No place matches “{query.trim()}”.</p>
+        )
+      ) : (
+        <div className="flex flex-col gap-2">
+          <Step n={1} label="State">
+            <select
+              value={state}
+              onChange={(e) => {
+                setState(e.target.value);
+                setDistrict("");
+              }}
+              className="bg-panel-alt border border-border px-2 py-1.5 font-mono text-xs w-full cursor-pointer"
+            >
+              <option value="">Select a state…</option>
+              {STATES.map((st) => (
+                <option key={st} value={st}>
+                  {st}
+                </option>
+              ))}
+            </select>
+          </Step>
 
-      {query.trim() && results.length === 0 && (
-        <p className="text-xs text-text-muted px-1 py-2">No place matches “{query.trim()}”.</p>
+          {state && (
+            <Step n={2} label="District">
+              <select
+                value={district}
+                onChange={(e) => setDistrict(e.target.value)}
+                className="bg-panel-alt border border-border px-2 py-1.5 font-mono text-xs w-full cursor-pointer"
+              >
+                <option value="">Select a district…</option>
+                {districts.map((d) => (
+                  <option key={d.district} value={d.district}>
+                    {d.district}
+                  </option>
+                ))}
+              </select>
+            </Step>
+          )}
+
+          {district && (
+            <Step n={3} label="City or town">
+              {cities.length > 0 ? (
+                <div className="flex flex-col gap-1.5">
+                  {cities.map((c) => (
+                    <button
+                      key={c.name}
+                      onClick={() => onPick(c)}
+                      className="control text-left px-2.5 py-1.5 text-sm cursor-pointer"
+                    >
+                      {c.name}
+                    </button>
+                  ))}
+                  {districtPlace && (
+                    <button
+                      onClick={() => onPick(districtPlace)}
+                      className="font-mono text-[0.68rem] text-text-muted underline text-left hover:text-text cursor-pointer"
+                    >
+                      None of these — use {district} district
+                    </button>
+                  )}
+                </div>
+              ) : (
+                districtPlace && (
+                  <button
+                    onClick={() => onPick(districtPlace)}
+                    className="control-primary w-full px-2.5 py-2 text-sm cursor-pointer"
+                  >
+                    Use {district} district
+                  </button>
+                )
+              )}
+            </Step>
+          )}
+        </div>
       )}
     </div>
+  );
+}
+
+function Step({ n, label, children }: { n: number; label: string; children: React.ReactNode }) {
+  return (
+    <label className="flex flex-col gap-1">
+      <span className="font-mono text-[0.6rem] tracking-[0.14em] text-text-muted uppercase">
+        {n} · {label}
+      </span>
+      {children}
+    </label>
   );
 }

@@ -182,11 +182,9 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
           lat: location.lat,
           lng: location.lng,
           severity: overrideSeverity ?? severity,
-          description:
-            (overrideDescription ?? description) +
-            (geo.source === "manual"
-              ? `\n\n[Location set by hand: ${geo.placeLabel ?? "unnamed place"} — approximate]`
-              : ""),
+          description: overrideDescription ?? description,
+          place_label: geo.placeLabel,
+          location_source: geo.source,
         }),
       });
 

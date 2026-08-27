@@ -97,8 +97,18 @@ export default function ReportsQueue({ reports, selectedReportId, onSelectReport
                     <AlertTriangleIcon size={12} /> CLUSTER · {r.cluster_size} REPORTS NEARBY
                   </span>
                 )}
+                {r.place_label && (
+                  <span className="text-sm font-medium leading-snug flex items-baseline gap-1.5">
+                    {r.place_label}
+                    {r.location_source === "manual" && (
+                      <span className="font-mono text-[0.6rem] text-text-muted uppercase shrink-0">
+                        approx
+                      </span>
+                    )}
+                  </span>
+                )}
                 {r.description && (
-                  <p className="text-sm leading-snug line-clamp-2">{r.description}</p>
+                  <p className="text-sm text-text-muted leading-snug line-clamp-2">{r.description}</p>
                 )}
                 <span className="font-mono text-xs text-text-muted">
                   {new Date(r.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false })}

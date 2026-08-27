@@ -163,6 +163,27 @@ export function placesIn(state: string): Place[] {
   );
 }
 
+/** Districts of a state, in name order. */
+export function districtsIn(state: string): Place[] {
+  return PLACES.filter((p) => p.state === state && p.kind === "district").sort((a, b) =>
+    a.district.localeCompare(b.district)
+  );
+}
+
+/**
+ * Cities known inside one district.
+ *
+ * Most districts have none: the index carries every district in the country but
+ * only the cities where a district centroid would be misleading. When there are
+ * none, the district itself is the answer and the picker says so rather than
+ * showing an empty step.
+ */
+export function citiesIn(state: string, district: string): Place[] {
+  return PLACES.filter(
+    (p) => p.kind === "city" && p.state === state && p.district === district
+  ).sort((a, b) => a.name.localeCompare(b.name));
+}
+
 export function labelFor(p: Place): string {
   // A city inside a like-named district should not read "Chennai, Chennai".
   return p.kind === "city" && p.name !== p.district
