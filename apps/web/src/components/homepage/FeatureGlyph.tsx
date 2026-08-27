@@ -56,10 +56,14 @@ interface Driven {
 }
 
 /**
- * The card itself is fully opaque by start + 0.18, so every diagram runs after
- * that — there is no point performing something behind a transparent card.
+ * The card has fully arrived by start + 0.14, so every diagram runs after that —
+ * there is no point performing something behind a card still on its way in.
+ *
+ * Each capability owns 0.2 of the section's scroll, and the last one starts at
+ * 0.6, so a diagram has to finish inside roughly 0.16 of progress or it would
+ * still be running when the section ends and would never be seen through.
  */
-const AFTER_CARD = 0.18;
+const AFTER_CARD = 0.14;
 
 /** A position being acquired: the pin drops, the fix ripples out once. */
 function ReportGlyph({ progress, start }: Driven) {
@@ -68,10 +72,10 @@ function ReportGlyph({ progress, start }: Driven) {
   const p = progress ?? zero;
   const still = !progress;
 
-  const pinY = useTransform(p, [s, s + 0.14], [-9, 0]);
-  const pinOpacity = useTransform(p, [s, s + 0.1], [0, 1]);
-  const rippleScale = useTransform(p, [s + 0.12, s + 0.3], [0.3, 2.2]);
-  const rippleOpacity = useTransform(p, [s + 0.12, s + 0.18, s + 0.3], [0, 0.7, 0]);
+  const pinY = useTransform(p, [s, s + 0.06], [-9, 0]);
+  const pinOpacity = useTransform(p, [s, s + 0.04], [0, 1]);
+  const rippleScale = useTransform(p, [s + 0.05, s + 0.16], [0.3, 2.2]);
+  const rippleOpacity = useTransform(p, [s + 0.05, s + 0.09, s + 0.16], [0, 0.7, 0]);
 
   return (
     <g stroke="var(--accent)" strokeWidth={1.4} strokeLinecap="round" strokeLinejoin="round">
@@ -127,9 +131,9 @@ function HeatCell({
   const row = Math.floor(index / 6);
   // A diagonal sweep, so it fills like a map redrawing rather than every cell
   // lighting at once.
-  const s = start + AFTER_CARD + (col + row) * 0.012;
+  const s = start + AFTER_CARD + (col + row) * 0.006;
   const zero = useMotionZero();
-  const opacity = useTransform(progress ?? zero, [s, s + 0.12], [0.06, value]);
+  const opacity = useTransform(progress ?? zero, [s, s + 0.06], [0.06, value]);
 
   return (
     <motion.rect
@@ -157,8 +161,8 @@ function DispatchGlyph({ progress, start }: Driven) {
   const p = progress ?? zero;
   const still = !progress;
 
-  const draw = useTransform(p, [s, s + 0.16], [0, 1]);
-  const landed = useTransform(p, [s + 0.16, s + 0.22], [0, 1]);
+  const draw = useTransform(p, [s, s + 0.08], [0, 1]);
+  const landed = useTransform(p, [s + 0.08, s + 0.11], [0, 1]);
 
   return (
     <g>
