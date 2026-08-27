@@ -42,18 +42,10 @@ const FEATURES = [
 
 type Feature = (typeof FEATURES)[number];
 
-/**
- * Scroll window each capability owns.
- *
- * Deliberately tight. With a wider window the four arrivals consumed 90% of the
- * section and all four were only on screen together for the final 10% — about
- * 11vh of scrolling — before the pin released and the whole thing scrolled away.
- * The point of the section is the complete set, so the sequence finishes around
- * halfway and the rest of the scroll holds all four, settled and equal.
- */
-const SPAN = 0.13;
+/** Scroll window each capability owns, within the section's arrival range. */
+const SPAN = 0.2;
 /** How far into its window a card has fully arrived — its diagram starts after. */
-const ARRIVED = 0.1;
+const ARRIVED = 0.12;
 
 const CARD_CLASS =
   "h-full rounded-sm bg-panel border border-border p-5 flex flex-col justify-between min-h-[220px] transition-colors";
@@ -147,7 +139,7 @@ function Ticks({ index }: { index: number }) {
 export default function FeatureHighlights() {
   const ref = useRef<HTMLDivElement>(null);
   const reduceMotion = useReducedMotion();
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "center center"] });
   const [active, setActive] = useState(0);
 
   useMotionValueEvent(scrollYProgress, "change", (v) => {
@@ -181,19 +173,26 @@ export default function FeatureHighlights() {
   }
 
   return (
-    <div id="features" ref={ref} className="relative z-10 h-[240vh] scroll-mt-20">
-      <div className="sticky top-0 h-[100dvh] flex flex-col justify-center px-6 md:px-10 py-10 overflow-clip">
-        <p className="font-mono text-xs tracking-[0.2em] text-accent mb-3">WHAT THE SYSTEM DOES</p>
-        <h3 className="text-3xl md:text-5xl font-bold tracking-[-0.025em] text-balance mb-6 max-w-[20ch]">
-          Four capabilities, end to end
-        </h3>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 flex-1 min-h-0 max-h-[58vh]">
-          {FEATURES.map((f, i) => (
-            <ScrollCard key={f.title} feature={f} index={i} progress={scrollYProgress} />
-          ))}
-        </div>
-        <Ticks index={active} />
+    // Ordinary page flow, deliberately not pinned.
+    //
+    // Pinning held the four cards in a fixed viewport and then, once the scroll
+    // range was spent, released them so the whole block slid away at speed —
+    // which reads as the capabilities vanishing rather than as the page moving
+    // on. In normal flow they arrive as the section comes up, stay put, and
+    // leave only by scrolling off the top like any other content. Scrolling back
+    // up replays the arrivals in reverse, because every value is still a pure
+    // function of scroll position.
+    <div id="features" ref={ref} className="relative z-10 px-6 md:px-10 py-20 md:py-28 scroll-mt-20">
+      <p className="font-mono text-xs tracking-[0.2em] text-accent mb-3">WHAT THE SYSTEM DOES</p>
+      <h3 className="text-3xl md:text-5xl font-bold tracking-[-0.025em] text-balance mb-8 max-w-[20ch]">
+        Four capabilities, end to end
+      </h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+        {FEATURES.map((f, i) => (
+          <ScrollCard key={f.title} feature={f} index={i} progress={scrollYProgress} />
+        ))}
       </div>
+      <Ticks index={active} />
     </div>
   );
 }

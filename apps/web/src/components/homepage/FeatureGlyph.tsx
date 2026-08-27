@@ -56,11 +56,11 @@ interface Driven {
 }
 
 /**
- * The card has fully arrived by start + 0.1, so every diagram runs after that —
+ * The card has fully arrived by start + 0.12, so every diagram runs after that —
  * there is no point performing something behind a card still on its way in.
  * Kept in step with ARRIVED in FeatureHighlights.
  */
-const AFTER_CARD = 0.1;
+const AFTER_CARD = 0.12;
 
 /** A position being acquired: the pin drops, the fix ripples out once. */
 function ReportGlyph({ progress, start }: Driven) {
