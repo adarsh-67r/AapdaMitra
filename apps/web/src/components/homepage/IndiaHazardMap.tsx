@@ -12,6 +12,10 @@ import POINTS from "@/lib/india-points.json";
  *
  * Points are pre-projected into the 0–100 viewBox at build time
  * (src/lib/india-points.json): [x, y, lat, lng].
+ *
+ * Every district in a belt animates identically, so the belt is one animated
+ * group rather than 589 independently-animated circles — eight subscriptions to
+ * the scroll position instead of well over a thousand.
  */
 type Point = [number, number, number, number];
 const PTS = POINTS as Point[];
@@ -68,60 +72,55 @@ const BELTS: Belt[] = [
   },
 ];
 
-// Resolve belt membership once rather than per scroll frame.
-const BELT_MEMBERS: Record<string, boolean[]> = Object.fromEntries(
-  BELTS.map((b) => [b.id, PTS.map((p) => b.match(p[2], p[3]))])
-);
+// Partition once at module load: every point belongs to at most one belt, and
+// whatever matches nothing forms the resting silhouette.
+const BELT_POINTS: Point[][] = BELTS.map(() => []);
+const REST_POINTS: Point[] = [];
+for (const p of PTS) {
+  const i = BELTS.findIndex((b) => b.match(p[2], p[3]));
+  if (i >= 0) BELT_POINTS[i].push(p);
+  else REST_POINTS.push(p);
+}
 
-function Dot({
-  point,
-  index,
-  progress,
-}: {
-  point: Point;
-  index: number;
-  progress: MotionValue<number>;
-}) {
-  const [x, y] = point;
-  const beltIndex = BELTS.findIndex((b) => BELT_MEMBERS[b.id][index]);
-  const active = beltIndex >= 0;
+/** Scroll window this belt owns, padded slightly so belts cross-fade. */
+function beltRange(index: number) {
+  const start = index / BELTS.length;
+  const end = (index + 1) / BELTS.length;
+  return [Math.max(0, start - 0.05), (start + end) / 2, Math.min(1, end + 0.05)];
+}
 
-  // Each belt owns a slice of the scroll; a dot brightens while its belt is up.
-  const start = active ? beltIndex / BELTS.length : 0;
-  const end = active ? (beltIndex + 1) / BELTS.length : 0;
-
-  const opacity = useTransform(
-    progress,
-    active ? [Math.max(0, start - 0.05), (start + end) / 2, Math.min(1, end + 0.05)] : [0, 1],
-    active ? [0.18, 1, 0.18] : [0.18, 0.18]
-  );
-  const r = useTransform(
-    progress,
-    active ? [Math.max(0, start - 0.05), (start + end) / 2, Math.min(1, end + 0.05)] : [0, 1],
-    active ? [0.42, 0.95, 0.42] : [0.42, 0.42]
-  );
+function BeltLayer({ index, progress }: { index: number; progress: MotionValue<number> }) {
+  const belt = BELTS[index];
+  const range = beltRange(index);
+  // Two layers: the districts themselves, and a wider bloom that blooms only
+  // while the belt is the one being read.
+  const dots = useTransform(progress, range, [0.2, 1, 0.2]);
+  const bloom = useTransform(progress, range, [0, 0.28, 0]);
 
   return (
-    <motion.circle
-      cx={x}
-      cy={y}
-      r={r}
-      style={{ opacity }}
-      fill={active ? BELTS[beltIndex].color : "var(--text-muted)"}
-    />
+    <>
+      <motion.g style={{ opacity: bloom }} fill={belt.color}>
+        {BELT_POINTS[index].map((p, i) => (
+          <circle key={i} cx={p[0]} cy={p[1]} r={1.6} />
+        ))}
+      </motion.g>
+      <motion.g style={{ opacity: dots }} fill={belt.color}>
+        {BELT_POINTS[index].map((p, i) => (
+          <circle key={i} cx={p[0]} cy={p[1]} r={0.62} />
+        ))}
+      </motion.g>
+    </>
   );
 }
 
-function BeltPanel({ belt, index, progress }: { belt: Belt; index: number; progress: MotionValue<number> }) {
-  const start = index / BELTS.length;
-  const end = (index + 1) / BELTS.length;
-  const range = [Math.max(0, start - 0.05), (start + end) / 2, Math.min(1, end + 0.05)];
-
+function BeltPanel({ index, progress }: { index: number; progress: MotionValue<number> }) {
+  const belt = BELTS[index];
+  const range = beltRange(index);
   const opacity = useTransform(progress, range, [0, 1, 0]);
   const y = useTransform(progress, range, [28, 0, -28]);
 
   return (
-    <motion.div style={{ opacity, y }} className="absolute inset-x-0 top-0">
+    <motion.div style={{ opacity, y }} className="absolute inset-x-0 top-0" aria-hidden>
       <div className="font-mono text-[0.7rem] tracking-[0.2em] mb-3" style={{ color: belt.color }}>
         {belt.hazard.toUpperCase()} · {belt.label.toUpperCase()}
       </div>
@@ -130,6 +129,25 @@ function BeltPanel({ belt, index, progress }: { belt: Belt; index: number; progr
       </div>
       <p className="text-sm md:text-base text-text-muted leading-relaxed max-w-[34ch]">{belt.source}</p>
     </motion.div>
+  );
+}
+
+/** Static fallback — also the accessible text for the animated version. */
+function BeltList() {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {BELTS.map((b) => (
+        <div key={b.id} className="rounded-2xl bg-white/[0.04] backdrop-blur-md border border-white/10 p-5">
+          <div className="font-mono text-xs mb-2" style={{ color: b.color }}>
+            {b.hazard.toUpperCase()} · {b.label.toUpperCase()}
+          </div>
+          <div className="text-4xl font-bold mb-2" style={{ color: b.color }}>
+            {b.stat}
+          </div>
+          <p className="text-sm text-text-muted leading-relaxed">{b.source}</p>
+        </div>
+      ))}
+    </div>
   );
 }
 
@@ -144,19 +162,7 @@ export default function IndiaHazardMap() {
         <h3 className="text-3xl md:text-4xl font-bold tracking-[-0.02em] text-balance mb-8 max-w-[26ch]">
           One system, every hazard belt
         </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {BELTS.map((b) => (
-            <div key={b.id} className="rounded-2xl bg-white/[0.04] backdrop-blur-md border border-white/10 p-5">
-              <div className="font-mono text-xs mb-2" style={{ color: b.color }}>
-                {b.hazard.toUpperCase()} · {b.label.toUpperCase()}
-              </div>
-              <div className="text-4xl font-bold mb-2" style={{ color: b.color }}>
-                {b.stat}
-              </div>
-              <p className="text-sm text-text-muted leading-relaxed">{b.source}</p>
-            </div>
-          ))}
-        </div>
+        <BeltList />
       </div>
     );
   }
@@ -167,8 +173,15 @@ export default function IndiaHazardMap() {
         <div className="w-full grid grid-cols-1 lg:grid-cols-[1fr_1.1fr] gap-10 lg:gap-16 items-center">
           <div className="relative min-h-[260px] md:min-h-[300px] order-2 lg:order-1">
             {BELTS.map((b, i) => (
-              <BeltPanel key={b.id} belt={b} index={i} progress={scrollYProgress} />
+              <BeltPanel key={b.id} index={i} progress={scrollYProgress} />
             ))}
+            {/* The animated panels are aria-hidden (they fade in and out of the
+                a11y tree as you scroll); this carries the same facts for
+                assistive tech and never moves. */}
+            <div className="sr-only">
+              <h3>One system, every hazard belt</h3>
+              <BeltList />
+            </div>
           </div>
 
           <div className="order-1 lg:order-2">
@@ -176,10 +189,16 @@ export default function IndiaHazardMap() {
               viewBox="-4 -4 108 108"
               className="w-full h-auto max-h-[52vh] mx-auto"
               role="img"
-              aria-label="Map of India drawn from district centroids, highlighting hazard belts"
+              aria-label="Map of India drawn from 589 district centroids, highlighting seismic, flood, cyclone and drought belts in turn"
             >
-              {PTS.map((p, i) => (
-                <Dot key={i} point={p} index={i} progress={scrollYProgress} />
+              {/* Resting silhouette — the districts no belt claims. */}
+              <g fill="var(--text-muted)" opacity={0.18}>
+                {REST_POINTS.map((p, i) => (
+                  <circle key={i} cx={p[0]} cy={p[1]} r={0.5} />
+                ))}
+              </g>
+              {BELTS.map((b, i) => (
+                <BeltLayer key={b.id} index={i} progress={scrollYProgress} />
               ))}
             </svg>
             <p className="text-center font-mono text-[0.68rem] text-text-muted mt-3">
