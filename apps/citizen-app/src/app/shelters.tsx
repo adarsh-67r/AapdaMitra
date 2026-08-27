@@ -1,4 +1,3 @@
-import * as Location from "expo-location";
 import { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, StyleSheet } from "react-native";
 import { WebView } from "react-native-webview";
@@ -8,6 +7,7 @@ import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { Spacing } from "@/constants/theme";
 import { apiFetchJson } from "@/lib/api-client";
+import { tryGetPosition } from "@/lib/use-location";
 import { leafletHtml, type MapPin } from "@/lib/leaflet-html";
 
 interface Resource {
@@ -35,12 +35,11 @@ export default function SheltersScreen() {
   const [center, setCenter] = useState(DEFAULT_CENTER);
 
   useEffect(() => {
+    // Centres the map on the citizen when a position is available, and quietly
+    // stays on the default region when it is not.
     (async () => {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status === "granted") {
-        const pos = await Location.getCurrentPositionAsync({});
-        setCenter({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-      }
+      const here = await tryGetPosition();
+      if (here) setCenter(here);
     })();
 
     async function load() {

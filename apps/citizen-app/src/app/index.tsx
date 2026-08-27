@@ -1,5 +1,4 @@
 import * as ImagePicker from "expo-image-picker";
-import * as Location from "expo-location";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -15,9 +14,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { LocationField } from "@/components/location-field";
 import { Brand, Spacing } from "@/constants/theme";
 import { apiFetch, apiFetchJson } from "@/lib/api-client";
 import { enqueueReport, flushQueue, subscribeToQueue } from "@/lib/offline-queue";
+import { useLocation } from "@/lib/use-location";
 
 type Severity = "low" | "medium" | "high" | "critical";
 const SEVERITIES: Severity[] = ["low", "medium", "high", "critical"];
@@ -26,8 +27,8 @@ export default function ReportScreen() {
   const [description, setDescription] = useState("");
   const [severity, setSeverity] = useState<Severity>("medium");
   const [photoUri, setPhotoUri] = useState<string | null>(null);
-  const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const [locating, setLocating] = useState(false);
+  const geo = useLocation();
+  const location = geo.coords;
   const [submitting, setSubmitting] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
 
@@ -42,21 +43,6 @@ export default function ReportScreen() {
     });
     return () => sub.remove();
   }, []);
-
-  async function captureLocation() {
-    setLocating(true);
-    try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        Alert.alert("Location permission needed", "Enable location access to tag your report.");
-        return;
-      }
-      const pos = await Location.getCurrentPositionAsync({});
-      setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-    } finally {
-      setLocating(false);
-    }
-  }
 
   async function pickPhoto() {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -82,7 +68,14 @@ export default function ReportScreen() {
     try {
       const report = await apiFetchJson<{ id: string }>("/reports", {
         method: "POST",
-        body: JSON.stringify({ lat: location.lat, lng: location.lng, severity, description }),
+        body: JSON.stringify({
+          lat: location.lat,
+          lng: location.lng,
+          severity,
+          description,
+          place_label: geo.placeLabel,
+          location_source: geo.source,
+        }),
       });
 
       if (photoUri) {
@@ -105,6 +98,8 @@ export default function ReportScreen() {
         severity,
         description,
         photoUri,
+        placeLabel: geo.placeLabel,
+        locationSource: geo.source,
       });
       setDescription("");
       setPhotoUri(null);
@@ -140,17 +135,15 @@ export default function ReportScreen() {
 
           <ThemedView type="backgroundElement" style={styles.card}>
             <ThemedText type="smallBold">Location</ThemedText>
-            <Pressable style={styles.secondaryButton} onPress={captureLocation}>
-              {locating ? (
-                <ActivityIndicator />
-              ) : (
-                <ThemedText>
-                  {location
-                    ? `📍 ${location.lat.toFixed(4)}, ${location.lng.toFixed(4)}`
-                    : "Tag my current location"}
-                </ThemedText>
-              )}
-            </Pressable>
+            <LocationField
+              coords={geo.coords}
+              status={geo.status}
+              source={geo.source}
+              placeLabel={geo.placeLabel}
+              accuracyM={geo.accuracyM}
+              onRetry={geo.retry}
+              onManual={geo.setManual}
+            />
           </ThemedView>
 
           <ThemedView type="backgroundElement" style={styles.card}>

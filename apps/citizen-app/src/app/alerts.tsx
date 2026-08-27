@@ -1,4 +1,3 @@
-import * as Location from "expo-location";
 import { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, FlatList, RefreshControl, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -8,6 +7,7 @@ import { ThemedView } from "@/components/themed-view";
 import { Brand, Spacing } from "@/constants/theme";
 import { apiFetchJson } from "@/lib/api-client";
 import { haversineKm } from "@/lib/geo";
+import { tryGetPosition } from "@/lib/use-location";
 
 interface Alert {
   id: string;
@@ -53,14 +53,12 @@ export default function AlertsScreen() {
 
   const load = useCallback(async () => {
     try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      let origin: { lat: number; lng: number } | null = null;
-      if (status === "granted") {
-        const pos = await Location.getCurrentPositionAsync({});
-        origin = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-      }
-
+      // Alerts first. Position only narrows the list, so it must never be able
+      // to keep the feed from rendering — this used to sit in front of the fetch
+      // with no deadline, and a lookup that never resolved left the screen on
+      // its loading state indefinitely.
       const data = await apiFetchJson<Alert[]>("/alerts");
+      const origin = await tryGetPosition();
       const list = origin ? data.filter((a) => haversineKm(origin!, a) <= NEARBY_RADIUS_KM) : data;
       setAlerts(list);
     } catch (e) {

@@ -9,9 +9,13 @@ const fs = require("fs");
 const path = require("path");
 
 const RAW_PATH = path.join(__dirname, "..", "district_raw.geojson");
-const OUT_PATH = path.join(
-  __dirname, "..", "..", "apps", "web", "src", "lib", "india-districts.json"
-);
+// Both clients need the same district index — the web app for its manual place
+// picker, the citizen app for the same fallback offline. Emitting to both here
+// keeps them from drifting apart the way a hand copy would.
+const OUT_PATHS = [
+  path.join(__dirname, "..", "..", "apps", "web", "src", "lib", "india-districts.json"),
+  path.join(__dirname, "..", "..", "apps", "citizen-app", "src", "lib", "india-districts.json"),
+];
 
 function ringArea(ring) {
   let sum = 0;
@@ -76,8 +80,10 @@ for (const f of raw.features) {
 }
 
 rows.sort((a, b) => a[0].localeCompare(b[0]) || a[1].localeCompare(b[1]));
-fs.writeFileSync(OUT_PATH, JSON.stringify(rows));
+for (const out of OUT_PATHS) fs.writeFileSync(out, JSON.stringify(rows));
 
 const states = new Set(rows.map((r) => r[0]));
-console.log(`wrote ${rows.length} districts across ${states.size} states -> ${OUT_PATH}`);
-console.log(`size: ${(fs.statSync(OUT_PATH).size / 1024).toFixed(1)} KB`);
+console.log(`wrote ${rows.length} districts across ${states.size} states`);
+for (const out of OUT_PATHS) {
+  console.log(`  ${out} (${(fs.statSync(out).size / 1024).toFixed(1)} KB)`);
+}

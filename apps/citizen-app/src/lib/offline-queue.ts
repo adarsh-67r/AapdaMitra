@@ -15,6 +15,14 @@ export interface PendingReport {
   description: string;
   photoUri: string | null;
   queuedAt: string;
+  /**
+   * How the position was obtained, carried through the queue so a report held
+   * offline reaches the console with the same provenance as one sent live — a
+   * replayed report must not arrive looking like a GPS fix when it was a place
+   * the citizen named by hand.
+   */
+  placeLabel?: string | null;
+  locationSource?: string;
 }
 
 type Listener = (count: number) => void;
@@ -67,6 +75,8 @@ async function sendOne(item: PendingReport): Promise<void> {
       lng: item.lng,
       severity: item.severity,
       description: item.description,
+      place_label: item.placeLabel ?? null,
+      location_source: item.locationSource ?? "device",
     }),
   });
 
