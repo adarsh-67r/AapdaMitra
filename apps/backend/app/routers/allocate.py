@@ -11,6 +11,10 @@ router = APIRouter(tags=["allocate"])
 class AllocateBody(BaseModel):
     report_id: str
     resource_type: str | None = None
+    # Lets an operator deliberately search past the default ceiling when nothing
+    # is nearby. Widening is always a human decision: silently dispatching a unit
+    # hundreds of kilometres away is the failure mode the ceiling exists to stop.
+    max_km: float | None = None
 
 
 @router.post("/allocate")
@@ -30,15 +34,33 @@ def allocate(
         cur.execute("select id, type, name, lat, lng, status, capacity from resources")
         resources = cur.fetchall()
 
-        chosen, distance_km = pick_best_resource(report, resources, body.resource_type)
+        max_km = body.max_km or MAX_DISPATCH_KM
+        chosen, distance_km = pick_best_resource(report, resources, body.resource_type, max_km)
         if not chosen:
             available = sum(1 for r in resources if r["status"] == "available")
-            reason = (
-                "no resource is currently available"
-                if available == 0
-                else f"nothing available within {MAX_DISPATCH_KM:.0f} km of this report"
+            if available == 0:
+                return {
+                    "assigned": False,
+                    "reason": "No resource is currently available. Free one up under Resources.",
+                    "out_of_range": False,
+                }
+            # Say how far the nearest one actually is, so the operator can judge
+            # whether widening the search is reasonable rather than guessing.
+            nearest, nearest_km = pick_best_resource(
+                report, resources, body.resource_type, max_km=40_000
             )
-            return {"assigned": False, "reason": reason}
+            return {
+                "assigned": False,
+                "out_of_range": nearest is not None,
+                "nearest_km": round(nearest_km, 1) if nearest_km is not None else None,
+                "nearest_name": nearest.get("name") if nearest else None,
+                "reason": (
+                    f"Nothing available within {max_km:.0f} km. "
+                    f"The closest is {nearest['name']} at {nearest_km:.0f} km."
+                    if nearest
+                    else f"Nothing available within {max_km:.0f} km of this report."
+                ),
+            }
 
         cur.execute(
             "update resources set status = 'dispatched' where id = %s and status = 'available'",

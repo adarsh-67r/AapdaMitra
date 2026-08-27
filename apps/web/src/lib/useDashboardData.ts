@@ -62,7 +62,7 @@ export function useDashboardData() {
     }
   }, []);
 
-  const allocate = useCallback(async (reportId: string) => {
+  const allocate = useCallback(async (reportId: string, maxKm?: number) => {
     setAllocating(reportId);
     try {
       const data = await apiFetchJson<{
@@ -71,9 +71,12 @@ export function useDashboardData() {
         resource_name?: string | null;
         distance_km?: number | null;
         reason?: string;
+        out_of_range?: boolean;
+        nearest_km?: number | null;
+        nearest_name?: string | null;
       }>(
         "/allocate",
-        { method: "POST", body: JSON.stringify({ report_id: reportId }) }
+        { method: "POST", body: JSON.stringify({ report_id: reportId, max_km: maxKm }) }
       );
       await loadAll();
       return data;

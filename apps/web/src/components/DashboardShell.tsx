@@ -32,17 +32,29 @@ export default function DashboardShell({ onSignOut }: { onSignOut: () => void })
   // Reports the allocator has already declined. Without this the auto-allocate
   // loop retries the same unreachable report on every poll, forever, silently.
   const declined = useRef<Set<string>>(new Set());
+  const [outOfRange, setOutOfRange] = useState<
+    { reportId: string; km: number; name: string } | null
+  >(null);
 
-  /** Allocation can succeed, or succeed at saying no. Both must be visible. */
+  /**
+   * Allocation can succeed, or succeed at saying no. Both must be visible, and a
+   * refusal has to leave the operator somewhere to go — when the only units are
+   * beyond the ceiling, offer to reach them rather than stopping at "nothing
+   * available".
+   */
   const allocateAndReport = useCallback(
-    async (reportId: string) => {
-      const result = await allocate(reportId);
+    async (reportId: string, maxKm?: number) => {
+      const result = await allocate(reportId, maxKm);
       if (result?.assigned) {
         const where =
           result.distance_km != null ? ` · ${result.distance_km.toFixed(1)} km away` : "";
         toast("success", `Dispatched ${result.resource_name ?? "nearest resource"}${where}.`);
+        declined.current.delete(reportId);
       } else {
         declined.current.add(reportId);
+        if (result?.out_of_range && result.nearest_km != null) {
+          setOutOfRange({ reportId, km: result.nearest_km, name: result.nearest_name ?? "a resource" });
+        }
         toast("error", result?.reason ?? "No resource could be allocated.");
       }
       return result;
@@ -213,7 +225,7 @@ export default function DashboardShell({ onSignOut }: { onSignOut: () => void })
                 report={selectedReport}
                 resources={resources}
                 allocating={allocating === selectedReportId}
-                onAllocate={allocateAndReport}
+                onAllocate={(id: string) => allocateAndReport(id)}
                 onManualAssign={manualAssign}
                 onResolve={resolveReport}
                 onReopen={reopenReport}
@@ -224,6 +236,41 @@ export default function DashboardShell({ onSignOut }: { onSignOut: () => void })
         </AnimatePresence>
         </div>
       </main>
+
+      {/* A refusal on distance is a decision for the operator, not a dead end:
+          the ceiling exists so nothing is dispatched hundreds of km away without
+          someone choosing to, and this is where they choose. */}
+      {outOfRange && (
+        <div
+          role="alert"
+          className="mx-3 md:mx-7 mb-3 panel-alt p-3 flex flex-wrap items-center justify-between gap-3"
+        >
+          <p className="text-sm">
+            Nothing within range of this report. The closest is{" "}
+            <span className="font-semibold">{outOfRange.name}</span>, {Math.round(outOfRange.km)} km
+            away.
+          </p>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                const { reportId, km } = outOfRange;
+                setOutOfRange(null);
+                declined.current.delete(reportId);
+                allocateAndReport(reportId, Math.ceil(km) + 1);
+              }}
+              className="control-primary font-mono text-xs px-3 py-1.5 cursor-pointer"
+            >
+              Dispatch it anyway
+            </button>
+            <button
+              onClick={() => setOutOfRange(null)}
+              className="control font-mono text-xs px-3 py-1.5 cursor-pointer"
+            >
+              Dismiss
+            </button>
+          </div>
+        </div>
+      )}
 
       {showResources && (
         <ManageResourcesModal

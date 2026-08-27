@@ -184,7 +184,9 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
           severity: overrideSeverity ?? severity,
           description:
             (overrideDescription ?? description) +
-            (geo.source === "manual" ? "\n\n[Location set manually — approximate]" : ""),
+            (geo.source === "manual"
+              ? `\n\n[Location set by hand: ${geo.placeLabel ?? "unnamed place"} — approximate]`
+              : ""),
         }),
       });
 

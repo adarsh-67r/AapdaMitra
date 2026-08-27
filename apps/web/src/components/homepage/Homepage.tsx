@@ -1,5 +1,6 @@
 import PaperGround from "./PaperGround";
 import ScrollProgress from "./ScrollProgress";
+import SignalTrace from "./SignalTrace";
 import HomepageNav from "./HomepageNav";
 import Hero from "./Hero";
 import TheProblem from "./TheProblem";
@@ -19,6 +20,7 @@ export default function Homepage() {
     <div className="relative min-h-[100dvh] bg-bg text-text overflow-x-clip">
       <ScrollProgress />
       <PaperGround />
+      <SignalTrace />
       <HomepageNav />
       <Hero />
       <TheProblem />
