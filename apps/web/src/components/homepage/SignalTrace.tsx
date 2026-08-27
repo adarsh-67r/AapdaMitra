@@ -21,15 +21,30 @@ import { motion, useReducedMotion, useScroll, useSpring, useTransform } from "fr
 const STOPS = ["problem", "hazard-map", "how-it-works", "features", "capabilities"];
 
 /**
- * Where each node sits across the width, as a fraction.
- *
- * These stay in the outer margins on alternating sides. The page has no reserved
- * gutter — sections run nearly full width — so a route that wanders through the
- * middle crosses body copy, which reads as scribble over the text rather than as
- * anything travelling. Hugging the edges keeps it clear of the words while still
- * moving side to side down the page.
+ * How far in from the page edge the route runs, in pixels, matched to the
+ * gutter the sections actually leave: px-6 (24px) on a phone, px-10 (40px)
+ * from md up. A fixed inset keeps the line inside that gutter at any width,
+ * where a fraction of the width would drift into the text as the viewport
+ * narrows.
  */
-const ACROSS = [0.055, 0.945, 0.055, 0.945, 0.055];
+function insetFor(w: number): number {
+  if (w < 640) return 12;
+  if (w < 1024) return 20;
+  return 44;
+}
+
+/**
+ * Which side each section's node sits on.
+ *
+ * Wide enough for a real route: alternate sides, so it crosses the page between
+ * sections and reads as something travelling. Narrow: stay in the left gutter
+ * and only undulate, because a crossing on a phone has nowhere to go but over
+ * the words.
+ */
+function acrossFor(index: number, w: number): { side: "left" | "right"; nudge: number } {
+  if (w < 1024) return { side: "left", nudge: index % 2 === 0 ? 0 : 9 };
+  return { side: index % 2 === 0 ? "left" : "right", nudge: 0 };
+}
 
 interface Node {
   id: string;
@@ -46,6 +61,7 @@ export default function SignalTrace() {
   const reduceMotion = useReducedMotion();
   const [nodes, setNodes] = useState<Node[]>([]);
   const [d, setD] = useState("");
+  const [compact, setCompact] = useState(false);
 
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
   // The head lags the scroll slightly, so the route reads as something
@@ -63,6 +79,7 @@ export default function SignalTrace() {
       const top = host.offsetTop;
       const vh = window.innerHeight;
 
+      const inset = insetFor(w);
       const found = STOPS.map((id, i) => {
         const el = document.getElementById(id);
         if (!el) return null;
@@ -71,7 +88,9 @@ export default function SignalTrace() {
         // centres are two viewports deep inside a scroll region — a node there
         // marks empty space the reader never sees anything at.
         const y = el.offsetTop - top + Math.min(el.offsetHeight, vh) / 2;
-        return { id, x: ACROSS[i % ACROSS.length] * w, y: Math.min(Math.max(y, 0), h) };
+        const { side, nudge } = acrossFor(i, w);
+        const x = side === "left" ? inset + nudge : w - inset - nudge;
+        return { id, x, y: Math.min(Math.max(y, 0), h) };
       }).filter((n): n is { id: string; x: number; y: number } => n !== null);
 
       if (found.length < 2) return;
@@ -86,6 +105,7 @@ export default function SignalTrace() {
 
       setNodes(found.map((n, i) => ({ id: n.id, fx: n.x / w, fy: n.y / h, at: spans[i] / total })));
       setD(routeThrough(found, w, h));
+      setCompact(w < 1024);
     };
 
     measure();
@@ -104,11 +124,9 @@ export default function SignalTrace() {
   if (!d) return <div ref={ref} className="absolute inset-0" aria-hidden />;
 
   return (
-    // Below lg there is no margin to spare, so the route is not drawn at all
-    // rather than laid over the content.
     <div
       ref={ref}
-      className="absolute inset-0 z-0 pointer-events-none overflow-hidden hidden lg:block"
+      className="absolute inset-0 z-0 pointer-events-none overflow-hidden"
       aria-hidden
     >
       {/* The path lives in a 0–100 box stretched over the page. Only the line is
@@ -152,7 +170,7 @@ export default function SignalTrace() {
       </svg>
 
       {nodes.map((n) => (
-        <Stop key={n.id} node={n} head={head} still={!!reduceMotion} />
+        <Stop key={n.id} node={n} head={head} still={!!reduceMotion} compact={compact} />
       ))}
     </div>
   );
@@ -184,12 +202,23 @@ function routeThrough(pts: { x: number; y: number }[], w: number, h: number): st
 }
 
 /** A section's node. A DOM element, so it is always round. */
-function Stop({ node, head, still }: { node: Node; head: ReturnType<typeof useSpring>; still: boolean }) {
+function Stop({
+  node,
+  head,
+  still,
+  compact,
+}: {
+  node: Node;
+  head: ReturnType<typeof useSpring>;
+  still: boolean;
+  compact: boolean;
+}) {
   // Lights as the head passes and stays lit, so the route reads as a journey
   // already made rather than a row of blinking dots.
   const lit = useTransform(head, [node.at - 0.02, node.at + 0.01], [0, 1]);
   const flare = useTransform(head, [node.at - 0.02, node.at, node.at + 0.06], [0, 1, 0]);
-  const flareScale = useTransform(flare, [0, 1], [0.4, 2.4]);
+  // A narrow gutter cannot take a wide flare without reaching over the text.
+  const flareScale = useTransform(flare, [0, 1], [0.4, compact ? 1.7 : 2.4]);
 
   const place = {
     left: `${(node.fx * 100).toFixed(3)}%`,
