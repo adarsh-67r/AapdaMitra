@@ -59,20 +59,20 @@ export default function StatsBar({ alerts, resources, reports }: Props) {
   const resolved = reports.filter((r) => r.status === "resolved").length;
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 px-7 pt-4 pb-3">
-      <div className="rounded-sm bg-panel border border-border px-5 py-4 flex items-center gap-4">
+    <div className="grid grid-cols-2 xl:grid-cols-4 gap-2 md:gap-3 px-3 md:px-7 pt-3 md:pt-4 pb-2 md:pb-3">
+      <div className="rounded-sm bg-panel border border-border px-3 md:px-5 py-2.5 md:py-4 flex items-center gap-3 md:gap-4">
         <RadialGauge value={criticalOpen} total={Math.max(openReports, 1)} />
         <div>
-          <div className="font-mono text-xs uppercase tracking-wider text-text-muted">Critical / Open</div>
-          <div className="text-base font-semibold mt-1">{criticalOpen} of {openReports} reports</div>
-          <div className="text-sm text-critical mt-0.5">Immediate action</div>
+          <div className="font-mono text-[0.6rem] md:text-xs uppercase tracking-wider text-text-muted">Critical / Open</div>
+          <div className="text-sm md:text-base font-semibold mt-1">{criticalOpen} of {openReports} reports</div>
+          <div className="text-xs md:text-sm text-critical mt-0.5">Immediate action</div>
         </div>
       </div>
 
-      <div className="rounded-sm bg-panel border border-border px-5 py-4 flex flex-col justify-center gap-2.5">
-        <span className="font-mono text-xs uppercase tracking-wider text-text-muted">Resources Available</span>
+      <div className="rounded-sm bg-panel border border-border px-3 md:px-5 py-2.5 md:py-4 flex flex-col justify-center gap-1.5 md:gap-2.5">
+        <span className="font-mono text-[0.6rem] md:text-xs uppercase tracking-wider text-text-muted">Resources Available</span>
         <div className="flex items-baseline gap-2">
-          <span className="font-mono text-[26px] font-bold text-available">
+          <span className="font-mono text-[20px] md:text-[26px] font-bold text-available">
             {String(availableResources).padStart(2, "0")}
           </span>
           <span className="font-mono text-sm text-text-muted">/ {resources.length}</span>
@@ -80,10 +80,10 @@ export default function StatsBar({ alerts, resources, reports }: Props) {
         <TickBar fraction={resources.length ? availableResources / resources.length : 0} color="var(--available)" />
       </div>
 
-      <div className="rounded-sm bg-panel border border-border px-5 py-4 flex flex-col justify-center gap-2.5">
-        <span className="font-mono text-xs uppercase tracking-wider text-text-muted">Severe Alerts</span>
+      <div className="rounded-sm bg-panel border border-border px-3 md:px-5 py-2.5 md:py-4 flex flex-col justify-center gap-1.5 md:gap-2.5">
+        <span className="font-mono text-[0.6rem] md:text-xs uppercase tracking-wider text-text-muted">Severe Alerts</span>
         <div className="flex items-baseline gap-2">
-          <span className="font-mono text-[26px] font-bold text-high">
+          <span className="font-mono text-[20px] md:text-[26px] font-bold text-high">
             {String(severeAlerts).padStart(2, "0")}
           </span>
           <span className="font-mono text-sm text-text-muted">/ {alerts.length} active</span>
@@ -91,8 +91,8 @@ export default function StatsBar({ alerts, resources, reports }: Props) {
         <TickBar fraction={alerts.length ? severeAlerts / alerts.length : 0} color="var(--high)" />
       </div>
 
-      <div className="rounded-sm bg-panel border border-border px-5 py-4 flex flex-col justify-center gap-2.5">
-        <span className="font-mono text-xs uppercase tracking-wider text-text-muted">Assigned / Resolved</span>
+      <div className="rounded-sm bg-panel border border-border px-3 md:px-5 py-2.5 md:py-4 flex flex-col justify-center gap-1.5 md:gap-2.5">
+        <span className="font-mono text-[0.6rem] md:text-xs uppercase tracking-wider text-text-muted">Assigned / Resolved</span>
         <div className="flex items-baseline gap-2 font-mono">
           <span className="text-[26px] font-bold text-assigned">{assigned}</span>
           <span className="text-sm text-text-muted">assigned ·</span>

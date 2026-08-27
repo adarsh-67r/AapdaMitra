@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useMarkerPalette } from "@/lib/severity-colors";
 import Link from "next/link";
 import CitizenMap from "@/components/CitizenMap";
 import type { MapPin } from "@/components/CitizenMapClient";
@@ -34,18 +35,7 @@ interface ResourceRow {
   status: "available" | "full" | "dispatched";
 }
 
-const SEVERITY_COLOR: Record<AlertRow["severity_color"], string> = {
-  green: "#2E9E4A",
-  yellow: "#D8B400",
-  orange: "#E08A00",
-  red: "#D64545",
-};
 
-const RESOURCE_COLOR: Record<ResourceRow["status"], string> = {
-  available: "#2E9E4A",
-  full: "#D64545",
-  dispatched: "#E08A00",
-};
 
 const INDIA_CENTER: [number, number] = [22.9734, 78.6569];
 const POLL_INTERVAL_MS = 12000;
@@ -62,6 +52,7 @@ async function fetchLocalToken(): Promise<string> {
 }
 
 export default function MapPage() {
+  const palette = useMarkerPalette();
   const [token, setToken] = useState<string | null>(null);
   const [alerts, setAlerts] = useState<AlertRow[]>([]);
   const [resources, setResources] = useState<ResourceRow[]>([]);
@@ -113,14 +104,14 @@ export default function MapPage() {
     ...alerts.map((a) => ({
       lat: a.lat,
       lng: a.lng,
-      color: SEVERITY_COLOR[a.severity_color],
+      color: palette.alert[a.severity_color],
       title: a.disaster_type,
       description: a.warning_message ?? a.area_description ?? "",
     })),
     ...resources.map((r) => ({
       lat: r.lat,
       lng: r.lng,
-      color: RESOURCE_COLOR[r.status],
+      color: palette.resource[r.status],
       title: r.name,
       description: `${r.type.replace("_", " ")} — ${r.status}`,
     })),
@@ -135,20 +126,20 @@ export default function MapPage() {
         <div className="flex items-center gap-3.5">
           <div className="hidden md:flex gap-3 font-mono text-[0.68rem] text-text-muted flex-wrap">
             <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full" style={{ background: SEVERITY_COLOR.red }} /> Severe
+              <span className="w-2 h-2 rounded-full" style={{ background: palette.alert.red }} /> Severe
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full" style={{ background: SEVERITY_COLOR.orange }} /> High
+              <span className="w-2 h-2 rounded-full" style={{ background: palette.alert.orange }} /> High
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full" style={{ background: SEVERITY_COLOR.yellow }} /> Moderate
+              <span className="w-2 h-2 rounded-full" style={{ background: palette.alert.yellow }} /> Moderate
             </span>
             <span className="text-border">|</span>
             <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full" style={{ background: RESOURCE_COLOR.available }} /> Available
+              <span className="w-2 h-2 rounded-full" style={{ background: palette.resource.available }} /> Available
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full" style={{ background: RESOURCE_COLOR.dispatched }} /> Dispatched
+              <span className="w-2 h-2 rounded-full" style={{ background: palette.resource.dispatched }} /> Dispatched
             </span>
           </div>
           <ThemeToggle />

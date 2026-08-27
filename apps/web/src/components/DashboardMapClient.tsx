@@ -5,6 +5,7 @@
 // Uses raw Leaflet (L.map + refs/effects) instead of react-leaflet's
 // declarative <MapContainer> — see git history / project notes for why.
 import L from "leaflet";
+import { readMarkerPalette } from "@/lib/severity-colors";
 import "leaflet.heat";
 import { useEffect, useRef } from "react";
 import type { Alert, Report, Resource } from "@/lib/useDashboardData";
@@ -16,36 +17,21 @@ L.Icon.Default.mergeOptions({
   shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
 });
 
-const SEVERITY_COLOR: Record<Alert["severity_color"], string> = {
-  green: "#2E9E4A",
-  yellow: "#D8B400",
-  orange: "#E08A00",
-  red: "#D64545",
-};
-
-const REPORT_COLOR: Record<Report["severity"], string> = {
-  low: "#4C9F4C",
-  medium: "#D8B400",
-  high: "#E08A00",
-  critical: "#D64545",
-};
-
 // Marker glyphs as inline SVG paths, matching the app's drawn icon set
 // (24x24 box, 1.75 stroke, round caps). Leaflet builds markers from HTML
 // strings, so these can't reuse the React components in components/icons.tsx —
 // but they must stay geometrically identical to them.
+const PALETTE = readMarkerPalette();
+const SEVERITY_COLOR = PALETTE.alert;
+const REPORT_COLOR = PALETTE.report;
+const RESOURCE_STATUS_COLOR = PALETTE.resource;
+
 const RESOURCE_GLYPH: Record<Resource["type"], string> = {
   shelter: '<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.8V20a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9.8"/>',
   rescue_team:
     '<path d="M3 7h11v9H3z"/><path d="M14 10h3.5l2.5 3v3H14z"/><circle cx="7" cy="18.5" r="1.8"/><circle cx="17" cy="18.5" r="1.8"/><path d="M8.5 10.5h3M10 9v3"/>',
   supply_stock:
     '<path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/>',
-};
-
-const RESOURCE_STATUS_COLOR: Record<Resource["status"], string> = {
-  available: "#2E9E4A",
-  full: "#D64545",
-  dispatched: "#E08A00",
 };
 
 function svgGlyph(paths: string) {
@@ -170,7 +156,7 @@ export default function DashboardMapClient({
               [rep.lat, rep.lng],
               [resource.lat, resource.lng],
             ],
-            { color: "#208AEF", weight: 2.5, dashArray: "8 8", className: "dispatch-line" }
+            { color: PALETTE.dispatch, weight: 2.5, dashArray: "8 8", className: "dispatch-line" }
           ).addTo(group);
         }
       }
@@ -192,7 +178,7 @@ export default function DashboardMapClient({
       const isSelected = rep.id === selectedReportId;
       const marker = L.circleMarker([rep.lat, rep.lng], {
         radius: isSelected ? 11 : 8,
-        color: isSelected ? "#208AEF" : "black",
+        color: isSelected ? PALETTE.dispatch : PALETTE.outline,
         weight: isSelected ? 3 : 1,
         fillColor: REPORT_COLOR[rep.severity],
         fillOpacity: 0.95,

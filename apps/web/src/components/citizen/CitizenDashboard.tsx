@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { haversineKm } from "@/lib/geo-client";
-import { INDIA_CITIES } from "@/lib/india-cities";
+import { nearestDistrict } from "@/lib/india-districts";
 import type { Coords, GeoSource } from "@/lib/use-geolocation";
 
 interface AlertLike {
@@ -70,12 +70,14 @@ function Field({ label, value, hint, color }: { label: string; value: string; hi
 export default function CitizenDashboard({
   coords,
   source,
+  placeLabel,
   alerts,
   resources,
   myReports,
 }: {
   coords: Coords | null;
   source: GeoSource;
+  placeLabel: string | null;
   alerts: AlertLike[];
   resources: ResourceLike[];
   myReports: ReportLike[];
@@ -95,9 +97,9 @@ export default function CitizenDashboard({
 
     const shelters = withDistance(resources.filter((r) => r.type === "shelter" && r.status === "available"));
     const teams = withDistance(resources.filter((r) => r.type === "rescue_team" && r.status === "available"));
-    const nearestCity = withDistance(INDIA_CITIES)[0];
+    const district = nearestDistrict(coords.lat, coords.lng);
 
-    return { nearbyAlerts, worst, shelter: shelters[0], team: teams[0], nearestCity };
+    return { nearbyAlerts, worst, shelter: shelters[0], team: teams[0], district };
   }, [coords, alerts, resources]);
 
   const openReports = myReports.filter((r) => r.status !== "resolved").length;
@@ -112,16 +114,16 @@ export default function CitizenDashboard({
     );
   }
 
-  const { nearbyAlerts, worst, shelter, team, nearestCity } = view;
+  const { nearbyAlerts, worst, shelter, team, district } = view;
 
   return (
     <div className="flex flex-col gap-6">
       <section className="panel px-5 divide-y divide-border">
         <Field
           label="Your position"
-          value={`${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}`}
+          value={placeLabel ?? `${district.district}, ${district.state}`}
           hint={
-            `${km(nearestCity.d)} from ${nearestCity.row.name}, ${nearestCity.row.state}` +
+            `${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}` +
             (source === "manual" ? " · approximate, set by hand" : "")
           }
         />

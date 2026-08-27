@@ -65,7 +65,13 @@ export function useDashboardData() {
   const allocate = useCallback(async (reportId: string) => {
     setAllocating(reportId);
     try {
-      const data = await apiFetchJson<{ assigned: boolean; resource_id?: string; reason?: string }>(
+      const data = await apiFetchJson<{
+        assigned: boolean;
+        resource_id?: string;
+        resource_name?: string | null;
+        distance_km?: number | null;
+        reason?: string;
+      }>(
         "/allocate",
         { method: "POST", body: JSON.stringify({ report_id: reportId }) }
       );

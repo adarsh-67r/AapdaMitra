@@ -30,7 +30,7 @@ export default function FallbackPanel({ events, onTriggerDemo }: Props) {
   const expanded = open || events.length > 0;
 
   return (
-    <section className="mx-7 mb-3 rounded-sm bg-panel border border-border overflow-hidden">
+    <section className="mx-3 md:mx-7 mb-3 rounded-sm bg-panel border border-border overflow-hidden">
       <div className="px-4 py-2 flex items-center justify-between flex-wrap gap-2">
         <button
           onClick={() => setOpen((v) => !v)}

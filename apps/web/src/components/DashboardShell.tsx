@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import BroadcastAlertModal from "@/components/BroadcastAlertModal";
 import DashboardMap from "@/components/DashboardMap";
@@ -10,6 +10,7 @@ import ManageResourcesModal from "@/components/ManageResourcesModal";
 import ReportsQueue from "@/components/ReportsQueue";
 import StatsBar from "@/components/StatsBar";
 import ThemeToggle from "@/components/ThemeToggle";
+import { useToast } from "@/components/Toast";
 import { useDashboardData } from "@/lib/useDashboardData";
 import { useFallbackSimulation } from "@/lib/useFallbackSimulation";
 
@@ -19,6 +20,7 @@ export default function DashboardShell({ onSignOut }: { onSignOut: () => void })
     manualAssign, resolveReport, reopenReport, addResource, updateResource, broadcastAlert,
   } = useDashboardData();
   const { events: fallbackEvents, triggerDemoEvent } = useFallbackSimulation(alerts, reports);
+  const toast = useToast();
   const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
   const [autoAllocate, setAutoAllocate] = useState(false);
   const [showResources, setShowResources] = useState(false);
@@ -27,15 +29,42 @@ export default function DashboardShell({ onSignOut }: { onSignOut: () => void })
 
   const selectedReport = reports.find((r) => r.id === selectedReportId) ?? null;
 
+  // Reports the allocator has already declined. Without this the auto-allocate
+  // loop retries the same unreachable report on every poll, forever, silently.
+  const declined = useRef<Set<string>>(new Set());
+
+  /** Allocation can succeed, or succeed at saying no. Both must be visible. */
+  const allocateAndReport = useCallback(
+    async (reportId: string) => {
+      const result = await allocate(reportId);
+      if (result?.assigned) {
+        const where =
+          result.distance_km != null ? ` · ${result.distance_km.toFixed(1)} km away` : "";
+        toast("success", `Dispatched ${result.resource_name ?? "nearest resource"}${where}.`);
+      } else {
+        declined.current.add(reportId);
+        toast("error", result?.reason ?? "No resource could be allocated.");
+      }
+      return result;
+    },
+    [allocate, toast]
+  );
+
   useEffect(() => {
-    if (!autoAllocate || allocating) return;
-    const openReport = reports.find((r) => r.status === "open");
-    if (openReport) allocate(openReport.id);
-  }, [autoAllocate, allocating, reports, allocate]);
+    if (!autoAllocate) {
+      declined.current.clear();
+      return;
+    }
+    if (allocating) return;
+    const openReport = reports.find(
+      (r) => r.status === "open" && !declined.current.has(r.id)
+    );
+    if (openReport) allocateAndReport(openReport.id);
+  }, [autoAllocate, allocating, reports, allocateAndReport]);
 
   return (
     <div className="flex flex-col h-[100dvh] bg-bg text-text">
-      <header className="flex items-center justify-between px-7 py-4 border-b border-border bg-panel ">
+      <header className="flex items-center justify-between gap-3 flex-wrap px-3 md:px-7 py-2.5 md:py-4 border-b border-border bg-panel">
         <div className="flex items-center gap-3.5">
           <div className="w-8 h-8 border border-accent rounded-md flex items-center justify-center">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -43,14 +72,14 @@ export default function DashboardShell({ onSignOut }: { onSignOut: () => void })
             </svg>
           </div>
           <span className="text-[19px] font-bold tracking-tight">AapdaMitra</span>
-          <span className="text-border">|</span>
-          <span className="font-mono text-[13px] text-text-muted uppercase tracking-wider">
+          <span className="hidden lg:inline text-border">|</span>
+          <span className="hidden lg:inline font-mono text-[13px] text-text-muted uppercase tracking-wider">
             National Alert Network · Authority Console
           </span>
         </div>
 
-        <div className="flex items-center gap-4 flex-wrap justify-end">
-          <span className="font-mono text-xs font-semibold px-2.5 py-1 bg-available/10 border border-available/40 text-available tracking-wide">
+        <div className="flex items-center gap-2 md:gap-4 flex-wrap justify-end">
+          <span className="hidden sm:inline font-mono text-xs font-semibold px-2.5 py-1 bg-available/10 border border-available/40 text-available tracking-wide">
             ● SACHET LIVE
           </span>
 
@@ -89,7 +118,7 @@ export default function DashboardShell({ onSignOut }: { onSignOut: () => void })
             Auto-allocate
           </label>
 
-          <div className="flex items-center gap-3.5 pl-4 border-l border-border">
+          <div className="flex items-center gap-3 md:gap-3.5 md:pl-4 md:border-l border-border">
             <ThemeToggle />
             <button
               onClick={onSignOut}
@@ -104,7 +133,7 @@ export default function DashboardShell({ onSignOut }: { onSignOut: () => void })
       <StatsBar alerts={alerts} resources={resources} reports={reports} />
       <FallbackPanel events={fallbackEvents} onTriggerDemo={triggerDemoEvent} />
 
-      <main className="relative flex-1 px-7 pb-4 min-h-0 flex gap-3">
+      <main className="relative flex-1 px-3 md:px-7 pb-3 md:pb-4 min-h-0 flex gap-3">
         {/* Persistent worklist. Selecting here drives the map, so the operator
             never loses sight of either one. */}
         <aside className="hidden lg:block w-[320px] shrink-0 min-h-0">
@@ -151,7 +180,7 @@ export default function DashboardShell({ onSignOut }: { onSignOut: () => void })
               />
               <motion.div
                 key="queue-panel"
-                className="lg:hidden absolute top-0 left-0 h-full w-[300px] z-20"
+                className="lg:hidden absolute top-0 left-0 h-full w-[85%] max-w-[300px] z-20"
                 initial={{ x: "-100%" }}
                 animate={{ x: 0 }}
                 exit={{ x: "-100%" }}
@@ -174,7 +203,7 @@ export default function DashboardShell({ onSignOut }: { onSignOut: () => void })
           {selectedReport && (
             <motion.div
               key="inspector-panel"
-              className="absolute top-0 right-0 h-full w-[324px] z-20"
+              className="absolute top-0 right-0 h-full w-full max-w-[324px] z-20"
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
@@ -184,7 +213,7 @@ export default function DashboardShell({ onSignOut }: { onSignOut: () => void })
                 report={selectedReport}
                 resources={resources}
                 allocating={allocating === selectedReportId}
-                onAllocate={allocate}
+                onAllocate={allocateAndReport}
                 onManualAssign={manualAssign}
                 onResolve={resolveReport}
                 onReopen={reopenReport}

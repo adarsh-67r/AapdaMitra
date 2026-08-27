@@ -41,6 +41,8 @@ export function useGeolocation(timeoutMs = 10_000) {
   const [status, setStatus] = useState<GeoStatus>("locating");
   const [source, setSource] = useState<GeoSource>("device");
   const [accuracyM, setAccuracyM] = useState<number | null>(null);
+  /** Human-readable name of a hand-picked place, e.g. "Prayagraj, Uttar Pradesh". */
+  const [placeLabel, setPlaceLabel] = useState<string | null>(null);
 
   const locate = useCallback(() => {
     if (typeof navigator === "undefined" || !navigator.geolocation) {
@@ -62,6 +64,7 @@ export function useGeolocation(timeoutMs = 10_000) {
     const onSuccess = (pos: GeolocationPosition) => {
       setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
       setAccuracyM(Number.isFinite(pos.coords.accuracy) ? pos.coords.accuracy : null);
+      setPlaceLabel(null);
       setSource("device");
       setStatus("ready");
     };
@@ -97,12 +100,13 @@ export function useGeolocation(timeoutMs = 10_000) {
     locate();
   }, [locate]);
 
-  const setManual = useCallback((next: Coords) => {
+  const setManual = useCallback((next: Coords, label?: string) => {
     setCoords(next);
     setAccuracyM(null);
+    setPlaceLabel(label ?? null);
     setSource("manual");
     setStatus("ready");
   }, []);
 
-  return { coords, status, source, accuracyM, retry: locate, setManual };
+  return { coords, status, source, accuracyM, placeLabel, retry: locate, setManual };
 }

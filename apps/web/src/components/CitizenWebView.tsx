@@ -5,6 +5,7 @@ import CitizenMap from "@/components/CitizenMap";
 import CitizenDashboard from "@/components/citizen/CitizenDashboard";
 import LocationStatus from "@/components/citizen/LocationStatus";
 import { useGeolocation } from "@/lib/use-geolocation";
+import { useMarkerPalette } from "@/lib/severity-colors";
 import ThemeToggle from "@/components/ThemeToggle";
 import { apiFetch, apiFetchJson } from "@/lib/api-client";
 import { useToast } from "@/components/Toast";
@@ -25,13 +26,13 @@ type Tab = "dashboard" | "report" | "alerts" | "shelters" | "mine" | "emergency"
 
 type IconComponent = (props: { size?: number; className?: string }) => React.ReactElement;
 
-const MENU: { id: Tab; label: string; Icon: IconComponent; description: string }[] = [
-  { id: "dashboard", label: "Dashboard", Icon: DashboardIcon, description: "Alerts, shelters and teams nearest to where you are" },
-  { id: "report", label: "Report Incident", Icon: MapPinIcon, description: "Photo, location, severity — filed in under a minute" },
-  { id: "alerts", label: "Live Alerts", Icon: AlertTriangleIcon, description: "Official warnings near you, updated continuously" },
-  { id: "shelters", label: "Find Shelter", Icon: ShelterIcon, description: "Nearest shelters and resources on the map" },
-  { id: "mine", label: "My Reports", Icon: ReportsIcon, description: "Track the status of what you've reported" },
-  { id: "emergency", label: "Emergency Contacts", Icon: PhoneIcon, description: "Fire, police, ambulance, disaster helplines" },
+const MENU: { id: Tab; label: string; short: string; Icon: IconComponent; description: string }[] = [
+  { id: "dashboard", label: "Dashboard", short: "Home", Icon: DashboardIcon, description: "Alerts, shelters and teams nearest to where you are" },
+  { id: "report", label: "Report Incident", short: "Report", Icon: MapPinIcon, description: "Photo, location, severity — filed in under a minute" },
+  { id: "alerts", label: "Live Alerts", short: "Alerts", Icon: AlertTriangleIcon, description: "Official warnings near you, updated continuously" },
+  { id: "shelters", label: "Find Shelter", short: "Shelter", Icon: ShelterIcon, description: "Nearest shelters and resources on the map" },
+  { id: "mine", label: "My Reports", short: "Mine", Icon: ReportsIcon, description: "Track the status of what you've reported" },
+  { id: "emergency", label: "Emergency Contacts", short: "Help", Icon: PhoneIcon, description: "Fire, police, ambulance, disaster helplines" },
 ];
 
 const TAB_LABEL: Record<Tab, string> = {
@@ -98,16 +99,13 @@ interface ReportRow {
   created_at: string;
 }
 
-const SEVERITY_COLOR: Record<AlertRow["severity_color"], string> = {
-  green: "#2E9E4A", yellow: "#D8B400", orange: "#E08A00", red: "#D64545",
-};
-
 const POLL_INTERVAL_MS = 12000;
 
 export default function CitizenWebView({ onSignOut }: { onSignOut: () => void }) {
   const toast = useToast();
   const [tab, setTab] = useState<Tab>("dashboard");
   const geo = useGeolocation();
+  const palette = useMarkerPalette();
   const location = geo.coords;
   const [severity, setSeverity] = useState<Severity>("medium");
   const [description, setDescription] = useState("");
@@ -162,13 +160,13 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
       resources.map((r) => ({
         lat: r.lat,
         lng: r.lng,
-        color: r.status === "available" ? "#2E9E4A" : r.status === "full" ? "#D64545" : "#E08A00",
+        color: palette.resource[r.status],
         title: r.name,
         description: `${r.type.replace("_", " ")} — ${r.status}${
           r.capacity ? ` · capacity ${r.capacity}` : ""
         }`,
       })),
-    [resources]
+    [resources, palette]
   );
 
   async function submitReport(overrideSeverity?: Severity, overrideDescription?: string) {
@@ -235,9 +233,14 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
         {/* Vertical rail. On a phone it becomes a horizontal strip above the
             content, because a fixed side rail would eat the width the report
             form needs. */}
+        {/* On a phone this is a bottom tab bar — reporting happens one-handed
+            under stress, so the sections belong within thumb reach rather than
+            in a strip that has to be scrolled sideways to reach "Report". */}
         <nav
           aria-label="Sections"
-          className="shrink-0 flex md:flex-col gap-px bg-border overflow-x-auto md:overflow-x-visible md:overflow-y-auto md:w-56 border-b md:border-b-0 md:border-r border-border"
+          className="fixed bottom-0 inset-x-0 z-30 grid grid-cols-6 gap-px bg-border border-t border-border
+                     md:static md:z-auto md:flex md:flex-col md:w-56 md:shrink-0 md:gap-px
+                     md:border-t-0 md:border-r md:overflow-y-auto"
         >
           {MENU.map((m) => {
             const active = tab === m.id;
@@ -249,7 +252,8 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
                 onClick={() => setTab(m.id)}
                 aria-current={active ? "page" : undefined}
                 className={
-                  "relative flex items-center gap-2.5 px-4 py-3 text-left whitespace-nowrap cursor-pointer transition-colors duration-150 " +
+                  "relative flex flex-col items-center justify-center gap-1 px-1 py-2 min-h-[56px] cursor-pointer transition-colors duration-150 " +
+                  "md:flex-row md:justify-start md:gap-2.5 md:px-4 md:py-3 md:min-h-0 md:text-left " +
                   (active ? "bg-bg text-text" : "bg-panel text-text-muted hover:text-text hover:bg-panel-alt")
                 }
               >
@@ -259,14 +263,21 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
                   aria-hidden
                   className={
                     "absolute bg-accent transition-opacity duration-150 " +
-                    "inset-x-0 bottom-0 h-0.5 md:inset-y-0 md:left-0 md:right-auto md:h-auto md:w-0.5 " +
+                    "inset-x-0 top-0 h-0.5 md:inset-y-0 md:left-0 md:right-auto md:top-auto md:h-auto md:w-0.5 " +
                     (active ? "opacity-100" : "opacity-0")
                   }
                 />
-                <m.Icon size={17} className={active ? "text-accent" : undefined} />
-                <span className="text-sm font-medium">{m.label}</span>
+                <m.Icon size={18} className={active ? "text-accent" : undefined} />
+                <span className="text-[0.62rem] leading-none md:text-sm md:font-medium md:leading-normal">
+                  <span className="md:hidden">{m.short}</span>
+                  <span className="hidden md:inline">{m.label}</span>
+                </span>
                 {badge > 0 && (
-                  <span className="ml-auto font-mono text-[0.65rem] tabular-nums px-1.5 py-0.5 bg-panel-alt border border-border">
+                  <span
+                    className="absolute top-1 right-1/2 translate-x-3.5 md:static md:translate-x-0 md:ml-auto
+                               font-mono text-[0.6rem] md:text-[0.65rem] tabular-nums px-1 md:px-1.5 py-0.5
+                               bg-accent text-accent-contrast md:bg-panel-alt md:text-text md:border md:border-border"
+                  >
                     {badge}
                   </span>
                 )}
@@ -275,15 +286,16 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
           })}
         </nav>
 
-        <main className="flex-1 min-w-0 overflow-y-auto px-5 md:px-8 py-6">
+        <main className="flex-1 min-w-0 overflow-y-auto px-4 md:px-8 py-5 md:py-6 pb-24 md:pb-6">
           <div className="max-w-3xl w-full">
-            <div className="flex items-baseline justify-between gap-4 mb-5 pb-3 border-b border-border">
+            <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-2 sm:gap-4 mb-5 pb-3 border-b border-border">
               <h2 className="text-lg font-semibold">{TAB_LABEL[tab]}</h2>
               <LocationStatus
                 coords={geo.coords}
                 status={geo.status}
                 source={geo.source}
                 accuracyM={geo.accuracyM}
+                placeLabel={geo.placeLabel}
                 onRetry={geo.retry}
                 onManual={geo.setManual}
               />
@@ -293,6 +305,7 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
               <CitizenDashboard
                 coords={geo.coords}
                 source={geo.source}
+                placeLabel={geo.placeLabel}
                 alerts={alerts}
                 resources={resources}
                 myReports={myReports}
@@ -397,7 +410,7 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
                 <div key={a.id} className="bg-panel border border-border rounded-sm p-3.5 flex flex-col gap-1">
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full" style={{ background: SEVERITY_COLOR[a.severity_color] }} />
+                      <span className="w-2 h-2 rounded-full" style={{ background: palette.alert[a.severity_color] }} />
                       <span className="text-sm font-semibold">{a.disaster_type}</span>
                     </div>
                     <div className="flex items-center gap-1.5 shrink-0">
