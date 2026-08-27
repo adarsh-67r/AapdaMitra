@@ -1,7 +1,6 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
-import { EASE_OUT } from "@/lib/motion";
+import { motion, useMotionValue, useTransform, type MotionValue } from "framer-motion";
 
 export type GlyphKind = "report" | "heatmap" | "dispatch" | "fallback";
 
@@ -15,16 +14,27 @@ export type GlyphKind = "report" | "heatmap" | "dispatch" | "fallback";
  *
  * The planned capability is deliberately still. Every built one moves; the one
  * that does not exist yet sits inert at low contrast, so the difference is
- * visible before the LIVE / PLANNED label is read. Motion is doing the same job
- * as the label, which is the only reason it earns four separate animations on
- * one screen.
+ * visible before the LIVE / PLANNED label is read.
  *
- * Plays once on arrival rather than looping — four looping diagrams beside body
- * copy is noise, and there is nothing here worth watching twice.
+ * Driven by the section's scroll progress — the same MotionValue that reveals
+ * the card — rather than by a viewport trigger. Those are two different clocks:
+ * a `whileInView` glyph inside a scroll-revealed card runs on its own schedule
+ * and finishes while the card is still fading in, so the diagram is already over
+ * by the time anything is visible. One driver, one timeline.
+ *
+ * `progress` omitted means no motion at all: the reduced-motion path and the
+ * static fallback both render the finished diagram, because the explanation has
+ * to survive even when the animation does not.
  */
-export default function FeatureGlyph({ kind, delay = 0 }: { kind: GlyphKind; delay?: number }) {
-  const reduce = useReducedMotion();
-
+export default function FeatureGlyph({
+  kind,
+  progress,
+  start = 0,
+}: {
+  kind: GlyphKind;
+  progress?: MotionValue<number>;
+  start?: number;
+}) {
   return (
     <svg
       viewBox="0 0 72 34"
@@ -32,103 +42,127 @@ export default function FeatureGlyph({ kind, delay = 0 }: { kind: GlyphKind; del
       fill="none"
       aria-hidden
     >
-      {kind === "report" && <ReportGlyph delay={delay} still={!!reduce} />}
-      {kind === "heatmap" && <HeatmapGlyph delay={delay} still={!!reduce} />}
-      {kind === "dispatch" && <DispatchGlyph delay={delay} still={!!reduce} />}
+      {kind === "report" && <ReportGlyph progress={progress} start={start} />}
+      {kind === "heatmap" && <HeatmapGlyph progress={progress} start={start} />}
+      {kind === "dispatch" && <DispatchGlyph progress={progress} start={start} />}
       {kind === "fallback" && <FallbackGlyph />}
     </svg>
   );
 }
 
-// Deeper than the -10% the shared entrance tokens use. The cards themselves are
-// revealed by scroll progress, not by a viewport trigger, so these are two
-// different clocks: firing on the same margin risks a glyph finishing its run
-// while its card is still transparent, and the reader arriving to a diagram that
-// has already happened.
-const view = { once: true, margin: "-25%" } as const;
+interface Driven {
+  progress?: MotionValue<number>;
+  start: number;
+}
+
+/**
+ * The card itself is fully opaque by start + 0.18, so every diagram runs after
+ * that — there is no point performing something behind a transparent card.
+ */
+const AFTER_CARD = 0.18;
 
 /** A position being acquired: the pin drops, the fix ripples out once. */
-function ReportGlyph({ delay, still }: { delay: number; still: boolean }) {
+function ReportGlyph({ progress, start }: Driven) {
+  const s = start + AFTER_CARD;
+  const zero = useMotionZero();
+  const p = progress ?? zero;
+  const still = !progress;
+
+  const pinY = useTransform(p, [s, s + 0.14], [-9, 0]);
+  const pinOpacity = useTransform(p, [s, s + 0.1], [0, 1]);
+  const rippleScale = useTransform(p, [s + 0.12, s + 0.3], [0.3, 2.2]);
+  const rippleOpacity = useTransform(p, [s + 0.12, s + 0.18, s + 0.3], [0, 0.7, 0]);
+
   return (
     <g stroke="var(--accent)" strokeWidth={1.4} strokeLinecap="round" strokeLinejoin="round">
       {/* Viewfinder corners — the frame the fix lands inside. */}
       <path d="M4 10V5h5M63 5h5v5M68 24v5h-5M9 29H4v-5" opacity={0.45} />
-      <motion.g
-        initial={still ? undefined : { opacity: 0, transform: "translateY(-9px)" }}
-        whileInView={still ? undefined : { opacity: 1, transform: "translateY(0px)" }}
-        viewport={view}
-        transition={{ duration: 0.45, delay: delay + 0.1, ease: EASE_OUT }}
-      >
-        <path d="M36 20s5-4.2 5-7.4a5 5 0 0 0-10 0c0 3.2 5 7.4 5 7.4Z" />
-        <circle cx={36} cy={12.6} r={1.7} fill="var(--accent)" stroke="none" />
-      </motion.g>
       {!still && (
         <motion.circle
           cx={36}
           cy={24}
           r={5}
-          initial={{ opacity: 0, transform: "scale(0.3)" }}
-          whileInView={{ opacity: [0, 0.7, 0], transform: "scale(2.2)" }}
-          viewport={view}
-          transition={{ duration: 0.9, delay: delay + 0.45, ease: EASE_OUT }}
-          style={{ transformBox: "fill-box", transformOrigin: "center" }}
           strokeWidth={1}
+          style={{
+            opacity: rippleOpacity,
+            scale: rippleScale,
+            transformBox: "fill-box",
+            transformOrigin: "center",
+          }}
         />
       )}
+      <motion.g style={still ? undefined : { y: pinY, opacity: pinOpacity }}>
+        <path d="M36 20s5-4.2 5-7.4a5 5 0 0 0-10 0c0 3.2 5 7.4 5 7.4Z" />
+        <circle cx={36} cy={12.6} r={1.7} fill="var(--accent)" stroke="none" />
+      </motion.g>
       <ellipse cx={36} cy={24} rx={4} ry={1.4} opacity={0.4} />
     </g>
   );
 }
 
-/** Density filling in: cells warm to their value in a wave, as a poll would. */
-function HeatmapGlyph({ delay, still }: { delay: number; still: boolean }) {
-  // Fixed values, so the "heat" reads as data rather than noise.
-  const cells = [
-    0.15, 0.3, 0.55, 0.35, 0.2, 0.12, 0.25, 0.6, 0.95, 0.7, 0.3, 0.15,
-    0.18, 0.45, 0.85, 0.6, 0.28, 0.14, 0.12, 0.22, 0.4, 0.3, 0.18, 0.1,
-  ];
+// Fixed values, so the "heat" reads as data rather than noise.
+const CELLS = [
+  0.15, 0.3, 0.55, 0.35, 0.2, 0.12, 0.25, 0.6, 0.95, 0.7, 0.3, 0.15,
+  0.18, 0.45, 0.85, 0.6, 0.28, 0.14, 0.12, 0.22, 0.4, 0.3, 0.18, 0.1,
+];
+
+/** Density filling in: cells warm to their value in a diagonal sweep. */
+function HeatmapGlyph({ progress, start }: Driven) {
   return (
     <g>
-      {cells.map((v, i) => {
-        const col = i % 6;
-        const row = Math.floor(i / 6);
-        return (
-          <motion.rect
-            key={i}
-            x={4 + col * 11}
-            y={3 + row * 7.5}
-            width={9.5}
-            height={6}
-            fill="var(--accent)"
-            initial={still ? undefined : { opacity: 0.06 }}
-            whileInView={still ? undefined : { opacity: v }}
-            viewport={view}
-            transition={{
-              duration: 0.5,
-              // A diagonal sweep, so it fills like a map redrawing rather than
-              // every cell lighting at once.
-              delay: delay + 0.15 + (col + row) * 0.045,
-              ease: EASE_OUT,
-            }}
-            style={still ? { opacity: v } : undefined}
-          />
-        );
-      })}
+      {CELLS.map((v, i) => (
+        <HeatCell key={i} index={i} value={v} progress={progress} start={start} />
+      ))}
     </g>
   );
 }
 
+function HeatCell({
+  index,
+  value,
+  progress,
+  start,
+}: Driven & { index: number; value: number }) {
+  const col = index % 6;
+  const row = Math.floor(index / 6);
+  // A diagonal sweep, so it fills like a map redrawing rather than every cell
+  // lighting at once.
+  const s = start + AFTER_CARD + (col + row) * 0.012;
+  const zero = useMotionZero();
+  const opacity = useTransform(progress ?? zero, [s, s + 0.12], [0.06, value]);
+
+  return (
+    <motion.rect
+      x={4 + col * 11}
+      y={3 + row * 7.5}
+      width={9.5}
+      height={6}
+      fill="var(--accent)"
+      style={progress ? { opacity } : { opacity: value }}
+    />
+  );
+}
+
+const INCIDENT = { x: 12, y: 17 };
+const UNITS = [
+  { x: 30, y: 7, nearest: true },
+  { x: 52, y: 24, nearest: false },
+  { x: 63, y: 9, nearest: false },
+];
+
 /** The allocator: three candidates, and the line commits to the closest. */
-function DispatchGlyph({ delay, still }: { delay: number; still: boolean }) {
-  const incident = { x: 12, y: 17 };
-  const units = [
-    { x: 30, y: 7, near: true },
-    { x: 52, y: 24 },
-    { x: 63, y: 9 },
-  ];
+function DispatchGlyph({ progress, start }: Driven) {
+  const s = start + AFTER_CARD;
+  const zero = useMotionZero();
+  const p = progress ?? zero;
+  const still = !progress;
+
+  const draw = useTransform(p, [s, s + 0.16], [0, 1]);
+  const landed = useTransform(p, [s + 0.16, s + 0.22], [0, 1]);
+
   return (
     <g>
-      {units.map((u, i) => (
+      {UNITS.map((u, i) => (
         <circle
           key={i}
           cx={u.x}
@@ -137,30 +171,24 @@ function DispatchGlyph({ delay, still }: { delay: number; still: boolean }) {
           fill="none"
           stroke="var(--text-muted)"
           strokeWidth={1.2}
-          opacity={u.near ? 1 : 0.4}
+          opacity={u.nearest ? 1 : 0.4}
         />
       ))}
       <motion.path
-        d={`M ${incident.x} ${incident.y} L ${units[0].x} ${units[0].y}`}
+        d={`M ${INCIDENT.x} ${INCIDENT.y} L ${UNITS[0].x} ${UNITS[0].y}`}
         stroke="var(--accent)"
         strokeWidth={1.4}
         strokeLinecap="round"
-        initial={still ? undefined : { pathLength: 0 }}
-        whileInView={still ? undefined : { pathLength: 1 }}
-        viewport={view}
-        transition={{ duration: 0.45, delay: delay + 0.25, ease: EASE_OUT }}
+        style={still ? undefined : { pathLength: draw }}
       />
       <motion.circle
-        cx={units[0].x}
-        cy={units[0].y}
+        cx={UNITS[0].x}
+        cy={UNITS[0].y}
         r={2.6}
         fill="var(--accent)"
-        initial={still ? undefined : { opacity: 0 }}
-        whileInView={still ? undefined : { opacity: 1 }}
-        viewport={view}
-        transition={{ duration: 0.2, delay: delay + 0.7, ease: EASE_OUT }}
+        style={still ? undefined : { opacity: landed }}
       />
-      <circle cx={incident.x} cy={incident.y} r={3.4} fill="var(--critical)" />
+      <circle cx={INCIDENT.x} cy={INCIDENT.y} r={3.4} fill="var(--critical)" />
     </g>
   );
 }
@@ -172,13 +200,7 @@ function DispatchGlyph({ delay, still }: { delay: number; still: boolean }) {
  */
 function FallbackGlyph() {
   return (
-    <g
-      stroke="var(--text-muted)"
-      strokeWidth={1.4}
-      strokeLinecap="round"
-      fill="none"
-      opacity={0.45}
-    >
+    <g stroke="var(--text-muted)" strokeWidth={1.4} strokeLinecap="round" fill="none" opacity={0.45}>
       <path d="M36 24V13" />
       <path d="M31 27h10" />
       <path d="M30 10a8 8 0 0 1 3-3" strokeDasharray="2 3" />
@@ -188,4 +210,13 @@ function FallbackGlyph() {
       <circle cx={36} cy={11} r={1.6} fill="var(--text-muted)" stroke="none" />
     </g>
   );
+}
+
+/**
+ * A constant driver for the static path. `useTransform` is a hook and cannot be
+ * called conditionally, so the no-motion case still needs a MotionValue to read
+ * from — its output is simply never applied.
+ */
+function useMotionZero(): MotionValue<number> {
+  return useMotionValue(0);
 }

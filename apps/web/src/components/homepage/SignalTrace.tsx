@@ -18,7 +18,7 @@ import { motion, useReducedMotion, useScroll, useSpring, useTransform } from "fr
  */
 
 /** The sections the route visits, in document order. */
-const STOPS = ["problem", "hazard-map", "how-it-works", "features", "capabilities"];
+const STOPS = ["problem", "hazard-map", "how-it-works", "features"];
 
 /**
  * How far in from the page edge the route runs, in pixels, matched to the

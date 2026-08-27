@@ -37,11 +37,21 @@ function StatusPill({ status, delay = 0 }: { status: Feature["status"]; delay?: 
   );
 }
 
-function CardBody({ feature, delay = 0 }: { feature: Feature; delay?: number }) {
+function CardBody({
+  feature,
+  delay = 0,
+  progress,
+  start = 0,
+}: {
+  feature: Feature;
+  delay?: number;
+  progress?: MotionValue<number>;
+  start?: number;
+}) {
   return (
     <>
       <div>
-        <FeatureGlyph kind={feature.glyph} delay={delay} />
+        <FeatureGlyph kind={feature.glyph} progress={progress} start={start} />
         <h5 className="font-semibold mb-1.5">{feature.title}</h5>
         <p className="text-sm text-text-muted leading-relaxed">{feature.body}</p>
       </div>
@@ -78,7 +88,7 @@ function DealtCard({
   return (
     <motion.div style={{ y, rotate, opacity }}>
       <TiltCard className={CARD_CLASS}>
-        <CardBody feature={feature} delay={index * 0.08} />
+        <CardBody feature={feature} delay={index * 0.08} progress={progress} start={start} />
       </TiltCard>
     </motion.div>
   );
