@@ -29,6 +29,10 @@ type Belt = {
   color: string;
   /** Districts inside the belt, judged on real lat/lng. */
   match: (lat: number, lng: number) => boolean;
+  /** Where the leader line lands, in the same 0–100 space as the points. */
+  anchor: { x: number; y: number };
+  /** Which way the label runs, so it never leaves the frame. */
+  side: "left" | "right";
 };
 
 // Belts are geographic approximations for illustration; the figures beside them
@@ -42,6 +46,8 @@ const BELTS: Belt[] = [
     source: "of India's landmass is earthquake-prone (Zones III–V) — BMTPC",
     color: "var(--high)",
     match: (lat) => lat >= 28,
+    anchor: { x: 31, y: 15 },
+    side: "right",
   },
   {
     id: "flood",
@@ -51,6 +57,8 @@ const BELTS: Belt[] = [
     source: "flood-prone, roughly 45M hectares — NDMA",
     color: "var(--assigned)",
     match: (lat, lng) => lat >= 22 && lat < 28 && lng >= 75,
+    anchor: { x: 58, y: 34 },
+    side: "right",
   },
   {
     id: "cyclone",
@@ -60,6 +68,8 @@ const BELTS: Belt[] = [
     source: "of the 7,500 km coastline is cyclone-prone — NDMA",
     color: "var(--medium)",
     match: (lat, lng) => lat < 22 && (lng >= 80 || lng <= 74),
+    anchor: { x: 41, y: 55 },
+    side: "right",
   },
   {
     id: "drought",
@@ -69,6 +79,8 @@ const BELTS: Belt[] = [
     source: "of cultivable land is drought-vulnerable — NDMA",
     color: "var(--critical)",
     match: (lat, lng) => lat < 22 && lng > 74 && lng < 80,
+    anchor: { x: 27, y: 72 },
+    side: "left",
   },
 ];
 
@@ -113,22 +125,72 @@ function BeltLayer({ index, progress }: { index: number; progress: MotionValue<n
   );
 }
 
-function BeltPanel({ index, progress }: { index: number; progress: MotionValue<number> }) {
+/**
+ * A leader line from the belt's centroid out to its figure — so the number is
+ * read against the districts it describes, not in a column beside them.
+ */
+function BeltCallout({ index, progress }: { index: number; progress: MotionValue<number> }) {
   const belt = BELTS[index];
   const range = beltRange(index);
   const opacity = useTransform(progress, range, [0, 1, 0]);
-  const y = useTransform(progress, range, [28, 0, -28]);
+  const draw = useTransform(progress, range, [0, 1, 1]);
+
+  const dir = belt.side === "right" ? 1 : -1;
+  const elbowX = belt.anchor.x + dir * 12;
+  const elbowY = belt.anchor.y - 9;
+  const endX = elbowX + dir * 10;
 
   return (
-    <motion.div style={{ opacity, y }} className="absolute inset-x-0 top-0" aria-hidden>
-      <div className="font-mono text-[0.7rem] tracking-[0.2em] mb-3" style={{ color: belt.color }}>
-        {belt.hazard.toUpperCase()} · {belt.label.toUpperCase()}
-      </div>
-      <div className="text-6xl md:text-7xl font-bold tracking-[-0.03em] mb-3" style={{ color: belt.color }}>
+    <motion.g style={{ opacity }} aria-hidden>
+      {/* Ring on the anchor point itself. */}
+      <circle cx={belt.anchor.x} cy={belt.anchor.y} r={2.6} fill="none" stroke={belt.color} strokeWidth={0.5} />
+      <circle cx={belt.anchor.x} cy={belt.anchor.y} r={0.9} fill={belt.color} />
+      <motion.path
+        d={`M ${belt.anchor.x} ${belt.anchor.y} L ${elbowX} ${elbowY} L ${endX} ${elbowY}`}
+        fill="none"
+        stroke={belt.color}
+        strokeWidth={0.45}
+        vectorEffect="non-scaling-stroke"
+        style={{ pathLength: draw }}
+      />
+      <text
+        x={endX + dir * 1.6}
+        y={elbowY - 1.6}
+        fill={belt.color}
+        textAnchor={belt.side === "right" ? "start" : "end"}
+        style={{ fontSize: 6, fontWeight: 700, letterSpacing: "-0.03em" }}
+      >
         {belt.stat}
-      </div>
-      <p className="text-sm md:text-base text-text-muted leading-relaxed max-w-[34ch]">{belt.source}</p>
-    </motion.div>
+      </text>
+      <text
+        x={endX + dir * 1.6}
+        y={elbowY + 3.2}
+        fill="currentColor"
+        className="text-text-muted"
+        textAnchor={belt.side === "right" ? "start" : "end"}
+        style={{ fontSize: 2.4, letterSpacing: "0.12em" }}
+      >
+        {belt.hazard.toUpperCase()} · {belt.label.toUpperCase()}
+      </text>
+    </motion.g>
+  );
+}
+
+/** The sentence under the map, swapped as each belt takes over. */
+function BeltCaption({ index, progress }: { index: number; progress: MotionValue<number> }) {
+  const belt = BELTS[index];
+  const range = beltRange(index);
+  const opacity = useTransform(progress, range, [0, 1, 0]);
+  const y = useTransform(progress, range, [14, 0, -14]);
+
+  return (
+    <motion.p
+      style={{ opacity, y }}
+      aria-hidden
+      className="absolute inset-x-0 text-center text-sm md:text-base text-text-muted leading-relaxed"
+    >
+      {belt.source}
+    </motion.p>
   );
 }
 
@@ -168,42 +230,44 @@ export default function IndiaHazardMap() {
   }
 
   return (
-    <div ref={ref} className="relative z-10 h-[340vh]">
-      <div className="sticky top-0 h-[100dvh] flex items-center px-6 md:px-10">
-        <div className="w-full grid grid-cols-1 lg:grid-cols-[1fr_1.1fr] gap-10 lg:gap-16 items-center">
-          <div className="relative min-h-[260px] md:min-h-[300px] order-2 lg:order-1">
+    <div ref={ref} className="relative z-10 h-[360vh]">
+      <div className="sticky top-0 h-[100dvh] flex flex-col items-center justify-center px-6 md:px-10">
+        <div className="w-full max-w-4xl">
+          <svg
+            viewBox="-16 -6 132 118"
+            className="w-full h-auto max-h-[68vh] mx-auto"
+            role="img"
+            aria-label="Map of India drawn from 589 district centroids, highlighting seismic, flood, cyclone and drought belts in turn"
+          >
+            {/* Resting silhouette — the districts no belt claims. */}
+            <g fill="var(--text-muted)" opacity={0.18}>
+              {REST_POINTS.map((p, i) => (
+                <circle key={i} cx={p[0]} cy={p[1]} r={0.5} />
+              ))}
+            </g>
             {BELTS.map((b, i) => (
-              <BeltPanel key={b.id} index={i} progress={scrollYProgress} />
+              <BeltLayer key={b.id} index={i} progress={scrollYProgress} />
             ))}
-            {/* The animated panels are aria-hidden (they fade in and out of the
-                a11y tree as you scroll); this carries the same facts for
-                assistive tech and never moves. */}
-            <div className="sr-only">
-              <h3>One system, every hazard belt</h3>
-              <BeltList />
-            </div>
+            {BELTS.map((b, i) => (
+              <BeltCallout key={`c-${b.id}`} index={i} progress={scrollYProgress} />
+            ))}
+          </svg>
+
+          <div className="relative h-16 mt-4">
+            {BELTS.map((b, i) => (
+              <BeltCaption key={`p-${b.id}`} index={i} progress={scrollYProgress} />
+            ))}
           </div>
 
-          <div className="order-1 lg:order-2">
-            <svg
-              viewBox="-4 -4 108 108"
-              className="w-full h-auto max-h-[52vh] mx-auto"
-              role="img"
-              aria-label="Map of India drawn from 589 district centroids, highlighting seismic, flood, cyclone and drought belts in turn"
-            >
-              {/* Resting silhouette — the districts no belt claims. */}
-              <g fill="var(--text-muted)" opacity={0.18}>
-                {REST_POINTS.map((p, i) => (
-                  <circle key={i} cx={p[0]} cy={p[1]} r={0.5} />
-                ))}
-              </g>
-              {BELTS.map((b, i) => (
-                <BeltLayer key={b.id} index={i} progress={scrollYProgress} />
-              ))}
-            </svg>
-            <p className="text-center font-mono text-[0.68rem] text-text-muted mt-3">
-              589 districts · plotted from real centroids
-            </p>
+          <p className="text-center font-mono text-[0.68rem] text-text-muted">
+            589 districts · plotted from real centroids
+          </p>
+
+          {/* The callouts and caption fade in and out of the a11y tree as you
+              scroll; this carries the same facts and never moves. */}
+          <div className="sr-only">
+            <h3>One system, every hazard belt</h3>
+            <BeltList />
           </div>
         </div>
       </div>
