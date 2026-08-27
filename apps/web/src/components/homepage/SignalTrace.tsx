@@ -34,16 +34,16 @@ function insetFor(w: number): number {
 }
 
 /**
- * Which side each section's node sits on.
+ * Which side each section's node sits on: alternating, at every width.
  *
- * Wide enough for a real route: alternate sides, so it crosses the page between
- * sections and reads as something travelling. Narrow: stay in the left gutter
- * and only undulate, because a crossing on a phone has nowhere to go but over
- * the words.
+ * The crossings are the whole point — a line that stays on one edge reads as a
+ * scrollbar. On a phone a crossing does pass behind body copy, which is why the
+ * stroke is a single faint hairline drawn beneath the content, and why the bow
+ * is deep enough that it spends most of its height against a margin and crosses
+ * quickly.
  */
-function acrossFor(index: number, w: number): { side: "left" | "right"; nudge: number } {
-  if (w < 1024) return { side: "left", nudge: index % 2 === 0 ? 0 : 9 };
-  return { side: index % 2 === 0 ? "left" : "right", nudge: 0 };
+function acrossFor(index: number): "left" | "right" {
+  return index % 2 === 0 ? "left" : "right";
 }
 
 interface Node {
@@ -88,8 +88,8 @@ export default function SignalTrace() {
         // centres are two viewports deep inside a scroll region — a node there
         // marks empty space the reader never sees anything at.
         const y = el.offsetTop - top + Math.min(el.offsetHeight, vh) / 2;
-        const { side, nudge } = acrossFor(i, w);
-        const x = side === "left" ? inset + nudge : w - inset - nudge;
+        const side = acrossFor(i);
+        const x = side === "left" ? inset : w - inset;
         return { id, x, y: Math.min(Math.max(y, 0), h) };
       }).filter((n): n is { id: string; x: number; y: number } => n !== null);
 
@@ -195,7 +195,7 @@ function routeThrough(pts: { x: number; y: number }[], w: number, h: number): st
     // A deep bow holds the line against each margin for most of the run and
     // makes the crossing quick, so it spends as little height as possible over
     // the middle of the page where the text is.
-    const bow = (b.y - a.y) * 0.46;
+    const bow = (b.y - a.y) * 0.52;
     d += ` C ${X(a.x)} ${Y(a.y + bow)}, ${X(b.x)} ${Y(b.y - bow)}, ${X(b.x)} ${Y(b.y)}`;
   }
   return d;
