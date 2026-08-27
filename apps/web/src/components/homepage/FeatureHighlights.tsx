@@ -18,7 +18,7 @@ function StatusPill({ status }: { status: Feature["status"] }) {
   return (
     <span
       className={
-"font-mono text-[0.7rem] tracking-wide mt-4 self-start px-2.5 py-1 rounded-full " +
+"font-mono text-[0.7rem] tracking-wide mt-4 self-start px-2.5 py-1 " +
         (status === "Live" ? "bg-available/15 text-available" : "bg-medium/15 text-medium")
       }
     >

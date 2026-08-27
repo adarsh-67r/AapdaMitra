@@ -73,13 +73,13 @@ export default function Hero() {
             // should settle rather than overshoot. Bounce is reserved for
             // motion the user actually threw.
             transition={{ type: "spring", bounce: 0, duration: 0.35 }}
-            className="inline-flex items-center font-mono text-sm font-semibold px-7 py-4 min-h-12 rounded-full bg-accent text-accent-contrast cursor-pointer disabled:opacity-60 "
+            className="inline-flex items-center font-mono text-sm font-semibold px-7 py-4 min-h-12 bg-accent text-accent-contrast cursor-pointer disabled:opacity-60 "
           >
             {entering ? "Entering…" : "Report Incident"}
           </motion.button>
           <Link
             href="/map"
-            className="font-mono text-sm px-7 py-4 min-h-12 inline-flex items-center rounded-full bg-panel border border-border hover:bg-panel-alt transition-colors"
+            className="font-mono text-sm px-7 py-4 min-h-12 inline-flex items-center bg-panel border border-border hover:bg-panel-alt transition-colors"
           >
             View Live Map
           </Link>

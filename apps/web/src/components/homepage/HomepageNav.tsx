@@ -3,7 +3,7 @@ import ThemeToggle from "@/components/ThemeToggle";
 import EnterAppLink from "./EnterAppLink";
 
 const pill =
-"font-mono text-xs px-4 py-2 min-h-9 inline-flex items-center rounded-full bg-panel border border-border hover:bg-panel-alt transition-colors";
+"font-mono text-xs px-4 py-2 min-h-9 inline-flex items-center bg-panel border border-border hover:bg-panel-alt transition-colors";
 
 export default function HomepageNav() {
   return (

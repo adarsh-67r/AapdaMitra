@@ -148,7 +148,7 @@ export default function MapPage() {
       <div className="relative flex-1">
         <CitizenMap pins={pins} center={INDIA_CENTER} zoom={5} />
         {error && (
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 font-mono text-xs px-4 py-2 rounded-full bg-panel border border-critical text-critical">
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 font-mono text-xs px-4 py-2 bg-panel border border-critical text-critical">
             {error}
           </div>
         )}

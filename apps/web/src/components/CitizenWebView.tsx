@@ -336,7 +336,7 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
                   <button
                     key={s}
                     onClick={() => setSeverity(s)}
-                    className="px-3 py-1.5 rounded-full text-xs font-semibold uppercase cursor-pointer border transition-transform duration-[120ms] ease-out active:scale-[0.96]"
+                    className="px-3 py-1.5 text-xs font-semibold uppercase cursor-pointer border transition-transform duration-[120ms] ease-out active:scale-[0.96]"
                     style={
                       severity === s
                         ? { background: "var(--accent)", color: "var(--accent-contrast)", borderColor: "var(--accent)" }
@@ -415,12 +415,12 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
                     </div>
                     <div className="flex items-center gap-1.5 shrink-0">
                       {a.language && a.language !== "en" && (
-                        <span className="text-[0.65rem] px-2 py-0.5 rounded-full bg-accent/15 border border-accent/30 text-accent whitespace-nowrap">
+                        <span className="text-[0.65rem] px-2 py-0.5 bg-accent/15 border border-accent/30 text-accent whitespace-nowrap">
                           {LANGUAGE_LABEL[a.language] ?? a.language.toUpperCase()}
                         </span>
                       )}
                       {a.issuing_agency && (
-                        <span className="font-mono text-[0.65rem] px-2 py-0.5 rounded-full bg-panel-alt border border-border text-text-muted whitespace-nowrap">
+                        <span className="font-mono text-[0.65rem] px-2 py-0.5 bg-panel-alt border border-border text-text-muted whitespace-nowrap">
                           {a.issuing_agency}
                         </span>
                       )}

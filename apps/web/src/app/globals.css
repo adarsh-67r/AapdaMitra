@@ -27,6 +27,7 @@
   --text-muted: #6d6759;
   --accent: #b3322a;
   --accent-contrast: #fbfaf5;
+  --scrim: rgb(27 26 22 / 0.42);
   --critical: #b3322a;
   --high: #ad5f11;
   --medium: #866c13;
@@ -44,6 +45,7 @@
   --text-muted: #98917f;
   --accent: #e0574a;
   --accent-contrast: #14120f;
+  --scrim: rgb(8 7 6 / 0.62);
   --critical: #e0574a;
   --high: #d4872f;
   --medium: #c4a844;
@@ -57,6 +59,7 @@
   --color-panel-alt: var(--panel-alt);
   --color-border: var(--border);
   --color-rule: var(--rule);
+  --color-scrim: var(--scrim);
   --color-text: var(--text);
   --color-text-muted: var(--text-muted);
   --color-accent: var(--accent);
