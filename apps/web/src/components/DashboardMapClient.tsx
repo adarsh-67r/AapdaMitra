@@ -59,6 +59,17 @@ function resourceIcon(resource: Resource) {
 const DEFAULT_CENTER: [number, number] = [22.9734, 78.6569];
 const DEFAULT_ZOOM = 5;
 
+/**
+ * A pane for the vector layers, above the heatmap.
+ *
+ * leaflet.heat hardcodes its canvas into `overlayPane` — the same pane Leaflet
+ * draws vectors into — and it is added after them on every redraw, so its canvas
+ * ended up on top of the dispatch lines, cluster halos and report markers and
+ * buried them. The density heatmap is a backdrop; everything drawn to be read
+ * belongs above it.
+ */
+const VECTOR_PANE = "vectors";
+
 interface Props {
   alerts: Alert[];
   resources: Resource[];
@@ -92,6 +103,12 @@ export default function DashboardMapClient({
       maxZoom: 19,
     }).addTo(map);
 
+    // Between overlayPane (400, where the heatmap canvas lands) and shadowPane
+    // (500), so vectors sit above the heat without disturbing marker order.
+    map.createPane(VECTOR_PANE);
+    const vectorPane = map.getPane(VECTOR_PANE);
+    if (vectorPane) vectorPane.style.zIndex = "450";
+
     layerGroupRef.current = L.layerGroup().addTo(map);
     mapRef.current = map;
 
@@ -122,6 +139,7 @@ export default function DashboardMapClient({
 
     for (const a of alerts) {
       L.circleMarker([a.lat, a.lng], {
+        pane: VECTOR_PANE,
         radius: 9,
         color: "white",
         weight: 2,
@@ -156,7 +174,13 @@ export default function DashboardMapClient({
               [rep.lat, rep.lng],
               [resource.lat, resource.lng],
             ],
-            { color: PALETTE.dispatch, weight: 2.5, dashArray: "8 8", className: "dispatch-line" }
+            {
+              pane: VECTOR_PANE,
+              color: PALETTE.dispatch,
+              weight: 2.5,
+              dashArray: "8 8",
+              className: "dispatch-line",
+            }
           ).addTo(group);
         }
       }
@@ -165,6 +189,7 @@ export default function DashboardMapClient({
       // developing incident is visible on the map at a glance.
       if (rep.cluster_size > 1 && rep.status !== "resolved") {
         L.circleMarker([rep.lat, rep.lng], {
+          pane: VECTOR_PANE,
           radius: 20,
           color: REPORT_COLOR.critical,
           weight: 2,
@@ -177,6 +202,7 @@ export default function DashboardMapClient({
 
       const isSelected = rep.id === selectedReportId;
       const marker = L.circleMarker([rep.lat, rep.lng], {
+        pane: VECTOR_PANE,
         radius: isSelected ? 11 : 8,
         color: isSelected ? PALETTE.dispatch : PALETTE.outline,
         weight: isSelected ? 3 : 1,
@@ -207,6 +233,42 @@ export default function DashboardMapClient({
       heatLayerRef.current = heat;
     }
   }, [alerts, resources, reports, selectedReportId, onSelectReport]);
+
+  // 3. Bring the selected report into view, with its assigned resource.
+  //
+  // The console opens at zoom 5 to show the whole country, where a dispatch to a
+  // nearby unit — 5 km, the good case — is under two pixels long and reads as
+  // nothing at all. Selecting a report frames the report and the unit sent to
+  // it, so the dispatch is actually legible. Only on a change of selection, so
+  // the operator's own panning survives the next poll.
+  const framedRef = useRef<string | null>(null);
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    if (selectedReportId === framedRef.current) return;
+    framedRef.current = selectedReportId;
+    if (!selectedReportId) return;
+
+    const report = reports.find((r) => r.id === selectedReportId);
+    if (!report) return;
+
+    const resource =
+      report.status === "assigned" && report.assigned_resource_id
+        ? resources.find((r) => r.id === report.assigned_resource_id)
+        : undefined;
+
+    if (resource) {
+      map.fitBounds(
+        [
+          [report.lat, report.lng],
+          [resource.lat, resource.lng],
+        ],
+        { padding: [64, 64], maxZoom: 13, animate: true }
+      );
+    } else {
+      map.setView([report.lat, report.lng], Math.max(map.getZoom(), 11), { animate: true });
+    }
+  }, [selectedReportId, reports, resources]);
 
   return <div ref={containerRef} style={{ height: "100%", width: "100%" }} />;
 }
