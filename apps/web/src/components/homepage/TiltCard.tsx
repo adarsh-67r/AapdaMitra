@@ -15,10 +15,18 @@ export default function TiltCard({
   children,
   className,
   maxTilt = 7,
+  flat = false,
 }: {
   children: React.ReactNode;
   className?: string;
   maxTilt?: number;
+  /**
+   * Skip the 3D entirely. `preserve-3d` under a parent whose opacity is being
+   * animated, inside a clipped container, is rendered inconsistently across
+   * browsers — the card can wash out or ghost. Where a card is already being
+   * revealed by scroll, the tilt is not worth that risk.
+   */
+  flat?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const reduceMotion = useReducedMotion();
@@ -32,7 +40,7 @@ export default function TiltCard({
   const rotateY = useTransform(sx, [0, 1], [-maxTilt, maxTilt]);
   const rotateX = useTransform(sy, [0, 1], [maxTilt, -maxTilt]);
 
-  if (reduceMotion) {
+  if (reduceMotion || flat) {
     return <div className={className}>{children}</div>;
   }
 

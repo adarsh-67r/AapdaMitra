@@ -120,7 +120,7 @@ function ScrollCard({
 
   return (
     <motion.div style={{ y, opacity }} className="h-full">
-      <TiltCard className={CARD_CLASS}>
+      <TiltCard className={CARD_CLASS} flat>
         <CardBody feature={feature} progress={progress} start={start} />
       </TiltCard>
     </motion.div>
