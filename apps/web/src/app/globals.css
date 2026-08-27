@@ -142,6 +142,14 @@ html {
   }
 }
 
+/* Stacking scale, in one place because Leaflet forces the issue:
+     0    map subtree (isolated — Leaflet's own panes run 200–1000 inside it)
+     10   in-map scrims
+     20   side panels docked over the map (inspector, narrow-screen queue)
+     50   modals
+     60   toasts
+   Anything drawn over the map MUST sit outside the isolated map container. */
+
 /* Surfaces are ruled, not floated. A panel is a bordered cell drawn on the same
    paper as everything else: opaque, hairline edge, corners barely rounded, no
    blur and no elevation shadow. Depth here comes from rules and spacing, which

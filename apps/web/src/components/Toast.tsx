@@ -35,7 +35,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       {/* A live region, so a report's outcome is announced rather than only
           shown. Errors interrupt (assertive); confirmations wait their turn. */}
       <div
-        className="fixed bottom-0 inset-x-0 z-50 flex flex-col items-center gap-2 p-4 pointer-events-none"
+        className="fixed bottom-0 inset-x-0 z-[60] flex flex-col items-center gap-2 p-4 pointer-events-none"
         role="region"
         aria-label="Notifications"
       >

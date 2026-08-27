@@ -1,4 +1,11 @@
-from app.allocator import haversine_km, pick_nearest_available
+import pytest
+
+from app.allocator import (
+    MAX_DISPATCH_KM,
+    haversine_km,
+    pick_best_resource,
+    preferred_type_for,
+)
 
 
 def test_haversine_same_point_is_zero():
@@ -13,36 +20,99 @@ def test_haversine_known_distance_chennai_to_bangalore():
     assert 280 < d < 300, f"expected ~290km, got {d}"
 
 
-RESOURCES = [
-    {"id": "near", "type": "shelter", "lat": 13.06, "lng": 80.24, "status": "available"},
-    {"id": "far", "type": "shelter", "lat": 12.9, "lng": 80.1, "status": "available"},
-    {"id": "closer-but-full", "type": "shelter", "lat": 13.05, "lng": 80.25, "status": "full"},
-]
+def r(id, type="shelter", lat=13.06, lng=80.24, status="available", capacity=50):
+    return {"id": id, "type": type, "lat": lat, "lng": lng, "status": status, "capacity": capacity}
 
 
-def test_picks_nearest_available():
-    report = {"lat": 13.05, "lng": 80.24}
-    result = pick_nearest_available(report, RESOURCES)
-    assert result["id"] == "near"
+REPORT = {"lat": 13.05, "lng": 80.24, "severity": "medium"}
 
 
-def test_skips_unavailable_even_if_closer():
-    report = {"lat": 13.051, "lng": 80.251}
-    result = pick_nearest_available(report, RESOURCES)
-    assert result["id"] == "near"
+class TestAvailability:
+    def test_picks_nearest_available(self):
+        chosen, _ = pick_best_resource(REPORT, [r("near"), r("far", lat=12.9, lng=80.1)])
+        assert chosen["id"] == "near"
+
+    def test_skips_unavailable_even_if_closer(self):
+        pool = [r("near"), r("closer", lat=13.051, lng=80.2401, status="full")]
+        chosen, _ = pick_best_resource(REPORT, pool)
+        assert chosen["id"] == "near"
+
+    def test_returns_none_when_nothing_available(self):
+        chosen, distance = pick_best_resource(REPORT, [r("a", status="full"), r("b", status="dispatched")])
+        assert chosen is None and distance is None
+
+    def test_returns_none_for_empty_pool(self):
+        assert pick_best_resource(REPORT, []) == (None, None)
 
 
-def test_returns_none_when_nothing_available():
-    report = {"lat": 13.05, "lng": 80.24}
-    all_full = [{**r, "status": "full"} for r in RESOURCES]
-    result = pick_nearest_available(report, all_full)
-    assert result is None
+class TestCapacity:
+    def test_skips_resource_with_no_remaining_capacity(self):
+        pool = [r("exhausted", capacity=0, lat=13.0501, lng=80.2401), r("has-room", capacity=40)]
+        chosen, _ = pick_best_resource(REPORT, pool)
+        assert chosen["id"] == "has-room"
+
+    def test_unknown_capacity_is_still_eligible(self):
+        # A rescue team may legitimately carry no capacity figure; absent data
+        # must not be read as "full".
+        chosen, _ = pick_best_resource(REPORT, [r("unknown", capacity=None)])
+        assert chosen["id"] == "unknown"
+
+    def test_prefers_more_capacity_when_distance_is_close(self):
+        pool = [r("small", capacity=5), r("large", capacity=400, lat=13.0601, lng=80.2401)]
+        chosen, _ = pick_best_resource(REPORT, pool)
+        assert chosen["id"] == "large"
 
 
-def test_can_filter_by_resource_type():
-    with_team = RESOURCES + [
-        {"id": "team", "type": "rescue_team", "lat": 13.051, "lng": 80.241, "status": "available"}
-    ]
-    report = {"lat": 13.05, "lng": 80.24}
-    result = pick_nearest_available(report, with_team, resource_type="rescue_team")
-    assert result["id"] == "team"
+class TestRange:
+    def test_ignores_resource_beyond_max_dispatch_range(self):
+        far = r("far-away", lat=28.6139, lng=77.209)  # Delhi, ~1750km
+        chosen, distance = pick_best_resource(REPORT, [far])
+        assert chosen is None and distance is None
+
+    def test_reports_the_distance_of_the_chosen_resource(self):
+        chosen, distance = pick_best_resource(REPORT, [r("near")])
+        assert chosen["id"] == "near"
+        assert 0 < distance < 5
+
+    def test_max_range_is_overridable(self):
+        far = r("far-away", lat=12.9716, lng=77.5946)  # Bengaluru, ~290km
+        assert pick_best_resource(REPORT, [far])[0] is None
+        chosen, _ = pick_best_resource(REPORT, [far], max_km=400)
+        assert chosen["id"] == "far-away"
+
+
+class TestSuitability:
+    @pytest.mark.parametrize("severity", ["critical", "high"])
+    def test_severe_reports_prefer_a_rescue_team(self, severity):
+        assert preferred_type_for(severity) == "rescue_team"
+
+    @pytest.mark.parametrize("severity", ["medium", "low", None, "nonsense"])
+    def test_other_reports_have_no_preferred_type(self, severity):
+        assert preferred_type_for(severity) is None
+
+    def test_critical_report_takes_a_slightly_further_rescue_team(self):
+        pool = [
+            r("shelter-next-door", type="shelter"),
+            r("team", type="rescue_team", lat=13.11, lng=80.24),  # ~7km further
+        ]
+        chosen, _ = pick_best_resource({**REPORT, "severity": "critical"}, pool)
+        assert chosen["id"] == "team"
+
+    def test_but_not_an_absurdly_further_one(self):
+        pool = [
+            r("shelter-next-door", type="shelter"),
+            r("team", type="rescue_team", lat=13.9, lng=80.24),  # ~95km further
+        ]
+        chosen, _ = pick_best_resource({**REPORT, "severity": "critical"}, pool)
+        assert chosen["id"] == "shelter-next-door"
+
+    def test_explicit_type_filter_still_wins_over_preference(self):
+        pool = [r("shelter", type="shelter"), r("team", type="rescue_team")]
+        chosen, _ = pick_best_resource(
+            {**REPORT, "severity": "critical"}, pool, resource_type="shelter"
+        )
+        assert chosen["id"] == "shelter"
+
+
+def test_max_dispatch_km_is_a_sane_default():
+    assert 50 <= MAX_DISPATCH_KM <= 300

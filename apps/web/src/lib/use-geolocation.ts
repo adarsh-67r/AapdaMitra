@@ -16,8 +16,10 @@ export type GeoStatus =
   | "unavailable"
   /** The request was still outstanding when the deadline passed. */
   | "timeout"
-  /** The API is absent, usually because the page is not on a secure origin. */
-  | "unsupported";
+  /** The API is absent entirely. */
+  | "unsupported"
+  /** The page is not on a secure origin, so the browser will never answer. */
+  | "insecure";
 
 export type GeoSource = "device" | "manual";
 
@@ -45,25 +47,50 @@ export function useGeolocation(timeoutMs = 10_000) {
       setStatus("unsupported");
       return;
     }
+    // Geolocation is gated on a secure context. Served over plain HTTP — which
+    // is exactly what happens when a phone opens a dev server by LAN IP — the
+    // API is still present but every call is rejected, and the rejection is
+    // reported as PERMISSION_DENIED. Naming it correctly here saves the user
+    // hunting through browser settings for a permission they never denied.
+    if (typeof window !== "undefined" && window.isSecureContext === false) {
+      setStatus("insecure");
+      return;
+    }
+
     setStatus("locating");
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-        setAccuracyM(Number.isFinite(pos.coords.accuracy) ? pos.coords.accuracy : null);
-        setSource("device");
-        setStatus("ready");
-      },
-      (err) => {
-        setStatus(
-          err.code === err.PERMISSION_DENIED
-            ? "denied"
-            : err.code === err.TIMEOUT
-              ? "timeout"
-              : "unavailable"
-        );
-      },
-      { enableHighAccuracy: true, timeout: timeoutMs, maximumAge: 60_000 }
-    );
+
+    const onSuccess = (pos: GeolocationPosition) => {
+      setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+      setAccuracyM(Number.isFinite(pos.coords.accuracy) ? pos.coords.accuracy : null);
+      setSource("device");
+      setStatus("ready");
+    };
+
+    const fail = (err: GeolocationPositionError) => {
+      setStatus(
+        err.code === err.PERMISSION_DENIED
+          ? "denied"
+          : err.code === err.TIMEOUT
+            ? "timeout"
+            : "unavailable"
+      );
+    };
+
+    // Two attempts, because a high-accuracy request is what actually fails on a
+    // desktop: it waits on GPS hardware that is not there. A denial is final and
+    // is not worth retrying, but a timeout or a missing fix very often succeeds
+    // immediately at coarse accuracy over wifi or IP.
+    navigator.geolocation.getCurrentPosition(onSuccess, (err) => {
+      if (err.code === err.PERMISSION_DENIED) {
+        fail(err);
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(onSuccess, fail, {
+        enableHighAccuracy: false,
+        timeout: timeoutMs,
+        maximumAge: 300_000,
+      });
+    }, { enableHighAccuracy: true, timeout: Math.round(timeoutMs * 0.6), maximumAge: 60_000 });
   }, [timeoutMs]);
 
   useEffect(() => {

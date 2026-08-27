@@ -120,7 +120,7 @@ export default function DashboardShell({ onSignOut }: { onSignOut: () => void })
             <div className="tick h-3.5 border-b border-border shrink-0" />
             <div className="flex flex-1 min-h-0">
               <div className="tick-v w-3.5 border-r border-border shrink-0" />
-              <div className="flex-1 relative bg-panel-alt">
+              <div className="flex-1 relative isolate z-0 bg-panel-alt">
                 {loading ? (
                   <div className="flex items-center justify-center h-full text-sm text-text-muted">
                     Loading…

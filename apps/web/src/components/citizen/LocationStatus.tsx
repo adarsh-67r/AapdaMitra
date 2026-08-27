@@ -9,7 +9,9 @@ const EXPLANATION: Record<Exclude<GeoStatus, "ready" | "locating">, string> = {
   denied: "Location access was refused, so we can't place your report automatically.",
   timeout: "Your device didn't return a location in time.",
   unavailable: "Your device couldn't determine a location — common on a desktop with no GPS.",
-  unsupported: "This browser won't share location on an insecure connection.",
+  unsupported: "This browser doesn't support location lookup.",
+  insecure:
+    "This page isn't on a secure (https) connection, so the browser refuses to share location. Pick your city instead.",
 };
 
 /**

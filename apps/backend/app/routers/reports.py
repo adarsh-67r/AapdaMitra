@@ -123,10 +123,24 @@ def update_report(
         raise HTTPException(status_code=400, detail="no fields to update")
     values.append(report_id)
     with conn.cursor() as cur:
+        cur.execute("select assigned_resource_id from reports where id = %s", (report_id,))
+        previous = cur.fetchone()
+        if not previous:
+            raise HTTPException(status_code=404, detail="report not found")
+
         cur.execute(f"update reports set {', '.join(fields)} where id = %s returning *", values)
         row = cur.fetchone()
-        if not row:
-            raise HTTPException(status_code=404, detail="report not found")
+
+        # A dispatched unit stays dispatched until the work it was sent for is
+        # over. Without this the pool only ever shrinks: every resolved report
+        # left its resource flagged as busy, and allocation eventually reported
+        # "nothing available" while every unit sat idle.
+        released = previous["assigned_resource_id"]
+        if released and (row["status"] == "resolved" or row["assigned_resource_id"] != released):
+            cur.execute(
+                "update resources set status = 'available' where id = %s and status = 'dispatched'",
+                (released,),
+            )
     conn.commit()
     return row
 
