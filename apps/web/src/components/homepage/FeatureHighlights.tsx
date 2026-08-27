@@ -4,12 +4,13 @@ import { useRef } from "react";
 import { motion, useReducedMotion, useScroll, useTransform, type MotionValue } from "framer-motion";
 import { EASE_OUT, enter, enterStaggered } from "@/lib/motion";
 import TiltCard from "./TiltCard";
+import FeatureGlyph, { type GlyphKind } from "./FeatureGlyph";
 
 const FEATURES = [
-  { title: "Citizen reporting", body: "Photo and exact GPS location, filed in under a minute.", status: "Live" as const },
-  { title: "Live heatmap dashboard", body: "Authorities see report density and hotspots update in real time.", status: "Live" as const },
-  { title: "Nearest-resource dispatch", body: "One click matches and dispatches the closest available team.", status: "Live" as const },
-  { title: "SMS / IVR fallback", body: "Reporting and alerts for citizens with no internet access.", status: "Planned" as const },
+  { title: "Citizen reporting", body: "Photo and exact GPS location, filed in under a minute.", status: "Live" as const, glyph: "report" as GlyphKind },
+  { title: "Live heatmap dashboard", body: "Authorities see report density and hotspots update in real time.", status: "Live" as const, glyph: "heatmap" as GlyphKind },
+  { title: "Nearest-resource dispatch", body: "One click matches and dispatches the closest available team.", status: "Live" as const, glyph: "dispatch" as GlyphKind },
+  { title: "SMS / IVR fallback", body: "Reporting and alerts for citizens with no internet access.", status: "Planned" as const, glyph: "fallback" as GlyphKind },
 ];
 
 type Feature = (typeof FEATURES)[number];
@@ -40,6 +41,7 @@ function CardBody({ feature, delay = 0 }: { feature: Feature; delay?: number }) 
   return (
     <>
       <div>
+        <FeatureGlyph kind={feature.glyph} delay={delay} />
         <h5 className="font-semibold mb-1.5">{feature.title}</h5>
         <p className="text-sm text-text-muted leading-relaxed">{feature.body}</p>
       </div>
@@ -49,7 +51,7 @@ function CardBody({ feature, delay = 0 }: { feature: Feature; delay?: number }) 
 }
 
 const CARD_CLASS =
-"h-full rounded-sm bg-panel border border-border p-5 flex flex-col justify-between min-h-[180px] hover:border-accent/40 transition-colors";
+"h-full rounded-sm bg-panel border border-border p-5 flex flex-col justify-between min-h-[232px] hover:border-accent/40 transition-colors";
 
 /**
  * Cards deal in like a hand being laid down: each starts lower, rotated and
