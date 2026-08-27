@@ -33,6 +33,8 @@ type Belt = {
   anchor: { x: number; y: number };
   /** Which way the label runs, so it never leaves the frame. */
   side: "left" | "right";
+  /** Trimmed for the callout, where the full sourced line will not fit. */
+  short: string;
 };
 
 // Belts are geographic approximations for illustration; the figures beside them
@@ -40,6 +42,7 @@ type Belt = {
 const BELTS: Belt[] = [
   {
     id: "seismic",
+    short: "of India's landmass, Zones III–V",
     label: "Himalayan Belt",
     hazard: "Seismic",
     stat: "59%",
@@ -51,6 +54,7 @@ const BELTS: Belt[] = [
   },
   {
     id: "flood",
+    short: "flood-prone — about 45M hectares",
     label: "Gangetic Plains",
     hazard: "Flood",
     stat: "12%",
@@ -62,6 +66,7 @@ const BELTS: Belt[] = [
   },
   {
     id: "cyclone",
+    short: "of the 7,500 km coastline",
     label: "Coastline",
     hazard: "Cyclone",
     stat: "76%",
@@ -73,6 +78,7 @@ const BELTS: Belt[] = [
   },
   {
     id: "drought",
+    short: "of cultivable land",
     label: "Deccan Plateau",
     hazard: "Drought",
     stat: "68%",
@@ -136,15 +142,18 @@ function BeltCallout({ index, progress }: { index: number; progress: MotionValue
   const draw = useTransform(progress, range, [0, 1, 1]);
 
   const dir = belt.side === "right" ? 1 : -1;
-  const elbowX = belt.anchor.x + dir * 12;
-  const elbowY = belt.anchor.y - 9;
-  const endX = elbowX + dir * 10;
+  // The elbow leaves the landmass, then runs far enough out that the label sits
+  // clear of the districts rather than on top of them.
+  const elbowX = belt.anchor.x + dir * 16;
+  const elbowY = belt.anchor.y - 11;
+  const endX = belt.side === "right" ? 108 : -8;
+  const anchorAttr = belt.side === "right" ? "start" : "end";
+  const textX = endX + dir * 2;
 
   return (
     <motion.g style={{ opacity }} aria-hidden>
-      {/* Ring on the anchor point itself. */}
-      <circle cx={belt.anchor.x} cy={belt.anchor.y} r={2.6} fill="none" stroke={belt.color} strokeWidth={0.5} />
-      <circle cx={belt.anchor.x} cy={belt.anchor.y} r={0.9} fill={belt.color} />
+      <circle cx={belt.anchor.x} cy={belt.anchor.y} r={2.8} fill="none" stroke={belt.color} strokeWidth={0.5} />
+      <circle cx={belt.anchor.x} cy={belt.anchor.y} r={0.95} fill={belt.color} />
       <motion.path
         d={`M ${belt.anchor.x} ${belt.anchor.y} L ${elbowX} ${elbowY} L ${endX} ${elbowY}`}
         fill="none"
@@ -153,44 +162,37 @@ function BeltCallout({ index, progress }: { index: number; progress: MotionValue
         vectorEffect="non-scaling-stroke"
         style={{ pathLength: draw }}
       />
+      {/* Label block sits at the end of the leader, reading outward. */}
       <text
-        x={endX + dir * 1.6}
-        y={elbowY - 1.6}
+        x={textX}
+        y={elbowY - 4.4}
+        fill="currentColor"
+        className="text-text-muted"
+        textAnchor={anchorAttr}
+        style={{ fontSize: 2.6, letterSpacing: "0.14em" }}
+      >
+        {belt.hazard.toUpperCase()} · {belt.label.toUpperCase()}
+      </text>
+      <text
+        x={textX}
+        y={elbowY + 4.2}
         fill={belt.color}
-        textAnchor={belt.side === "right" ? "start" : "end"}
-        style={{ fontSize: 6, fontWeight: 700, letterSpacing: "-0.03em" }}
+        textAnchor={anchorAttr}
+        style={{ fontSize: 10, fontWeight: 700, letterSpacing: "-0.04em" }}
       >
         {belt.stat}
       </text>
       <text
-        x={endX + dir * 1.6}
-        y={elbowY + 3.2}
+        x={textX}
+        y={elbowY + 8.6}
         fill="currentColor"
         className="text-text-muted"
-        textAnchor={belt.side === "right" ? "start" : "end"}
-        style={{ fontSize: 2.4, letterSpacing: "0.12em" }}
+        textAnchor={anchorAttr}
+        style={{ fontSize: 2.7 }}
       >
-        {belt.hazard.toUpperCase()} · {belt.label.toUpperCase()}
+        {belt.short}
       </text>
     </motion.g>
-  );
-}
-
-/** The sentence under the map, swapped as each belt takes over. */
-function BeltCaption({ index, progress }: { index: number; progress: MotionValue<number> }) {
-  const belt = BELTS[index];
-  const range = beltRange(index);
-  const opacity = useTransform(progress, range, [0, 1, 0]);
-  const y = useTransform(progress, range, [14, 0, -14]);
-
-  return (
-    <motion.p
-      style={{ opacity, y }}
-      aria-hidden
-      className="absolute inset-x-0 text-center text-sm md:text-base text-text-muted leading-relaxed"
-    >
-      {belt.source}
-    </motion.p>
   );
 }
 
@@ -232,10 +234,10 @@ export default function IndiaHazardMap() {
   return (
     <div ref={ref} className="relative z-10 h-[360vh]">
       <div className="sticky top-0 h-[100dvh] flex flex-col items-center justify-center px-6 md:px-10">
-        <div className="w-full max-w-4xl">
+        <div className="w-full max-w-6xl">
           <svg
-            viewBox="-16 -6 132 118"
-            className="w-full h-auto max-h-[68vh] mx-auto"
+            viewBox="-46 -8 192 122"
+            className="w-full h-auto max-h-[74vh] mx-auto"
             role="img"
             aria-label="Map of India drawn from 589 district centroids, highlighting seismic, flood, cyclone and drought belts in turn"
           >
@@ -252,12 +254,6 @@ export default function IndiaHazardMap() {
               <BeltCallout key={`c-${b.id}`} index={i} progress={scrollYProgress} />
             ))}
           </svg>
-
-          <div className="relative h-16 mt-4">
-            {BELTS.map((b, i) => (
-              <BeltCaption key={`p-${b.id}`} index={i} progress={scrollYProgress} />
-            ))}
-          </div>
 
           <p className="text-center font-mono text-[0.68rem] text-text-muted">
             589 districts · plotted from real centroids

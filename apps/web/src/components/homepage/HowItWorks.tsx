@@ -50,21 +50,25 @@ function Step({
   const to = Math.min(1, end + 0.02);
   const range = [from, mid, to];
 
-  const opacity = useTransform(progress, range, [0.15, 1, 0.15]);
-  const y = useTransform(progress, range, [40, 0, -40]);
-  const scale = useTransform(progress, range, [0.96, 1, 0.96]);
+  const opacity = useTransform(progress, range, [0, 1, 0]);
+  const x = useTransform(progress, range, [70, 0, -70]);
+  const scale = useTransform(progress, range, [0.94, 1, 0.94]);
 
   return (
-    <motion.div style={{ opacity, y, scale }} className="flex gap-5 md:gap-7 items-start">
+    <motion.div
+      style={{ opacity, x, scale }}
+      className="absolute inset-0 flex gap-5 md:gap-8 items-center"
+    >
       <span
-        className="font-mono text-sm md:text-base font-bold shrink-0 pt-1"
+        className="font-mono text-5xl md:text-8xl font-bold shrink-0 leading-none opacity-25"
         style={{ color: step.accent }}
+        aria-hidden
       >
         {step.n}
       </span>
       <div>
-        <h4 className="text-2xl md:text-4xl font-bold tracking-[-0.02em] mb-2 md:mb-3">{step.title}</h4>
-        <p className="text-sm md:text-lg text-text-muted leading-relaxed max-w-[46ch]">{step.body}</p>
+        <h4 className="text-3xl md:text-6xl font-bold tracking-[-0.03em] mb-3">{step.title}</h4>
+        <p className="text-base md:text-xl text-text-muted leading-relaxed max-w-[42ch]">{step.body}</p>
       </div>
     </motion.div>
   );
@@ -72,13 +76,10 @@ function Step({
 
 /** The rail fills as the sequence advances — a read-out of scroll position. */
 function Rail({ progress }: { progress: MotionValue<number> }) {
-  const scaleY = useTransform(progress, [0, 1], [0, 1]);
+  const scaleX = useTransform(progress, [0, 1], [0, 1]);
   return (
-    <div className="hidden md:block absolute left-0 top-0 bottom-0 w-px bg-white/10">
-      <motion.div
-        className="absolute inset-x-0 top-0 h-full origin-top bg-accent"
-        style={{ scaleY }}
-      />
+    <div className="absolute left-0 right-0 bottom-0 h-px bg-white/10">
+      <motion.div className="absolute inset-y-0 left-0 w-full origin-left bg-accent" style={{ scaleX }} />
     </div>
   );
 }
@@ -119,14 +120,14 @@ export default function HowItWorks() {
   return (
     <div id="how-it-works" ref={ref} className="relative z-10 h-[280vh] scroll-mt-20">
       <div className="sticky top-0 h-[100dvh] flex items-center px-6 md:px-10">
-        <div className="relative w-full md:pl-10">
-          <Rail progress={scrollYProgress} />
-          <p className="font-mono text-[0.7rem] tracking-[0.2em] text-accent mb-6">HOW IT WORKS</p>
-          <div className="flex flex-col gap-10 md:gap-14">
+        <div className="relative w-full max-w-5xl mx-auto pb-10">
+          <p className="font-mono text-[0.7rem] tracking-[0.2em] text-accent mb-8">HOW IT WORKS</p>
+          <div className="relative h-[300px] md:h-[280px] overflow-hidden">
             {STEPS.map((s, i) => (
               <Step key={s.n} step={s} index={i} progress={scrollYProgress} />
             ))}
           </div>
+          <Rail progress={scrollYProgress} />
         </div>
       </div>
     </div>
