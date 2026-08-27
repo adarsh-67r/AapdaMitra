@@ -139,7 +139,14 @@ function Ticks({ index }: { index: number }) {
 export default function FeatureHighlights() {
   const ref = useRef<HTMLDivElement>(null);
   const reduceMotion = useReducedMotion();
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "center center"] });
+  // Timed so the arrivals happen while the cards are actually on screen.
+  //
+  // Running the sequence from the moment the section's top crosses the fold puts
+  // the first two arrivals below it — the cards are still off-screen when they
+  // animate, so by the time the section is readable they are simply already
+  // there and nothing appears to happen. Starting at 0.6 of the viewport instead
+  // means every one of the four arrives somewhere the reader is looking.
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start 0.6", "end 0.75"] });
   const [active, setActive] = useState(0);
 
   useMotionValueEvent(scrollYProgress, "change", (v) => {
