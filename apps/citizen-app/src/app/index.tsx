@@ -57,6 +57,34 @@ export default function ReportScreen() {
     return () => sub.remove();
   }, []);
 
+  /**
+   * Photograph the incident.
+   *
+   * This is the path that matters: someone standing in front of a collapsed
+   * bridge photographs it, they do not go looking for it in their camera roll.
+   * The app declared a camera permission from the start but never opened the
+   * camera, so the only way to attach anything was to have taken it earlier.
+   */
+  async function takePhoto() {
+    const permission = await ImagePicker.requestCameraPermissionsAsync();
+    if (!permission.granted) {
+      Alert.alert(
+        "Camera permission needed",
+        "Allow camera access to photograph the incident, or choose an existing photo instead."
+      );
+      return;
+    }
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ["images"],
+      // The upload is a second call over whatever connection is left in a
+      // disaster; one photo in the live data is already 4.3 MB.
+      quality: 0.6,
+    });
+    if (!result.canceled) {
+      setPhotoUri(result.assets[0].uri);
+    }
+  }
+
   async function pickPhoto() {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
@@ -226,13 +254,22 @@ export default function ReportScreen() {
 
           <Panel>
             <ThemedText type="smallBold">Photo (optional)</ThemedText>
-            <Pressable
-              style={[styles.secondaryButton, { borderColor: theme.border }]}
-              onPress={pickPhoto}
-              accessibilityRole="button"
-            >
-              <ThemedText type="small">{photoUri ? "Change photo" : "Attach a photo"}</ThemedText>
-            </Pressable>
+            <View style={styles.photoRow}>
+              <Pressable
+                style={[styles.secondaryButton, styles.photoButton, { borderColor: theme.border }]}
+                onPress={takePhoto}
+                accessibilityRole="button"
+              >
+                <ThemedText type="small">Take a photo</ThemedText>
+              </Pressable>
+              <Pressable
+                style={[styles.secondaryButton, styles.photoButton, { borderColor: theme.border }]}
+                onPress={pickPhoto}
+                accessibilityRole="button"
+              >
+                <ThemedText type="small">Choose existing</ThemedText>
+              </Pressable>
+            </View>
             {photoUri && (
               <Image
                 source={{ uri: photoUri }}
@@ -282,6 +319,8 @@ const styles = StyleSheet.create({
     minHeight: 90,
     textAlignVertical: "top",
   },
+  photoRow: { flexDirection: "row", gap: Spacing.two },
+  photoButton: { flex: 1 },
   severityRow: { flexDirection: "row", gap: Spacing.two },
   severityChip: {
     borderWidth: 1,
