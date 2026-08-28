@@ -5,6 +5,54 @@ import { pickNearestAvailable, haversineKm } from "@/lib/allocator-preview";
 import type { Report, Resource } from "@/lib/useDashboardData";
 import { AlertTriangleIcon, CheckIcon, CloseIcon } from "@/components/icons";
 
+/**
+ * The photo the citizen attached.
+ *
+ * It is the only first-hand evidence in the report — a description says "water
+ * in the street", a photo says how deep — so it is shown at a size worth
+ * looking at rather than as a thumbnail, and opens full size in a new tab.
+ *
+ * Loaded lazily and told to degrade out loud: these come straight from a phone
+ * camera (one in the live data is 4.3 MB), and a silent broken-image icon in an
+ * operations console reads as "no photo was sent", which is a different and
+ * much worse claim than "the photo did not load".
+ */
+function ReportPhoto({ url }: { url: string }) {
+  const [state, setState] = useState<"loading" | "ok" | "error">("loading");
+
+  return (
+    <div className="flex flex-col gap-1">
+      <span className="font-mono text-[0.6rem] tracking-[0.14em] text-text-muted uppercase">
+        Photo from the citizen
+      </span>
+      {state === "error" ? (
+        <p className="bg-panel-alt p-3 text-xs text-text-muted leading-relaxed">
+          The attached photo could not be loaded.{" "}
+          <a href={url} target="_blank" rel="noopener noreferrer" className="underline">
+            Open it directly
+          </a>
+          .
+        </p>
+      ) : (
+        <a href={url} target="_blank" rel="noopener noreferrer" title="Open full size">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={url}
+            alt="Photo attached to this report by the citizen who filed it"
+            loading="lazy"
+            onLoad={() => setState("ok")}
+            onError={() => setState("error")}
+            className="w-full max-h-64 object-cover border border-border bg-panel-alt"
+          />
+        </a>
+      )}
+      {state === "loading" && (
+        <span className="font-mono text-[0.68rem] text-text-muted">Loading photo…</span>
+      )}
+    </div>
+  );
+}
+
 const SEVERITY_COLOR: Record<Report["severity"], string> = {
   low: "var(--text-muted)",
   medium: "var(--medium)",
@@ -122,6 +170,10 @@ export default function InspectorPanel({
         {report.description && (
           <p className="text-sm bg-panel-alt p-3 rounded-md leading-relaxed">{report.description}</p>
         )}
+
+        {/* Keyed by URL so selecting a different report starts its photo in the
+            loading state instead of inheriting the previous one's. */}
+        {report.photo_url && <ReportPhoto key={report.photo_url} url={report.photo_url} />}
 
         <span className="font-mono text-xs text-text-muted">
           {report.lat.toFixed(4)}°N · {report.lng.toFixed(4)}°E

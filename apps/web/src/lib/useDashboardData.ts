@@ -36,6 +36,13 @@ export interface Report {
   cluster_size: number;
   place_label: string | null;
   location_source: string | null;
+  /**
+   * Public URL of the photo the citizen attached, if any. The backend has
+   * stored and returned this since photo upload was built; nothing in any
+   * client read it, so every photo filed with a report was invisible to the
+   * people it was filed for.
+   */
+  photo_url: string | null;
 }
 
 const POLL_INTERVAL_MS = 12000;

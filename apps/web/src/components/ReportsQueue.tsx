@@ -107,6 +107,14 @@ export default function ReportsQueue({ reports, selectedReportId, onSelectReport
                     )}
                   </span>
                 )}
+                {/* An operator triaging the queue should be able to see which
+                    reports carry first-hand evidence before opening them. */}
+                {r.photo_url && (
+                  <span className="font-mono text-[0.6rem] tracking-[0.12em] text-text-muted uppercase">
+                    Photo attached
+                  </span>
+                )}
+
                 {r.description && (
                   <p className="text-sm text-text-muted leading-snug line-clamp-2">{r.description}</p>
                 )}
