@@ -5,6 +5,7 @@ import { Panel } from "@/components/panel";
 import { ScreenHeader } from "@/components/screen-header";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { Type } from "@/constants/fonts";
 import { Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
 
@@ -59,5 +60,5 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
   },
   name: { flexShrink: 1 },
-  number: { fontSize: 20, fontWeight: "700" },
+  number: { fontSize: 20, fontFamily: Type.bold },
 });

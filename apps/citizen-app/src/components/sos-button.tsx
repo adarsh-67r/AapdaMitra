@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Animated, Easing, Pressable, StyleSheet } from "react-native";
 
 import { ThemedText } from "@/components/themed-text";
+import { Type } from "@/constants/fonts";
 import { Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
 
@@ -122,7 +123,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   fill: { position: "absolute", left: 0, top: 0, bottom: 0, backgroundColor: "#00000038" },
-  label: { color: "#fff", fontWeight: "700", fontSize: 16, letterSpacing: 0.5 },
+  label: { color: "#fff", fontFamily: Type.bold, fontSize: 16, letterSpacing: 0.5 },
   disabled: { opacity: 0.5 },
   hint: { textAlign: "center", marginTop: Spacing.one },
 });

@@ -5,6 +5,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { Panel } from "@/components/panel";
+import { Type } from "@/constants/fonts";
 import { Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
 import { DEMO_CITIZEN } from "@/lib/demo-accounts";
@@ -157,8 +158,8 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.three,
     alignItems: "center",
   },
-  demoText: { fontWeight: "600" },
+  demoText: { fontFamily: Type.semibold },
   button: { borderRadius: 2, paddingVertical: Spacing.three, alignItems: "center" },
-  buttonText: { fontWeight: "600" },
+  buttonText: { fontFamily: Type.semibold },
   error: { textAlign: "center" },
 });

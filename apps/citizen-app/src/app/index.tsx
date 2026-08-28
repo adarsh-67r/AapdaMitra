@@ -19,6 +19,7 @@ import { ScreenHeader } from "@/components/screen-header";
 import { SosButton } from "@/components/sos-button";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { Type } from "@/constants/fonts";
 import { Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
 import { fileReport } from "@/lib/file-report";
@@ -336,6 +337,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: Spacing.two,
   },
-  submitText: { fontWeight: "700", fontSize: 16 },
+  submitText: { fontFamily: Type.bold, fontSize: 16 },
   disabled: { opacity: 0.5 },
 });

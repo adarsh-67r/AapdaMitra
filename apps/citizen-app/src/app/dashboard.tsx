@@ -7,6 +7,7 @@ import { Panel } from "@/components/panel";
 import { ScreenHeader } from "@/components/screen-header";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { Type } from "@/constants/fonts";
 import { Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
 import { apiFetchJson } from "@/lib/api-client";
@@ -285,7 +286,7 @@ const styles = StyleSheet.create({
   readout: { paddingVertical: 0, gap: 0 },
   field: { paddingVertical: Spacing.three, gap: Spacing.one },
   fieldLabel: { letterSpacing: 1.4, fontSize: 11 },
-  fieldValue: { fontSize: 20, fontWeight: "600" },
+  fieldValue: { fontSize: 20, fontFamily: Type.semibold },
   section: { gap: Spacing.two },
   sectionTitle: { letterSpacing: 1.4, fontSize: 11 },
   rowPanel: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },

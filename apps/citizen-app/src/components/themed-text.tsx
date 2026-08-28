@@ -1,6 +1,7 @@
-import { Platform, StyleSheet, Text, type TextProps } from 'react-native';
+import { StyleSheet, Text, type TextProps } from 'react-native';
 
-import { Fonts, ThemeColor } from '@/constants/theme';
+import { Type } from '@/constants/fonts';
+import { ThemeColor } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 export type ThemedTextProps = TextProps & {
@@ -32,43 +33,46 @@ export function ThemedText({ style, type = 'default', themeColor, ...rest }: The
   );
 }
 
+// React Native will not synthesise a bold cut from a custom regular face, so
+// every style names the loaded family it wants instead of a fontWeight.
 const styles = StyleSheet.create({
   small: {
     fontSize: 14,
     lineHeight: 20,
-    fontWeight: 500,
+    fontFamily: Type.medium,
   },
   smallBold: {
     fontSize: 14,
     lineHeight: 20,
-    fontWeight: 700,
+    fontFamily: Type.bold,
   },
   default: {
     fontSize: 16,
     lineHeight: 24,
-    fontWeight: 500,
+    fontFamily: Type.regular,
   },
   title: {
     fontSize: 48,
-    fontWeight: 600,
     lineHeight: 52,
+    fontFamily: Type.semibold,
   },
   subtitle: {
     fontSize: 32,
     lineHeight: 44,
-    fontWeight: 600,
+    fontFamily: Type.semibold,
   },
   link: {
     lineHeight: 30,
     fontSize: 14,
+    fontFamily: Type.medium,
   },
   linkPrimary: {
     lineHeight: 30,
     fontSize: 14,
+    fontFamily: Type.medium,
   },
   code: {
-    fontFamily: Fonts.mono,
-    fontWeight: Platform.select({ android: 700 }) ?? 500,
+    fontFamily: Type.mono,
     fontSize: 12,
   },
 });

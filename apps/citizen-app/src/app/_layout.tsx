@@ -1,7 +1,10 @@
+import { useFonts } from 'expo-font';
 import { DarkTheme, DefaultTheme, ThemeProvider, Tabs } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { ActivityIndicator } from 'react-native';
+
+import { FONT_ASSETS, Type } from '@/constants/fonts';
 
 import { ThemedView } from '@/components/themed-view';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -14,10 +17,14 @@ export default function RootLayout() {
   const scheme = useColorScheme();
   const theme = useTheme();
   const { status } = useAuth();
+  const [fontsLoaded] = useFonts(FONT_ASSETS);
 
+  // The splash stays up until the faces are ready. Without this the first
+  // frame renders in the system font and then reflows when Plex arrives, which
+  // is more jarring than a splash screen a moment longer.
   useEffect(() => {
-    if (status !== "loading") SplashScreen.hideAsync();
-  }, [status]);
+    if (status !== "loading" && fontsLoaded) SplashScreen.hideAsync();
+  }, [status, fontsLoaded]);
 
   // The navigator's own chrome is themed too. Left on the stock DarkTheme /
   // DefaultTheme, the tab bar and the screen background underneath sit on
@@ -36,7 +43,7 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={navigationTheme}>
-      {status === "loading" ? (
+      {status === "loading" || !fontsLoaded ? (
         <ThemedView style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
           <ActivityIndicator />
         </ThemedView>
@@ -50,6 +57,9 @@ export default function RootLayout() {
               backgroundColor: theme.backgroundElement,
               borderTopColor: theme.border,
             },
+            // React Navigation styles its labels itself, so they would stay on
+            // the system font while every other word in the app is Plex.
+            tabBarLabelStyle: { fontFamily: Type.medium, fontSize: 11 },
           }}
         >
           {/* Dashboard first, matching the web client: what is true where you
