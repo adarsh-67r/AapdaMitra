@@ -62,7 +62,7 @@ export function LoginScreen() {
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
         <ThemedText type="title" style={styles.title}>
-          AapdaMitra
+          Aapda Mitra
         </ThemedText>
         <ThemedText type="subtitle" style={styles.subtitle}>
           Report incidents. Find shelters. Stay informed.

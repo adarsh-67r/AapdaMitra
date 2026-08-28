@@ -25,7 +25,7 @@ export function ScreenHeader({ title, subtitle }: { title: string; subtitle?: st
           <View style={[styles.mark, { borderColor: theme.accent }]}>
             <View style={[styles.markPulse, { backgroundColor: theme.accent }]} />
           </View>
-          <ThemedText type="smallBold">AapdaMitra</ThemedText>
+          <ThemedText type="smallBold">Aapda Mitra</ThemedText>
         </View>
       </View>
 
