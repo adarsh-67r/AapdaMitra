@@ -164,21 +164,27 @@ export default function LocationStatus({
  * common case where someone can simply type where they are — a person in an
  * emergency should not be made to drill through three menus to say "Rourkela".
  *
- * Not every district has a city in the index; most do not. Where none is known
- * the district is the answer, and the last step says so instead of showing an
- * empty list.
+ * Nearly every district has towns in the index — 592 of 594 — and the largest
+ * carry over a hundred, so the last step filters as well as lists. Where none is
+ * known the district itself is the answer, and the step says so instead of
+ * showing an empty list.
  */
 function PlacePicker({ onPick }: { onPick: (p: Place) => void }) {
   const [query, setQuery] = useState("");
   const [state, setState] = useState("");
   const [district, setDistrict] = useState("");
+  const [cityQuery, setCityQuery] = useState("");
 
   const searchResults = useMemo(() => (query.trim() ? searchPlaces(query) : []), [query]);
   const districts = useMemo(() => (state ? districtsIn(state) : []), [state]);
-  const cities = useMemo(
+  const allCities = useMemo(
     () => (state && district ? citiesIn(state, district) : []),
     [state, district]
   );
+  const cities = useMemo(() => {
+    const q = cityQuery.trim().toLowerCase();
+    return q ? allCities.filter((c) => c.name.toLowerCase().includes(q)) : allCities;
+  }, [allCities, cityQuery]);
   const districtPlace = useMemo(
     () => districts.find((d) => d.district === district) ?? null,
     [districts, district]
@@ -247,7 +253,10 @@ function PlacePicker({ onPick }: { onPick: (p: Place) => void }) {
             <Step n={2} label="District">
               <select
                 value={district}
-                onChange={(e) => setDistrict(e.target.value)}
+                onChange={(e) => {
+                  setDistrict(e.target.value);
+                  setCityQuery("");
+                }}
                 className="bg-panel-alt border border-border px-2 py-1.5 font-mono text-xs w-full cursor-pointer"
               >
                 <option value="">Select a district…</option>
@@ -262,17 +271,34 @@ function PlacePicker({ onPick }: { onPick: (p: Place) => void }) {
 
           {district && (
             <Step n={3} label="City or town">
-              {cities.length > 0 ? (
+              {allCities.length > 0 ? (
                 <div className="flex flex-col gap-1.5">
-                  {cities.map((c) => (
-                    <button
-                      key={c.name}
-                      onClick={() => onPick(c)}
-                      className="control text-left px-2.5 py-1.5 text-sm cursor-pointer"
-                    >
-                      {c.name}
-                    </button>
-                  ))}
+                  {/* A district can hold 130 towns. Scrolling that is slower than
+                      typing three letters of the one you are standing in. */}
+                  {allCities.length > 12 && (
+                    <input
+                      value={cityQuery}
+                      onChange={(e) => setCityQuery(e.target.value)}
+                      placeholder={`Filter ${allCities.length} towns…`}
+                      className="bg-panel-alt border border-border px-2.5 py-1.5 text-sm outline-none w-full"
+                    />
+                  )}
+                  <div className="flex flex-col gap-1.5 max-h-48 overflow-y-auto">
+                    {cities.map((c) => (
+                      <button
+                        key={c.name}
+                        onClick={() => onPick(c)}
+                        className="control text-left px-2.5 py-1.5 text-sm cursor-pointer shrink-0"
+                      >
+                        {c.name}
+                      </button>
+                    ))}
+                    {cities.length === 0 && (
+                      <p className="text-xs text-text-muted px-1 py-1.5">
+                        No town in {district} matches “{cityQuery.trim()}”.
+                      </p>
+                    )}
+                  </div>
                   {districtPlace && (
                     <button
                       onClick={() => onPick(districtPlace)}

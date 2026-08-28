@@ -60,8 +60,12 @@ rather than shown as unexplained Devanagari.
 **A refused location is not a dead end.** Reporting is the whole point of the citizen app, so it has to
 survive the browser declining to give up a position — which is the normal case on a desktop, on an
 insecure origin, and whenever a permission was dismissed once and is now remembered. The app names the
-actual cause, and falls back to naming a place by hand: **103 cities and all 594 districts**, searchable
-or browsable by state → district → city, built from the same GADM boundary data the alert pipeline uses.
+actual cause, and falls back to naming a place by hand: **7,120 towns and cities across all 594 districts**,
+searchable or browsable by state → district → town. The town layer is every populated place in the GeoNames
+India dump with a recorded population, each matched to a district by nearest centroid *within its own state*
+so a border town cannot be filed across a state line. It matters because a district centroid is a poor
+answer: Kachchh is larger than several states, and naming it puts a report tens of kilometres from the
+person who filed it. Naming Bhuj does not.
 A hand-placed report is stored with `location_source: manual` and the place name, so nobody downstream
 mistakes a district centroid for an address.
 

@@ -7,6 +7,9 @@ import { Brand, Spacing } from "@/constants/theme";
 import {
   CITY_COUNT,
   DISTRICT_COUNT,
+  STATES,
+  citiesIn,
+  districtsIn,
   labelFor,
   searchPlaces,
   type Place,
@@ -29,7 +32,7 @@ const EXPLANATION: Record<Exclude<LocationStatus, "idle" | "locating" | "ready">
  * The position readout and, when the lookup fails, the way past it.
  *
  * A report that cannot be placed cannot be filed, so this never dead-ends: every
- * failure offers naming a district or city by hand. A named place is a centroid,
+ * failure offers naming a district or town by hand. A named place is a centroid,
  * not an address, and is labelled approximate wherever it is shown.
  */
 export function LocationField({
@@ -99,6 +102,18 @@ export function LocationField({
   );
 }
 
+/**
+ * Naming a place by hand: search, or state → district → town.
+ *
+ * The cascade is the reliable path — everyone knows their state, and narrowing
+ * from there always terminates somewhere real. Search sits above it for the
+ * common case where someone can simply type where they are; a person in an
+ * emergency should not be made to drill through three menus to say "Rourkela".
+ *
+ * Nearly every district has towns in the index — 592 of 594 — and the largest
+ * carry over a hundred, so the town step filters as well as lists. Where none is
+ * known the district itself is the answer, and the step says so.
+ */
 function PlacePicker({
   visible,
   onClose,
@@ -109,55 +124,213 @@ function PlacePicker({
   onPick: (p: Place) => void;
 }) {
   const [query, setQuery] = useState("");
+  const [state, setState] = useState<string | null>(null);
+  const [district, setDistrict] = useState<string | null>(null);
+  const [townQuery, setTownQuery] = useState("");
+
   const results = useMemo(() => searchPlaces(query, 60), [query]);
+  const districts = useMemo(() => (state ? districtsIn(state) : []), [state]);
+  const allTowns = useMemo(
+    () => (state && district ? citiesIn(state, district) : []),
+    [state, district]
+  );
+  const towns = useMemo(() => {
+    const q = townQuery.trim().toLowerCase();
+    return q ? allTowns.filter((t) => t.name.toLowerCase().includes(q)) : allTowns;
+  }, [allTowns, townQuery]);
+  const districtPlace = useMemo(
+    () => districts.find((d) => d.district === district) ?? null,
+    [districts, district]
+  );
+
+  // The picker keeps no state between openings: someone who mis-tapped a state
+  // and closed the sheet should not find it still selected next time.
+  const close = () => {
+    setQuery("");
+    setState(null);
+    setDistrict(null);
+    setTownQuery("");
+    onClose();
+  };
+
+  const take = (p: Place) => {
+    onPick(p);
+    close();
+  };
 
   return (
-    <Modal visible={visible} animationType="slide" onRequestClose={onClose} transparent={false}>
+    <Modal visible={visible} animationType="slide" onRequestClose={close} transparent={false}>
       <ThemedView style={styles.sheet}>
         <View style={styles.sheetHead}>
           <ThemedText type="subtitle">Where are you?</ThemedText>
-          <Pressable onPress={onClose} accessibilityRole="button">
+          <Pressable onPress={close} accessibilityRole="button">
             <ThemedText type="small">Close</ThemedText>
           </Pressable>
         </View>
 
         <TextInput
-          autoFocus
           value={query}
           onChangeText={setQuery}
-          placeholder={`Search ${CITY_COUNT} cities, ${DISTRICT_COUNT} districts`}
+          placeholder={`Search ${CITY_COUNT} towns, ${DISTRICT_COUNT} districts`}
           style={styles.search}
         />
 
-        {query.trim().length === 0 ? (
-          <ThemedText type="small" style={styles.hint}>
-            Type a city or district name. Your report will be placed at its centre — close enough to
-            route a response, and marked approximate.
-          </ThemedText>
-        ) : results.length === 0 ? (
-          <ThemedText type="small" style={styles.hint}>
-            Nothing matches “{query.trim()}”.
-          </ThemedText>
+        {query.trim().length > 0 ? (
+          results.length === 0 ? (
+            <ThemedText type="small" style={styles.hint}>
+              Nothing matches “{query.trim()}”.
+            </ThemedText>
+          ) : (
+            <ScrollView keyboardShouldPersistTaps="handled">
+              {results.map((p) => (
+                <Pressable
+                  key={`${p.kind}-${p.state}-${p.district}-${p.name}`}
+                  style={styles.row}
+                  onPress={() => take(p)}
+                  accessibilityRole="button"
+                >
+                  <ThemedText>{p.name}</ThemedText>
+                  <ThemedText type="small">
+                    {p.kind === "city" && p.name !== p.district ? `${p.district} · ` : ""}
+                    {p.state}
+                  </ThemedText>
+                </Pressable>
+              ))}
+            </ScrollView>
+          )
         ) : (
           <ScrollView keyboardShouldPersistTaps="handled">
-            {results.map((p) => (
-              <Pressable
-                key={`${p.kind}-${p.state}-${p.district}-${p.name}`}
-                style={styles.row}
-                onPress={() => onPick(p)}
-                accessibilityRole="button"
-              >
-                <ThemedText>{p.name}</ThemedText>
-                <ThemedText type="small">
-                  {p.kind === "city" && p.name !== p.district ? `${p.district} · ` : ""}
-                  {p.state}
-                </ThemedText>
-              </Pressable>
-            ))}
+            <Step n={1} label="State">
+              {state ? (
+                <Chosen
+                  value={state}
+                  onChange={() => {
+                    setState(null);
+                    setDistrict(null);
+                    setTownQuery("");
+                  }}
+                />
+              ) : (
+                STATES.map((st) => (
+                  <Pressable
+                    key={st}
+                    style={styles.row}
+                    onPress={() => setState(st)}
+                    accessibilityRole="button"
+                  >
+                    <ThemedText>{st}</ThemedText>
+                  </Pressable>
+                ))
+              )}
+            </Step>
+
+            {state && (
+              <Step n={2} label="District">
+                {district ? (
+                  <Chosen
+                    value={district}
+                    onChange={() => {
+                      setDistrict(null);
+                      setTownQuery("");
+                    }}
+                  />
+                ) : (
+                  districts.map((d) => (
+                    <Pressable
+                      key={d.district}
+                      style={styles.row}
+                      onPress={() => setDistrict(d.district)}
+                      accessibilityRole="button"
+                    >
+                      <ThemedText>{d.district}</ThemedText>
+                    </Pressable>
+                  ))
+                )}
+              </Step>
+            )}
+
+            {state && district && (
+              <Step n={3} label="Town or city">
+                {allTowns.length === 0
+                  ? districtPlace && (
+                      <Pressable
+                        style={styles.row}
+                        onPress={() => take(districtPlace)}
+                        accessibilityRole="button"
+                      >
+                        <ThemedText>Use {district} district</ThemedText>
+                        <ThemedText type="small">No town is listed here</ThemedText>
+                      </Pressable>
+                    )
+                  : (
+                    <>
+                      {/* A district can hold 130 towns. Scrolling all of them is
+                          slower than typing three letters of the right one. */}
+                      {allTowns.length > 12 && (
+                        <TextInput
+                          value={townQuery}
+                          onChangeText={setTownQuery}
+                          placeholder={`Filter ${allTowns.length} towns`}
+                          style={styles.search}
+                        />
+                      )}
+                      {towns.map((t) => (
+                        <Pressable
+                          key={t.name}
+                          style={styles.row}
+                          onPress={() => take(t)}
+                          accessibilityRole="button"
+                        >
+                          <ThemedText>{t.name}</ThemedText>
+                        </Pressable>
+                      ))}
+                      {towns.length === 0 && (
+                        <ThemedText type="small" style={styles.hint}>
+                          No town in {district} matches “{townQuery.trim()}”.
+                        </ThemedText>
+                      )}
+                      {districtPlace && (
+                        <Pressable
+                          style={styles.row}
+                          onPress={() => take(districtPlace)}
+                          accessibilityRole="button"
+                        >
+                          <ThemedText type="small">
+                            None of these — use {district} district
+                          </ThemedText>
+                        </Pressable>
+                      )}
+                    </>
+                  )}
+              </Step>
+            )}
           </ScrollView>
         )}
       </ThemedView>
     </Modal>
+  );
+}
+
+function Step({ n, label, children }: { n: number; label: string; children: React.ReactNode }) {
+  return (
+    <View style={styles.step}>
+      <ThemedText type="small" style={styles.stepLabel}>
+        {n} · {label.toUpperCase()}
+      </ThemedText>
+      {children}
+    </View>
+  );
+}
+
+/** A step already answered, collapsed to its answer and a way back. */
+function Chosen({ value, onChange }: { value: string; onChange: () => void }) {
+  return (
+    <View style={styles.chosen}>
+      <ThemedText>{value}</ThemedText>
+      <Pressable onPress={onChange} accessibilityRole="button">
+        <ThemedText type="small">Change</ThemedText>
+      </Pressable>
+    </View>
   );
 }
 
@@ -189,4 +362,12 @@ const styles = StyleSheet.create({
   },
   hint: { paddingVertical: Spacing.two },
   row: { paddingVertical: Spacing.three, borderBottomWidth: 1, borderBottomColor: "#8882" },
+  step: { paddingTop: Spacing.three, gap: Spacing.one },
+  stepLabel: { letterSpacing: 1.4 },
+  chosen: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: Spacing.three,
+  },
 });

@@ -36,11 +36,13 @@ reason.
   Selecting a report frames it together with the unit assigned to it.
 - **Citizen view** — vertical section rail (bottom tab bar on phones), a location dashboard showing
   nearby alerts and the nearest available shelter and team with real distances, reporting with photo
-  and position, and a manual place picker covering 103 cities and all 594 districts.
+  and position, and a manual place picker covering 7,120 towns and cities across all 594 districts,
+  browsable state → district → town or searchable by name.
 
 ### Citizen app (`apps/citizen-app`) — Expo / React Native
 
 - Report submission with photo and GPS, alerts, shelters, own-report tracking.
+- The same manual place picker as the web client — state → district → town, or search.
 - Offline report queue that replays on reconnect.
 - One-tap demo account on the sign-in screen.
 - Runs fully against the FastAPI backend.
@@ -68,8 +70,9 @@ Kept here because each was a real defect, not a polish item:
   remembered instead of being retried on every poll forever.
 - **State names were a decade out of date.** The bundled boundary data is GADM 2.x — it says *Orissa*
   and *Uttaranchal* and predates Telangana entirely, so the picker offered Odisha and Orissa as separate
-  places and 22 of 103 cities pointed at districts that do not exist in the data. Renames and the
-  Telangana split are applied on load.
+  places and 22 of the 103 hand-typed cities pointed at districts that do not exist in the data. The renames,
+  the Telangana split, the 2019 Ladakh separation and the 2020 Dadra and Nagar Haveli / Daman and Diu merger
+  are all applied on load, and the same corrections drive the city build so the two cannot drift.
 
 ## Not built
 
@@ -89,7 +92,8 @@ Kept here because each was a real defect, not a polish item:
 
 No usage, adoption or traction figures appear anywhere in the product, because none exist. The hazard
 figures on the homepage are published national exposure estimates from **NDMA** and **BMTPC**, shown with
-their source. District geometry is **GADM**. Alerts are live from **SACHET**.
+their source. District geometry is **GADM**. The town and city index is **GeoNames** (CC BY 4.0). Alerts
+are live from **SACHET**.
 
 ## Stack
 
