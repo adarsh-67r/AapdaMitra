@@ -1,24 +1,22 @@
-import { Pressable, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 
 import { ThemedText } from "@/components/themed-text";
 import { Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
-import { useAuth } from "@/lib/use-auth";
 
 /**
  * The bar every screen starts with: the product mark, the screen's name, and
  * the way out.
  *
- * The web client carries this on every citizen section; the app had no header
- * at all and — more to the point — no way to sign out from inside the app, so a
- * demo account could be entered and never left without deleting the app's data.
+ * The web client carries this on every citizen section; the app had none at all.
+ * There is no sign-out here because there is no sign-in: the app authenticates
+ * itself on boot and opens on the dashboard.
  *
  * The rule under the title does the work a card border would: it separates the
  * heading from the content without introducing a floating surface.
  */
 export function ScreenHeader({ title, subtitle }: { title: string; subtitle?: string }) {
   const theme = useTheme();
-  const { signOut } = useAuth();
 
   return (
     <View style={[styles.wrap, { borderBottomColor: theme.border }]}>
@@ -29,11 +27,6 @@ export function ScreenHeader({ title, subtitle }: { title: string; subtitle?: st
           </View>
           <ThemedText type="smallBold">AapdaMitra</ThemedText>
         </View>
-        <Pressable onPress={signOut} accessibilityRole="button" hitSlop={8}>
-          <ThemedText type="small" themeColor="textSecondary">
-            Sign out
-          </ThemedText>
-        </Pressable>
       </View>
 
       <ThemedText type="title" style={styles.title}>

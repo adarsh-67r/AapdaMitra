@@ -1,36 +1,11 @@
 "use client";
 
 import { useMemo } from "react";
-import { haversineKm } from "@/lib/geo-client";
+import { formatKm, NEARBY_RADIUS_KM, summarise } from "@/lib/citizen-summary";
+import type { AlertLike, ReportLike, ResourceLike } from "@/lib/citizen-summary";
 import { labelFor, nearestPlace } from "@/lib/india-places";
 import type { Coords, GeoSource } from "@/lib/use-geolocation";
 
-interface AlertLike {
-  id: string;
-  disaster_type: string;
-  severity_color: "green" | "yellow" | "orange" | "red";
-  area_description: string | null;
-  issuing_agency: string | null;
-  lat: number;
-  lng: number;
-}
-
-interface ResourceLike {
-  id: string;
-  type: "shelter" | "rescue_team" | "supply_stock";
-  name: string;
-  lat: number;
-  lng: number;
-  capacity: number | null;
-  status: "available" | "full" | "dispatched";
-}
-
-interface ReportLike {
-  id: string;
-  status: "open" | "assigned" | "resolved";
-}
-
-const SEVERITY_RANK = { red: 3, orange: 2, yellow: 1, green: 0 } as const;
 const SEVERITY_TOKEN = {
   red: "var(--critical)",
   orange: "var(--high)",
@@ -43,10 +18,6 @@ const TYPE_LABEL = {
   rescue_team: "Rescue team",
   supply_stock: "Supply stock",
 } as const;
-
-function km(n: number) {
-  return n < 10 ? `${n.toFixed(1)} km` : `${Math.round(n)} km`;
-}
 
 /** A labelled readout. The label sits above the value, as on a real instrument. */
 function Field({ label, value, hint, color }: { label: string; value: string; hint?: string; color?: string }) {
@@ -82,29 +53,17 @@ export default function CitizenDashboard({
   resources: ResourceLike[];
   myReports: ReportLike[];
 }) {
-  const view = useMemo(() => {
+  const summary = useMemo(() => {
     if (!coords) return null;
+    return summarise(coords, alerts, resources, myReports);
+  }, [coords, alerts, resources, myReports]);
 
-    const withDistance = <T extends { lat: number; lng: number }>(rows: T[]) =>
-      rows
-        .map((r) => ({ row: r, d: haversineKm(coords, r) }))
-        .sort((a, b) => a.d - b.d);
+  const place = useMemo(() => {
+    if (!coords) return null;
+    return nearestPlace(coords.lat, coords.lng);
+  }, [coords]);
 
-    const nearbyAlerts = withDistance(alerts).filter((a) => a.d <= 150);
-    const worst = [...nearbyAlerts].sort(
-      (a, b) => SEVERITY_RANK[b.row.severity_color] - SEVERITY_RANK[a.row.severity_color]
-    )[0];
-
-    const shelters = withDistance(resources.filter((r) => r.type === "shelter" && r.status === "available"));
-    const teams = withDistance(resources.filter((r) => r.type === "rescue_team" && r.status === "available"));
-    const place = nearestPlace(coords.lat, coords.lng);
-
-    return { nearbyAlerts, worst, shelter: shelters[0], team: teams[0], place };
-  }, [coords, alerts, resources]);
-
-  const openReports = myReports.filter((r) => r.status !== "resolved").length;
-
-  if (!coords || !view) {
+  if (!coords || !summary || !place) {
     return (
       <div className="panel p-6">
         <p className="text-sm text-text-muted leading-relaxed">
@@ -114,7 +73,7 @@ export default function CitizenDashboard({
     );
   }
 
-  const { nearbyAlerts, worst, shelter, team, place } = view;
+  const { nearbyAlerts, worstAlert, nearestShelter, nearestTeam, openReports } = summary;
 
   return (
     <div className="flex flex-col gap-6">
@@ -128,30 +87,30 @@ export default function CitizenDashboard({
           }
         />
         <Field
-          label="Active alerts within 150 km"
+          label={`Active alerts within ${NEARBY_RADIUS_KM} km`}
           value={String(nearbyAlerts.length)}
-          color={worst ? SEVERITY_TOKEN[worst.row.severity_color] : undefined}
+          color={worstAlert ? SEVERITY_TOKEN[worstAlert.row.severity_color] : undefined}
           hint={
-            worst
-              ? `Most severe: ${worst.row.disaster_type}${
-                  worst.row.issuing_agency ? ` · ${worst.row.issuing_agency}` : ""
-                } · ${km(worst.d)} away`
+            worstAlert
+              ? `Most severe: ${worstAlert.row.disaster_type}${
+                  worstAlert.row.issuing_agency ? ` · ${worstAlert.row.issuing_agency}` : ""
+                } · ${formatKm(worstAlert.km)} away`
               : "No official warnings currently cover your area."
           }
         />
         <Field
           label="Nearest available shelter"
-          value={shelter ? km(shelter.d) : "None listed"}
+          value={nearestShelter ? formatKm(nearestShelter.km) : "None listed"}
           hint={
-            shelter
-              ? `${shelter.row.name}${shelter.row.capacity ? ` · capacity ${shelter.row.capacity}` : ""}`
+            nearestShelter
+              ? `${nearestShelter.row.name}${nearestShelter.row.capacity ? ` · capacity ${nearestShelter.row.capacity}` : ""}`
               : "No shelter is currently marked available in the registry."
           }
         />
         <Field
           label="Nearest available rescue team"
-          value={team ? km(team.d) : "None listed"}
-          hint={team ? team.row.name : "No rescue team is currently marked available."}
+          value={nearestTeam ? formatKm(nearestTeam.km) : "None listed"}
+          hint={nearestTeam ? nearestTeam.row.name : "No rescue team is currently marked available."}
         />
         <Field
           label="Your open reports"
@@ -169,7 +128,7 @@ export default function CitizenDashboard({
           <h3 className="font-mono text-[0.65rem] tracking-[0.14em] text-text-muted uppercase">
             Nearest warnings
           </h3>
-          {nearbyAlerts.slice(0, 4).map(({ row, d }) => (
+          {nearbyAlerts.slice(0, 4).map(({ row, km }) => (
             <article key={row.id} className="panel p-3.5 flex items-start justify-between gap-4">
               <div className="flex items-start gap-2.5 min-w-0">
                 <span
@@ -183,18 +142,18 @@ export default function CitizenDashboard({
                   )}
                 </div>
               </div>
-              <span className="font-mono text-xs text-text-muted tabular-nums shrink-0">{km(d)}</span>
+              <span className="font-mono text-xs text-text-muted tabular-nums shrink-0">{formatKm(km)}</span>
             </article>
           ))}
         </section>
       )}
 
-      {(shelter || team) && (
+      {(nearestShelter || nearestTeam) && (
         <section className="flex flex-col gap-2">
           <h3 className="font-mono text-[0.65rem] tracking-[0.14em] text-text-muted uppercase">
             Closest help
           </h3>
-          {[shelter, team].filter(Boolean).map((entry) => (
+          {[nearestShelter, nearestTeam].filter(Boolean).map((entry) => (
             <article key={entry!.row.id} className="panel p-3.5 flex items-center justify-between gap-4">
               <div className="min-w-0">
                 <p className="text-sm font-semibold truncate">{entry!.row.name}</p>
@@ -203,7 +162,7 @@ export default function CitizenDashboard({
                   {entry!.row.capacity ? ` · capacity ${entry!.row.capacity}` : ""}
                 </p>
               </div>
-              <span className="font-mono text-xs tabular-nums shrink-0">{km(entry!.d)}</span>
+              <span className="font-mono text-xs tabular-nums shrink-0">{formatKm(entry!.km)}</span>
             </article>
           ))}
         </section>

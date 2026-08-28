@@ -3,7 +3,6 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { ActivityIndicator } from 'react-native';
 
-import { LoginScreen } from '@/components/login-screen';
 import { ThemedView } from '@/components/themed-view';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useTheme } from '@/hooks/use-theme';
@@ -41,8 +40,6 @@ export default function RootLayout() {
         <ThemedView style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
           <ActivityIndicator />
         </ThemedView>
-      ) : status === "signed-out" ? (
-        <LoginScreen />
       ) : (
         <Tabs
           screenOptions={{
