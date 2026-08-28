@@ -9,21 +9,27 @@ import {
   ScrollView,
   StyleSheet,
   TextInput,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { LocationField } from "@/components/location-field";
+import { Panel } from "@/components/panel";
+import { ScreenHeader } from "@/components/screen-header";
+import { SosButton } from "@/components/sos-button";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { LocationField } from "@/components/location-field";
-import { Brand, Spacing } from "@/constants/theme";
-import { apiFetch, apiFetchJson } from "@/lib/api-client";
-import { enqueueReport, flushQueue, subscribeToQueue } from "@/lib/offline-queue";
+import { Spacing } from "@/constants/theme";
+import { useTheme } from "@/hooks/use-theme";
+import { fileReport } from "@/lib/file-report";
+import { flushQueue, subscribeToQueue } from "@/lib/offline-queue";
 import { useLocation } from "@/lib/use-location";
 
 type Severity = "low" | "medium" | "high" | "critical";
 const SEVERITIES: Severity[] = ["low", "medium", "high", "critical"];
 
 export default function ReportScreen() {
+  const theme = useTheme();
   const [description, setDescription] = useState("");
   const [severity, setSeverity] = useState<Severity>("medium");
   const [photoUri, setPhotoUri] = useState<string | null>(null);
@@ -31,6 +37,13 @@ export default function ReportScreen() {
   const location = geo.coords;
   const [submitting, setSubmitting] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
+
+  const SEVERITY_COLOR: Record<Severity, string> = {
+    low: theme.textSecondary,
+    medium: theme.medium,
+    high: theme.high,
+    critical: theme.critical,
+  };
 
   useEffect(() => subscribeToQueue(setPendingCount), []);
 
@@ -65,75 +78,95 @@ export default function ReportScreen() {
       return;
     }
     setSubmitting(true);
-    try {
-      const report = await apiFetchJson<{ id: string }>("/reports", {
-        method: "POST",
-        body: JSON.stringify({
-          lat: location.lat,
-          lng: location.lng,
-          severity,
-          description,
-          place_label: geo.placeLabel,
-          location_source: geo.source,
-        }),
-      });
+    const outcome = await fileReport({
+      lat: location.lat,
+      lng: location.lng,
+      severity,
+      description,
+      photoUri,
+      placeLabel: geo.placeLabel,
+      locationSource: geo.source,
+    });
+    setSubmitting(false);
 
-      if (photoUri) {
-        const form = new FormData();
-        form.append("file", { uri: photoUri, name: "photo.jpg", type: "image/jpeg" } as any);
-        const res = await apiFetch(`/reports/${report.id}/photo`, { method: "POST", body: form, headers: {} });
-        if (!res.ok) throw new Error(`photo upload failed: ${res.status}`);
-      }
+    if (outcome.status === "failed") {
+      Alert.alert("Could not save your report", `${outcome.reason}. Please try again.`);
+      return;
+    }
 
-      Alert.alert("Report submitted", "Authorities have been notified.");
-      setDescription("");
-      setPhotoUri(null);
-      setSeverity("medium");
-    } catch (e) {
-      // Couldn't reach the server — hold the report locally and replay it when
-      // the network returns, rather than making the citizen retype it.
-      await enqueueReport({
-        lat: location.lat,
-        lng: location.lng,
-        severity,
-        description,
-        photoUri,
-        placeLabel: geo.placeLabel,
-        locationSource: geo.source,
-      });
-      setDescription("");
-      setPhotoUri(null);
-      setSeverity("medium");
+    setDescription("");
+    setPhotoUri(null);
+    setSeverity("medium");
+
+    if (outcome.status === "queued") {
       Alert.alert(
         "Saved offline",
         "No connection right now. Your report is saved and will be sent automatically when you're back online."
       );
-      console.warn("report queued offline:", e instanceof Error ? e.message : e);
-    } finally {
-      setSubmitting(false);
+      return;
     }
+
+    Alert.alert(
+      "Report submitted",
+      outcome.photo === "failed"
+        ? "Authorities have been notified. Your photo could not be uploaded."
+        : "Authorities have been notified."
+    );
+  }
+
+  async function sendSos() {
+    if (!location) return;
+    setSubmitting(true);
+    const outcome = await fileReport({
+      lat: location.lat,
+      lng: location.lng,
+      severity: "critical",
+      // Matches the web client's SOS wording, so one incident reported from
+      // either client reads the same in the console queue.
+      description: "SOS - immediate emergency assistance needed",
+      photoUri: null,
+      placeLabel: geo.placeLabel,
+      locationSource: geo.source,
+    });
+    setSubmitting(false);
+
+    if (outcome.status === "failed") {
+      Alert.alert("SOS could not be saved", `${outcome.reason}. Try again, or call 112.`);
+      return;
+    }
+    Alert.alert(
+      outcome.status === "queued" ? "SOS saved offline" : "SOS sent",
+      outcome.status === "queued"
+        ? "No connection right now. It will send automatically when you are back online. If you can, call 112."
+        : "Authorities have been notified of your location."
+    );
   }
 
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
-        <ScrollView contentContainerStyle={styles.scroll}>
-          <ThemedText type="title" style={styles.title}>
-            Report an Incident
-          </ThemedText>
+        <ScreenHeader
+          title="Report an Incident"
+          subtitle="Photo, location, severity — filed in under a minute"
+        />
 
+        <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
           {pendingCount > 0 && (
-            <ThemedView type="backgroundElement" style={styles.pendingBanner}>
+            <Panel tone="recessed" style={{ borderColor: theme.high }}>
               <ThemedText type="smallBold">
                 {pendingCount} report{pendingCount === 1 ? "" : "s"} waiting to send
               </ThemedText>
-              <ThemedText type="small">
+              <ThemedText type="small" themeColor="textSecondary">
                 Saved on this device. They&apos;ll upload automatically once you&apos;re back online.
               </ThemedText>
-            </ThemedView>
+            </Panel>
           )}
 
-          <ThemedView type="backgroundElement" style={styles.card}>
+          {/* The emergency path comes first: it must be reachable without
+              scrolling past a form. */}
+          <SosButton disabled={!location} busy={submitting} onSend={sendSos} />
+
+          <Panel>
             <ThemedText type="smallBold">Location</ThemedText>
             <LocationField
               coords={geo.coords}
@@ -144,47 +177,86 @@ export default function ReportScreen() {
               onRetry={geo.retry}
               onManual={geo.setManual}
             />
-          </ThemedView>
+          </Panel>
 
-          <ThemedView type="backgroundElement" style={styles.card}>
+          <Panel>
             <ThemedText type="smallBold">Severity</ThemedText>
-            <ThemedView style={styles.severityRow}>
-              {SEVERITIES.map((s) => (
-                <Pressable
-                  key={s}
-                  onPress={() => setSeverity(s)}
-                  style={[styles.severityChip, severity === s && styles.severityChipSelected]}>
-                  <ThemedText type="small">{s}</ThemedText>
-                </Pressable>
-              ))}
-            </ThemedView>
-          </ThemedView>
+            <View style={styles.severityRow}>
+              {SEVERITIES.map((s) => {
+                const selected = severity === s;
+                return (
+                  <Pressable
+                    key={s}
+                    onPress={() => setSeverity(s)}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected }}
+                    style={[
+                      styles.severityChip,
+                      {
+                        borderColor: selected ? SEVERITY_COLOR[s] : theme.border,
+                        backgroundColor: selected ? SEVERITY_COLOR[s] : "transparent",
+                      },
+                    ]}
+                  >
+                    {/* Label as well as colour, always. */}
+                    <ThemedText
+                      type="small"
+                      style={selected ? styles.severityTextSelected : undefined}
+                    >
+                      {s}
+                    </ThemedText>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </Panel>
 
-          <ThemedView type="backgroundElement" style={styles.card}>
+          <Panel>
             <ThemedText type="smallBold">Description</ThemedText>
             <TextInput
               value={description}
               onChangeText={setDescription}
               placeholder="What's happening? Who's affected?"
+              placeholderTextColor={theme.textSecondary}
               multiline
               numberOfLines={4}
-              style={styles.textArea}
+              style={[styles.textArea, { borderColor: theme.border, color: theme.text }]}
             />
-          </ThemedView>
+          </Panel>
 
-          <ThemedView type="backgroundElement" style={styles.card}>
+          <Panel>
             <ThemedText type="smallBold">Photo (optional)</ThemedText>
-            <Pressable style={styles.secondaryButton} onPress={pickPhoto}>
-              <ThemedText>{photoUri ? "Change photo" : "Attach a photo"}</ThemedText>
+            <Pressable
+              style={[styles.secondaryButton, { borderColor: theme.border }]}
+              onPress={pickPhoto}
+              accessibilityRole="button"
+            >
+              <ThemedText type="small">{photoUri ? "Change photo" : "Attach a photo"}</ThemedText>
             </Pressable>
-            {photoUri && <Image source={{ uri: photoUri }} style={styles.preview} />}
-          </ThemedView>
+            {photoUri && (
+              <Image
+                source={{ uri: photoUri }}
+                style={[styles.preview, { borderColor: theme.border }]}
+              />
+            )}
+          </Panel>
 
-          <Pressable style={styles.submitButton} onPress={submit} disabled={submitting}>
+          <Pressable
+            style={[
+              styles.submitButton,
+              { backgroundColor: theme.accent },
+              submitting && styles.disabled,
+            ]}
+            onPress={submit}
+            disabled={submitting}
+            accessibilityRole="button"
+          >
             {submitting ? (
-              <ActivityIndicator color={Brand.accentContrast} />
+              <ActivityIndicator color={theme.accentContrast} />
             ) : (
-              <ThemedText style={styles.submitText}>Submit Report</ThemedText>
+              <ThemedText style={[styles.submitText, { color: theme.accentContrast }]}>
+                Submit Report
+              </ThemedText>
             )}
           </Pressable>
         </ScrollView>
@@ -196,47 +268,35 @@ export default function ReportScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   safeArea: { flex: 1 },
-  scroll: { padding: Spacing.three, gap: Spacing.three },
-  title: { fontSize: 28, lineHeight: 34 },
-  card: { borderRadius: Spacing.three, padding: Spacing.three, gap: Spacing.two },
-  pendingBanner: {
-    borderRadius: Spacing.three,
-    padding: Spacing.three,
-    gap: Spacing.one,
-    borderWidth: 1,
-    borderColor: "#E08A00",
-  },
+  scroll: { padding: Spacing.three, gap: Spacing.three, paddingBottom: Spacing.five },
   secondaryButton: {
     borderWidth: 1,
-    borderColor: "#8888",
-    borderRadius: Spacing.two,
+    borderRadius: 2,
     paddingVertical: Spacing.two,
     alignItems: "center",
   },
   textArea: {
     borderWidth: 1,
-    borderColor: "#8888",
-    borderRadius: Spacing.two,
+    borderRadius: 2,
     padding: Spacing.two,
     minHeight: 90,
     textAlignVertical: "top",
   },
-  severityRow: { flexDirection: "row", gap: Spacing.two, backgroundColor: "transparent" },
+  severityRow: { flexDirection: "row", gap: Spacing.two },
   severityChip: {
     borderWidth: 1,
-    borderColor: "#8888",
-    borderRadius: Spacing.five,
+    borderRadius: 2,
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.one,
   },
-  severityChipSelected: { backgroundColor: Brand.accent, borderColor: Brand.accent },
-  preview: { width: "100%", height: 160, borderRadius: Spacing.two, marginTop: Spacing.two },
+  severityTextSelected: { color: "#fff" },
+  preview: { width: "100%", height: 160, borderWidth: 1, borderRadius: 2, marginTop: Spacing.two },
   submitButton: {
-    backgroundColor: Brand.accent,
-    borderRadius: Spacing.two,
+    borderRadius: 2,
     paddingVertical: Spacing.three,
     alignItems: "center",
     marginTop: Spacing.two,
   },
-  submitText: { color: Brand.accentContrast, fontWeight: "700", fontSize: 16 },
+  submitText: { fontWeight: "700", fontSize: 16 },
+  disabled: { opacity: 0.5 },
 });

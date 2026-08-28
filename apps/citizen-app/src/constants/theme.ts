@@ -7,35 +7,50 @@ import '@/global.css';
 
 import { Platform } from 'react-native';
 
-// These mirror the web app's design tokens (apps/web/src/app/globals.css) so the
-// citizen interface looks the same whether it's opened in a browser or the app.
+/**
+ * Mirrors the web tokens in apps/web/src/app/globals.css so the citizen
+ * interface is one product whether it is opened in a browser or the app.
+ *
+ * Severity colours are per-theme rather than shared constants. The previous
+ * `Brand` object held one set of values for both themes, which cannot work: a
+ * red legible on paper is not the red legible on ink. Anything reading a status
+ * colour goes through the themed lookup.
+ *
+ * constants/theme.test.ts asserts these against the web values, because the
+ * only thing keeping the two clients aligned is that both lists are written
+ * down.
+ */
 export const Colors = {
   light: {
-    text: '#14181c',
-    background: '#f4f5f2',
-    backgroundElement: '#ffffff',
-    backgroundSelected: '#eef0ec',
-    textSecondary: '#6b7280',
+    text: '#1b1a16',
+    textSecondary: '#6d6759',
+    background: '#f2efe6',
+    backgroundElement: '#fbfaf5',
+    backgroundSelected: '#e7e2d4',
+    border: '#cdc6b5',
+    accent: '#b3322a',
+    accentContrast: '#fbfaf5',
+    critical: '#b3322a',
+    high: '#ad5f11',
+    medium: '#866c13',
+    available: '#2c6742',
+    assigned: '#1d537c',
   },
   dark: {
-    text: '#eef2f6',
-    background: '#0b0f14',
-    backgroundElement: '#12181f',
-    backgroundSelected: '#0e141a',
-    textSecondary: '#8b96a3',
+    text: '#f2efe6',
+    textSecondary: '#98917f',
+    background: '#14120f',
+    backgroundElement: '#1c1a16',
+    backgroundSelected: '#0f0e0c',
+    border: '#35312a',
+    accent: '#e0574a',
+    accentContrast: '#14120f',
+    critical: '#e0574a',
+    high: '#d4872f',
+    medium: '#c4a844',
+    available: '#56ad78',
+    assigned: '#57a0d4',
   },
-} as const;
-
-/** Shared across both themes — status and accent colours from the web tokens. */
-export const Brand = {
-  accent: '#2dd4bf',
-  accentContrast: '#06201c',
-  critical: '#ff6b5e',
-  high: '#ff9d5c',
-  medium: '#eab84d',
-  available: '#4ade80',
-  assigned: '#38bdf8',
-  border: '#232c35',
 } as const;
 
 export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;

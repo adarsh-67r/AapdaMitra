@@ -1,10 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, FlatList, RefreshControl, StyleSheet } from "react-native";
+import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { Panel } from "@/components/panel";
+import { ScreenHeader } from "@/components/screen-header";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { Brand, Spacing } from "@/constants/theme";
+import { Spacing } from "@/constants/theme";
+import { useTheme } from "@/hooks/use-theme";
 import { apiFetchJson } from "@/lib/api-client";
 import { haversineKm } from "@/lib/geo";
 import { tryGetPosition } from "@/lib/use-location";
@@ -21,13 +24,6 @@ interface Alert {
   lng: number;
   effective_end: string | null;
 }
-
-const COLOR_HEX: Record<Alert["severity_color"], string> = {
-  green: "#2E9E4A",
-  yellow: "#D8B400",
-  orange: "#E08A00",
-  red: "#D64545",
-};
 
 // SACHET publishes each alert in a single language, and roughly half are not
 // English — label them so the text isn't unexplained.
@@ -47,9 +43,25 @@ const LANGUAGE_LABEL: Record<string, string> = {
 const NEARBY_RADIUS_KM = 150;
 
 export default function AlertsScreen() {
+  const theme = useTheme();
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+
+  // Severity colour from the shared palette, so an alert reads the same on both
+  // clients and in both themes.
+  const SEVERITY_COLOR: Record<Alert["severity_color"], string> = {
+    green: theme.available,
+    yellow: theme.medium,
+    orange: theme.high,
+    red: theme.critical,
+  };
+  const SEVERITY_WORD: Record<Alert["severity_color"], string> = {
+    green: "advisory",
+    yellow: "watch",
+    orange: "warning",
+    red: "severe",
+  };
 
   const load = useCallback(async () => {
     try {
@@ -78,12 +90,10 @@ export default function AlertsScreen() {
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
-        <ThemedText type="title" style={styles.title}>
-          Live Alerts
-        </ThemedText>
-        <ThemedText type="small" themeColor="textSecondary" style={styles.subtitle}>
-          Within {NEARBY_RADIUS_KM}km of your location
-        </ThemedText>
+        <ScreenHeader
+          title="Live Alerts"
+          subtitle={`Official warnings within ${NEARBY_RADIUS_KM} km of you`}
+        />
 
         {loading ? (
           <ActivityIndicator style={{ marginTop: Spacing.four }} />
@@ -106,31 +116,44 @@ export default function AlertsScreen() {
               />
             }
             renderItem={({ item }) => (
-              <ThemedView type="backgroundElement" style={styles.card}>
-                <ThemedView style={styles.cardHeader}>
-                  <ThemedView
-                    style={[styles.dot, { backgroundColor: COLOR_HEX[item.severity_color] }]}
-                  />
-                  <ThemedText type="smallBold">{item.disaster_type}</ThemedText>
-                </ThemedView>
+              <Panel>
+                <View style={styles.cardHeader}>
+                  <View style={styles.titleRow}>
+                    <View
+                      style={[styles.dot, { backgroundColor: SEVERITY_COLOR[item.severity_color] }]}
+                    />
+                    <ThemedText type="smallBold">{item.disaster_type}</ThemedText>
+                  </View>
+                  {/* Colour is never the only signal. */}
+                  <ThemedText type="small" style={{ color: SEVERITY_COLOR[item.severity_color] }}>
+                    {SEVERITY_WORD[item.severity_color].toUpperCase()}
+                  </ThemedText>
+                </View>
+
                 {(item.issuing_agency || (item.language && item.language !== "en")) && (
-                  <ThemedView style={styles.badgeRow}>
+                  <View style={styles.badgeRow}>
                     {item.language && item.language !== "en" && (
-                      <ThemedView style={[styles.badge, styles.langBadge]}>
-                        <ThemedText type="small" style={styles.langBadgeText}>
+                      <View style={[styles.badge, { borderColor: theme.accent }]}>
+                        <ThemedText type="small" style={{ color: theme.accent }}>
                           {LANGUAGE_LABEL[item.language] ?? item.language.toUpperCase()}
                         </ThemedText>
-                      </ThemedView>
+                      </View>
                     )}
                     {item.issuing_agency && (
-                      <ThemedView type="backgroundSelected" style={styles.badge}>
+                      <View
+                        style={[
+                          styles.badge,
+                          { borderColor: theme.border, backgroundColor: theme.backgroundSelected },
+                        ]}
+                      >
                         <ThemedText type="small" themeColor="textSecondary">
                           {item.issuing_agency}
                         </ThemedText>
-                      </ThemedView>
+                      </View>
                     )}
-                  </ThemedView>
+                  </View>
                 )}
+
                 {item.area_description && (
                   <ThemedText type="small" themeColor="textSecondary">
                     {item.area_description}
@@ -139,7 +162,7 @@ export default function AlertsScreen() {
                 {item.warning_message && (
                   <ThemedText type="small">{item.warning_message}</ThemedText>
                 )}
-              </ThemedView>
+              </Panel>
             )}
           />
         )}
@@ -150,26 +173,22 @@ export default function AlertsScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  safeArea: { flex: 1, paddingHorizontal: Spacing.three },
-  title: { fontSize: 28, lineHeight: 34, marginTop: Spacing.two },
-  subtitle: { marginBottom: Spacing.three },
+  safeArea: { flex: 1 },
   empty: { textAlign: "center", marginTop: Spacing.five },
-  list: { gap: Spacing.two, paddingBottom: Spacing.four },
-  card: { borderRadius: Spacing.three, padding: Spacing.three, gap: Spacing.one },
-  cardHeader: { flexDirection: "row", alignItems: "center", gap: Spacing.two, backgroundColor: "transparent" },
-  dot: { width: 10, height: 10, borderRadius: 5 },
-  badgeRow: {
+  list: { gap: Spacing.two, padding: Spacing.three, paddingBottom: Spacing.five },
+  cardHeader: {
     flexDirection: "row",
-    flexWrap: "wrap",
-    gap: Spacing.one,
-    backgroundColor: "transparent",
-    marginTop: Spacing.half,
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: Spacing.two,
   },
+  titleRow: { flexDirection: "row", alignItems: "center", gap: Spacing.two, flexShrink: 1 },
+  dot: { width: 8, height: 8, borderRadius: 4 },
+  badgeRow: { flexDirection: "row", flexWrap: "wrap", gap: Spacing.one },
   badge: {
     paddingHorizontal: Spacing.two,
-    paddingVertical: Spacing.half,
-    borderRadius: Spacing.five,
+    paddingVertical: 2,
+    borderRadius: 2,
+    borderWidth: 1,
   },
-  langBadge: { backgroundColor: `${Brand.accent}26` },
-  langBadgeText: { color: Brand.accent },
 });

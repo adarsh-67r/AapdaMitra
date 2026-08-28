@@ -4,13 +4,16 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { Panel } from "@/components/panel";
 import { Spacing } from "@/constants/theme";
+import { useTheme } from "@/hooks/use-theme";
 import { DEMO_CITIZEN } from "@/lib/demo-accounts";
 import { useAuth } from "@/lib/use-auth";
 
 type Mode = "login" | "signup";
 
 export function LoginScreen() {
+  const theme = useTheme();
   const { login, signup } = useAuth();
   const [mode, setMode] = useState<Mode>("login");
   const [email, setEmail] = useState("");
@@ -65,11 +68,19 @@ export function LoginScreen() {
           Report incidents. Find shelters. Stay informed.
         </ThemedText>
 
-        <ThemedView type="backgroundElement" style={styles.card}>
+        <Panel style={styles.card}>
           <ThemedView style={styles.modeRow}>
             {(["login", "signup"] as Mode[]).map((m) => (
-              <Pressable key={m} onPress={() => setMode(m)} style={[styles.modeButton, mode === m && styles.modeButtonActive]}>
-                <ThemedText style={mode === m ? styles.modeTextActive : undefined}>{m}</ThemedText>
+              <Pressable
+                key={m}
+                onPress={() => setMode(m)}
+                accessibilityRole="button"
+                accessibilityState={{ selected: mode === m }}
+                style={[styles.modeButton, mode === m && { backgroundColor: theme.accent }]}
+              >
+                <ThemedText style={mode === m ? { color: theme.accentContrast } : undefined}>
+                  {m}
+                </ThemedText>
               </Pressable>
             ))}
           </ThemedView>
@@ -79,22 +90,35 @@ export function LoginScreen() {
             placeholder="you@example.com"
             autoCapitalize="none"
             keyboardType="email-address"
-            style={styles.input}
+            placeholderTextColor={theme.textSecondary}
+            style={[styles.input, { borderColor: theme.border, color: theme.text }]}
           />
           <TextInput
             value={password}
             onChangeText={setPassword}
             placeholder="Password"
             secureTextEntry
-            style={styles.input}
+            placeholderTextColor={theme.textSecondary}
+            style={[styles.input, { borderColor: theme.border, color: theme.text }]}
           />
-          <Pressable style={styles.button} onPress={submit} disabled={loading}>
-            {loading ? <ActivityIndicator /> : <ThemedText style={styles.buttonText}>{mode === "signup" ? "Create Account" : "Sign In"}</ThemedText>}
+          <Pressable
+            style={[styles.button, { backgroundColor: theme.accent }]}
+            onPress={submit}
+            disabled={loading}
+            accessibilityRole="button"
+          >
+            {loading ? (
+              <ActivityIndicator color={theme.accentContrast} />
+            ) : (
+              <ThemedText style={[styles.buttonText, { color: theme.accentContrast }]}>
+                {mode === "signup" ? "Create Account" : "Sign In"}
+              </ThemedText>
+            )}
           </Pressable>
-        </ThemedView>
+        </Panel>
 
         <Pressable
-          style={styles.demoButton}
+          style={[styles.demoButton, { borderColor: theme.border }]}
           onPress={enterDemo}
           disabled={loading}
           accessibilityRole="button"
@@ -103,7 +127,7 @@ export function LoginScreen() {
         </Pressable>
 
         {error && (
-          <ThemedText type="small" style={styles.error}>
+          <ThemedText type="small" style={[styles.error, { color: theme.critical }]}>
             {error}
           </ThemedText>
         )}
@@ -117,28 +141,24 @@ const styles = StyleSheet.create({
   safeArea: { flex: 1, paddingHorizontal: Spacing.four, justifyContent: "center", gap: Spacing.three },
   title: { textAlign: "center" },
   subtitle: { textAlign: "center", fontSize: 16, lineHeight: 22 },
-  card: { borderRadius: Spacing.four, padding: Spacing.four, gap: Spacing.three },
+  card: { gap: Spacing.three, padding: Spacing.four },
   modeRow: { flexDirection: "row", gap: Spacing.one, backgroundColor: "transparent" },
-  modeButton: { flex: 1, paddingVertical: Spacing.two, alignItems: "center", borderRadius: Spacing.two },
-  modeButtonActive: { backgroundColor: "#208AEF" },
-  modeTextActive: { color: "#fff" },
+  modeButton: { flex: 1, paddingVertical: Spacing.two, alignItems: "center", borderRadius: 2 },
   input: {
     borderWidth: 1,
-    borderColor: "#8888",
-    borderRadius: Spacing.two,
+    borderRadius: 2,
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two,
     fontSize: 16,
   },
   demoButton: {
     borderWidth: 1,
-    borderColor: "#8888",
-    borderRadius: Spacing.two,
+    borderRadius: 2,
     paddingVertical: Spacing.three,
     alignItems: "center",
   },
   demoText: { fontWeight: "600" },
-  button: { backgroundColor: "#208AEF", borderRadius: Spacing.two, paddingVertical: Spacing.three, alignItems: "center" },
-  buttonText: { color: "#fff", fontWeight: "600" },
-  error: { color: "#D64545", textAlign: "center" },
+  button: { borderRadius: 2, paddingVertical: Spacing.three, alignItems: "center" },
+  buttonText: { fontWeight: "600" },
+  error: { textAlign: "center" },
 });

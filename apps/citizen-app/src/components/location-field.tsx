@@ -3,7 +3,8 @@ import { Modal, Pressable, ScrollView, StyleSheet, TextInput, View } from "react
 
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { Brand, Spacing } from "@/constants/theme";
+import { Spacing } from "@/constants/theme";
+import { useTheme } from "@/hooks/use-theme";
 import {
   CITY_COUNT,
   DISTRICT_COUNT,
@@ -52,6 +53,7 @@ export function LocationField({
   onRetry: () => void;
   onManual: (c: Coords, label: string) => void;
 }) {
+  const theme = useTheme();
   const [picking, setPicking] = useState(false);
 
   const choose = (p: Place) => {
@@ -77,19 +79,23 @@ export function LocationField({
       )}
 
       {failed && (
-        <ThemedText type="small" style={styles.problem}>
+        <ThemedText type="small" style={{ color: theme.high }}>
           {EXPLANATION[status]}
         </ThemedText>
       )}
 
       <View style={styles.actions}>
-        <Pressable style={styles.action} onPress={onRetry} accessibilityRole="button">
+        <Pressable
+          style={[styles.action, { borderColor: theme.border }]}
+          onPress={onRetry}
+          accessibilityRole="button"
+        >
           <ThemedText type="small">
             {status === "ready" ? "Update location" : "Use my location"}
           </ThemedText>
         </Pressable>
         <Pressable
-          style={styles.action}
+          style={[styles.action, { borderColor: theme.border }]}
           onPress={() => setPicking(true)}
           accessibilityRole="button"
         >
@@ -123,6 +129,7 @@ function PlacePicker({
   onClose: () => void;
   onPick: (p: Place) => void;
 }) {
+  const theme = useTheme();
   const [query, setQuery] = useState("");
   const [state, setState] = useState<string | null>(null);
   const [district, setDistrict] = useState<string | null>(null);
@@ -172,7 +179,8 @@ function PlacePicker({
           value={query}
           onChangeText={setQuery}
           placeholder={`Search ${CITY_COUNT} towns, ${DISTRICT_COUNT} districts`}
-          style={styles.search}
+          placeholderTextColor={theme.textSecondary}
+          style={[styles.search, { borderColor: theme.border, color: theme.text }]}
         />
 
         {query.trim().length > 0 ? (
@@ -185,7 +193,7 @@ function PlacePicker({
               {results.map((p) => (
                 <Pressable
                   key={`${p.kind}-${p.state}-${p.district}-${p.name}`}
-                  style={styles.row}
+                  style={[styles.row, { borderBottomColor: theme.border }]}
                   onPress={() => take(p)}
                   accessibilityRole="button"
                 >
@@ -214,7 +222,7 @@ function PlacePicker({
                 STATES.map((st) => (
                   <Pressable
                     key={st}
-                    style={styles.row}
+                    style={[styles.row, { borderBottomColor: theme.border }]}
                     onPress={() => setState(st)}
                     accessibilityRole="button"
                   >
@@ -238,7 +246,7 @@ function PlacePicker({
                   districts.map((d) => (
                     <Pressable
                       key={d.district}
-                      style={styles.row}
+                      style={[styles.row, { borderBottomColor: theme.border }]}
                       onPress={() => setDistrict(d.district)}
                       accessibilityRole="button"
                     >
@@ -254,7 +262,7 @@ function PlacePicker({
                 {allTowns.length === 0
                   ? districtPlace && (
                       <Pressable
-                        style={styles.row}
+                        style={[styles.row, { borderBottomColor: theme.border }]}
                         onPress={() => take(districtPlace)}
                         accessibilityRole="button"
                       >
@@ -271,13 +279,14 @@ function PlacePicker({
                           value={townQuery}
                           onChangeText={setTownQuery}
                           placeholder={`Filter ${allTowns.length} towns`}
-                          style={styles.search}
+                          placeholderTextColor={theme.textSecondary}
+                          style={[styles.search, { borderColor: theme.border, color: theme.text }]}
                         />
                       )}
                       {towns.map((t) => (
                         <Pressable
                           key={t.name}
-                          style={styles.row}
+                          style={[styles.row, { borderBottomColor: theme.border }]}
                           onPress={() => take(t)}
                           accessibilityRole="button"
                         >
@@ -291,7 +300,7 @@ function PlacePicker({
                       )}
                       {districtPlace && (
                         <Pressable
-                          style={styles.row}
+                          style={[styles.row, { borderBottomColor: theme.border }]}
                           onPress={() => take(districtPlace)}
                           accessibilityRole="button"
                         >
@@ -336,12 +345,10 @@ function Chosen({ value, onChange }: { value: string; onChange: () => void }) {
 
 const styles = StyleSheet.create({
   wrap: { gap: Spacing.two, backgroundColor: "transparent" },
-  problem: { color: Brand.high },
   actions: { flexDirection: "row", gap: Spacing.two, backgroundColor: "transparent" },
   action: {
     borderWidth: 1,
-    borderColor: "#8888",
-    borderRadius: Spacing.one,
+    borderRadius: 2,
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two,
   },
@@ -354,14 +361,13 @@ const styles = StyleSheet.create({
   },
   search: {
     borderWidth: 1,
-    borderColor: "#8888",
-    borderRadius: Spacing.two,
+    borderRadius: 2,
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two,
     fontSize: 16,
   },
   hint: { paddingVertical: Spacing.two },
-  row: { paddingVertical: Spacing.three, borderBottomWidth: 1, borderBottomColor: "#8882" },
+  row: { paddingVertical: Spacing.three, borderBottomWidth: 1 },
   step: { paddingTop: Spacing.three, gap: Spacing.one },
   stepLabel: { letterSpacing: 1.4 },
   chosen: {

@@ -10,6 +10,10 @@
 module.exports = {
   preset: "jest-expo",
   moduleNameMapper: {
+    // Before the alias, not after: jest applies these in order and the first
+    // match wins, so "^@/(.*)$" would otherwise rewrite "@/global.css" into a
+    // real stylesheet path that jest has no loader for.
+    "\.css$": "<rootDir>/jest/style-mock.js",
     "^@/(.*)$": "<rootDir>/src/$1",
   },
 };
