@@ -7,7 +7,18 @@
 import L from "leaflet";
 import { readMarkerPalette } from "@/lib/severity-colors";
 import "leaflet.heat";
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import MapFacilityControl from "@/components/MapFacilityControl";
+import {
+  FACILITY_MIN_ZOOM,
+  facilitiesInView,
+  loadFacilities,
+  type Facility,
+  type FacilityKind,
+} from "@/lib/facilities";
+import { drawFacilities } from "@/lib/facility-markers";
+import { BASEMAPS, MAX_TILE_ZOOM } from "@/lib/map-basemap";
+import { useThemeName } from "@/lib/useTheme";
 import type { Alert, Report, Resource } from "@/lib/useDashboardData";
 
 delete (L.Icon.Default.prototype as unknown as { _getIconUrl?: unknown })._getIconUrl;
@@ -89,6 +100,13 @@ export default function DashboardMapClient({
   const mapRef = useRef<L.Map | null>(null);
   const layerGroupRef = useRef<L.LayerGroup | null>(null);
   const heatLayerRef = useRef<L.Layer | null>(null);
+  const tileLayerRef = useRef<L.TileLayer | null>(null);
+  const facilityGroupRef = useRef<L.LayerGroup | null>(null);
+
+  const theme = useThemeName();
+  const [kinds, setKinds] = useState<Set<FacilityKind>>(new Set());
+  const [facilities, setFacilities] = useState<Facility[] | null>(null);
+  const [note, setNote] = useState<string | null>(null);
 
   // 1. Initialize the map once.
   useEffect(() => {
@@ -98,10 +116,8 @@ export default function DashboardMapClient({
       center: DEFAULT_CENTER,
       zoom: DEFAULT_ZOOM,
     });
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: "&copy; OpenStreetMap contributors",
-      maxZoom: 19,
-    }).addTo(map);
+    // The tile layer is added by the theme effect below rather than here, so
+    // there is one place that decides which basemap is on the map.
 
     // Between overlayPane (400, where the heatmap canvas lands) and shadowPane
     // (500), so vectors sit above the heat without disturbing marker order.
@@ -110,6 +126,9 @@ export default function DashboardMapClient({
     if (vectorPane) vectorPane.style.zIndex = "450";
 
     layerGroupRef.current = L.layerGroup().addTo(map);
+    // Its own group so redrawing incidents on every poll does not wipe the
+    // facilities, and panning does not redraw the incidents.
+    facilityGroupRef.current = L.layerGroup().addTo(map);
     mapRef.current = map;
 
     const resizeObserver = new ResizeObserver(() => map.invalidateSize());
@@ -120,8 +139,32 @@ export default function DashboardMapClient({
       map.remove();
       mapRef.current = null;
       layerGroupRef.current = null;
+      facilityGroupRef.current = null;
+      tileLayerRef.current = null;
     };
   }, []);
+
+  // 1b. Swap the basemap when the theme changes.
+  //
+  // Leaflet holds the tiles imperatively, so nothing about a React re-render
+  // reaches them: without this the console goes dark around a map that stays in
+  // full daylight.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    const basemap = BASEMAPS[theme];
+    const next = L.tileLayer(basemap.url, {
+      attribution: basemap.attribution,
+      maxZoom: MAX_TILE_ZOOM,
+    });
+    // Added before the old one is removed: dropping the only tile layer first
+    // flashes the empty background through the whole map for a frame.
+    next.addTo(map);
+    const previous = tileLayerRef.current;
+    tileLayerRef.current = next;
+    if (previous) map.removeLayer(previous);
+  }, [theme]);
 
   // 2. Redraw markers/heatmap whenever data changes.
   useEffect(() => {
@@ -234,6 +277,86 @@ export default function DashboardMapClient({
     }
   }, [alerts, resources, reports, selectedReportId, onSelectReport]);
 
+  // 2b. Fetch the facility file the first time a layer is switched on.
+  useEffect(() => {
+    if (kinds.size === 0 || facilities) return;
+    let cancelled = false;
+    setNote("Loading facilities…");
+    loadFacilities()
+      .then((list) => {
+        if (cancelled) return;
+        setFacilities(list);
+        setNote(null);
+      })
+      .catch((e: unknown) => {
+        if (cancelled) return;
+        // The layer is context, not the job. Say why it is missing and leave
+        // the incident map working.
+        setNote(e instanceof Error ? e.message : "Facility data unavailable.");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [kinds, facilities]);
+
+  const redrawFacilities = useCallback(() => {
+    const map = mapRef.current;
+    const group = facilityGroupRef.current;
+    if (!map || !group) return;
+
+    if (kinds.size === 0 || !facilities) {
+      group.clearLayers();
+      return;
+    }
+
+    if (map.getZoom() < FACILITY_MIN_ZOOM) {
+      group.clearLayers();
+      setNote("Zoom in to show facilities.");
+      return;
+    }
+
+    const b = map.getBounds();
+    const { shown, total } = facilitiesInView(
+      facilities,
+      { south: b.getSouth(), west: b.getWest(), north: b.getNorth(), east: b.getEast() },
+      kinds
+    );
+
+    // Read fresh rather than captured: this also runs on pan, and the theme may
+    // have changed since the last draw.
+    const muted =
+      getComputedStyle(document.documentElement).getPropertyValue("--text-muted").trim() ||
+      "#6d6759";
+    drawFacilities(group, shown, muted);
+
+    setNote(
+      total === 0
+        ? "None of the selected kinds are in this view."
+        : shown.length < total
+          ? `Showing ${shown.length} of ${total} in view — zoom in for the rest.`
+          : `${total} in view.`
+    );
+  }, [facilities, kinds]);
+
+  useEffect(() => {
+    redrawFacilities();
+    const map = mapRef.current;
+    if (!map) return;
+    map.on("moveend", redrawFacilities);
+    return () => {
+      map.off("moveend", redrawFacilities);
+    };
+  }, [redrawFacilities]);
+
+  const toggleKind = useCallback((kind: FacilityKind) => {
+    setKinds((previous) => {
+      const next = new Set(previous);
+      if (next.has(kind)) next.delete(kind);
+      else next.add(kind);
+      return next;
+    });
+  }, []);
+
   // 3. Bring the selected report into view, with its assigned resource.
   //
   // The console opens at zoom 5 to show the whole country, where a dispatch to a
@@ -270,5 +393,10 @@ export default function DashboardMapClient({
     }
   }, [selectedReportId, reports, resources]);
 
-  return <div ref={containerRef} style={{ height: "100%", width: "100%" }} />;
+  return (
+    <div className="relative h-full w-full">
+      <div ref={containerRef} style={{ height: "100%", width: "100%" }} />
+      <MapFacilityControl kinds={kinds} onToggle={toggleKind} note={note} />
+    </div>
+  );
 }

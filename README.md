@@ -35,6 +35,7 @@ not the absence of information — it is the time spent assembling it into a dec
 | **Groups developing incidents** | Reports within **2 km and 30 minutes** of each other are clustered into one incident, so five calls about one collapsed bridge read as one event, not five. |
 | **Dispatches the nearest unit** | A scored allocator picks the resource to send and reports how far it has to travel, guarded so two operators cannot double-dispatch the same unit. |
 | **Broadcasts advisories** | Authorities push an advisory that reaches every connected citizen client. |
+| **Shows what is already there** | An optional layer draws **58,232 real hospitals, police stations and fire stations** from OpenStreetMap, so a dispatcher can see the facilities near an incident that this system does not own. |
 | **Public map, no login** | Anyone can open `/map` and see active alerts and resources across India. |
 
 Not built, and labelled as such everywhere it appears: **SMS/IVR fallback** for no-connectivity zones.
@@ -68,6 +69,15 @@ answer: Kachchh is larger than several states, and naming it puts a report tens 
 person who filed it. Naming Bhuj does not.
 A hand-placed report is stored with `location_source: manual` and the place name, so nobody downstream
 mistakes a district centroid for an address.
+
+**The facility layer is filtered to India by polygon, not by box.** Hospitals cannot be pulled from
+Overpass for the whole country in one request — it times out — so they come back in six bounding-box
+tiles, and a box drawn around India contains parts of six other countries. The first build had a
+hospital in Xinjiang at the top of the file. Every facility is now tested for containment against the
+same GADM district polygons the rest of the system uses, which drops 7,591 foreign points. The layer
+is served as a static file and fetched only when it is switched on, so its 2.6 MB never enters the
+bundle, and it draws at most 400 markers in view — the map says how many it is not showing rather
+than quietly hiding them.
 
 **The homepage map is real data.** India is drawn from **589 district centroids** — the same coordinates
 the ingestion uses to place district warnings — not a traced outline, and the per-belt district counts

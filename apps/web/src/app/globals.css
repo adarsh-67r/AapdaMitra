@@ -218,6 +218,70 @@ html {
   background: var(--panel-alt);
 }
 
+/* Leaflet's own chrome — popups, tooltips, zoom buttons, attribution — ships
+   white and stays white. Against the dark basemap those are the brightest
+   things on the screen, and against the paper one they are the only surfaces
+   not made of paper. All of it is put on the same tokens as the rest of the
+   interface, so it follows the theme without a second set of colours. */
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip,
+.leaflet-tooltip {
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  box-shadow: 0 2px 10px rgb(0 0 0 / 0.18);
+}
+.leaflet-popup-content-wrapper {
+  font-family: inherit;
+}
+.leaflet-popup-tip {
+  border-top: none;
+  border-left: none;
+}
+/* The tooltip arrow is a CSS triangle drawn from border colours, so each
+   direction needs the panel colour on its own side. */
+.leaflet-tooltip-top::before {
+  border-top-color: var(--border);
+}
+.leaflet-tooltip-bottom::before {
+  border-bottom-color: var(--border);
+}
+.leaflet-tooltip-left::before {
+  border-left-color: var(--border);
+}
+.leaflet-tooltip-right::before {
+  border-right-color: var(--border);
+}
+.leaflet-container a.leaflet-popup-close-button {
+  color: var(--text-muted);
+}
+.leaflet-container a.leaflet-popup-close-button:hover {
+  color: var(--text);
+}
+.leaflet-bar a,
+.leaflet-bar a:hover {
+  background: var(--panel);
+  color: var(--text);
+  border-bottom-color: var(--border);
+}
+.leaflet-bar a:hover {
+  background: var(--panel-alt);
+}
+.leaflet-bar {
+  border: 1px solid var(--border);
+  box-shadow: none;
+}
+.leaflet-control-attribution {
+  background: color-mix(in srgb, var(--panel) 88%, transparent);
+  color: var(--text-muted);
+  border-top: 1px solid var(--border);
+  border-left: 1px solid var(--border);
+}
+.leaflet-control-attribution a {
+  color: var(--text);
+}
+
 /* An active dispatch draws as a marching-ants line from the assigned resource to
    the report, so movement (not just a connection) is visible on the map. */
 .dispatch-line {

@@ -31,6 +31,12 @@ reason.
   Scroll-driven sections including an India hazard map drawn from 589 real district centroids across
   five hazard belts, with per-belt district counts computed from that data.
 - `/map` — public live map of India, no login.
+- **Facility layer** — 58,232 hospitals, police stations and fire stations from OpenStreetMap,
+  filtered to India by polygon containment, on both the console and public maps. Off by default,
+  fetched on demand, drawn from zoom 11 with an explicit cap and count.
+- **Dark map theme** — the basemap follows the interface theme (OSM in light, CARTO dark in dark),
+  and Leaflet's popups, tooltips, zoom controls and attribution are on the same tokens as the rest
+  of the UI instead of shipping white.
 - **Authority console** — map-first, with the reports queue pinned beside the map on wide screens,
   an inspector for the selected report, live density heatmap, resource management and broadcast.
   Selecting a report frames it together with the unit assigned to it.
@@ -92,8 +98,9 @@ Kept here because each was a real defect, not a polish item:
 
 No usage, adoption or traction figures appear anywhere in the product, because none exist. The hazard
 figures on the homepage are published national exposure estimates from **NDMA** and **BMTPC**, shown with
-their source. District geometry is **GADM**. The town and city index is **GeoNames** (CC BY 4.0). Alerts
-are live from **SACHET**.
+their source. District geometry is **GADM**. The town and city index is **GeoNames** (CC BY 4.0). The
+facility layer is **OpenStreetMap** (ODbL), and dark basemap tiles are **CARTO**. Alerts are live from
+**SACHET**.
 
 ## Stack
 

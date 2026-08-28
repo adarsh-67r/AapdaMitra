@@ -1,6 +1,6 @@
 "use client";
 
-import { useReducer } from "react";
+import { useEffect, useReducer, useState } from "react";
 
 export type Theme = "dark" | "light";
 
@@ -26,4 +26,25 @@ export function useTheme() {
   };
 
   return { theme, toggle };
+}
+
+/**
+ * The current theme, re-read whenever anything changes it.
+ *
+ * useTheme only re-renders the component that called toggle, which is enough
+ * for the toggle button itself but not for anything else on the page. A Leaflet
+ * map is a sibling of the toggle and holds imperative state — it has to be told
+ * the theme changed, or it keeps its daylight tiles inside a dark console.
+ */
+export function useThemeName(): Theme {
+  const [theme, setTheme] = useState<Theme>("dark");
+
+  useEffect(() => {
+    setTheme(currentTheme());
+    const observer = new MutationObserver(() => setTheme(currentTheme()));
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+    return () => observer.disconnect();
+  }, []);
+
+  return theme;
 }
