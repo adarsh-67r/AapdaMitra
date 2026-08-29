@@ -7,6 +7,10 @@ import LocationStatus from "@/components/citizen/LocationStatus";
 import { useGeolocation } from "@/lib/use-geolocation";
 import { useMarkerPalette } from "@/lib/severity-colors";
 import ThemeToggle from "@/components/ThemeToggle";
+import LanguagePicker from "@/components/citizen/LanguagePicker";
+import { foreignLanguageLabel, sortAlertsByLanguage } from "@/lib/i18n/alert-language";
+import { LANGUAGES } from "@/lib/i18n/languages";
+import { LanguageProvider, useLanguage } from "@/lib/i18n/use-language";
 import { apiFetch, apiFetchJson } from "@/lib/api-client";
 import { useToast } from "@/components/Toast";
 import { haversineKm } from "@/lib/geo-client";
@@ -68,19 +72,6 @@ interface AlertRow {
   lng: number;
 }
 
-const LANGUAGE_LABEL: Record<string, string> = {
-  en: "English",
-  hi: "हिन्दी",
-  ml: "മലയാളം",
-  te: "తెలుగు",
-  or: "ଓଡ଼ିଆ",
-  ta: "தமிழ்",
-  bn: "বাংলা",
-  mr: "मराठी",
-  gu: "ગુજરાતી",
-  kn: "ಕನ್ನಡ",
-};
-
 interface ResourceRow {
   id: string;
   type: "shelter" | "rescue_team" | "supply_stock";
@@ -101,7 +92,20 @@ interface ReportRow {
 
 const POLL_INTERVAL_MS = 12000;
 
+/**
+ * The provider wraps only this view, not the whole app: the authority console
+ * and the homepage share the same root layout and are deliberately left in
+ * English.
+ */
 export default function CitizenWebView({ onSignOut }: { onSignOut: () => void }) {
+  return (
+    <LanguageProvider>
+      <CitizenWebViewInner onSignOut={onSignOut} />
+    </LanguageProvider>
+  );
+}
+
+function CitizenWebViewInner({ onSignOut }: { onSignOut: () => void }) {
   const toast = useToast();
   const [tab, setTab] = useState<Tab>("dashboard");
   const geo = useGeolocation();
@@ -112,6 +116,7 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
   const [submitting, setSubmitting] = useState(false);
   const [photo, setPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const { t, language } = useLanguage();
 
   function pickPhoto(file: File | null) {
     if (photoPreview) URL.revokeObjectURL(photoPreview);
@@ -151,9 +156,12 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
   }, [loadAll]);
 
   const nearbyAlerts = useMemo(() => {
-    if (!location) return alerts;
-    return alerts.filter((a) => haversineKm(location, a) <= 150);
-  }, [alerts, location]);
+    const near = location ? alerts.filter((a) => haversineKm(location, a) <= 150) : alerts;
+    // What the reader can read comes first. The alerts themselves are left
+    // exactly as the agency published them — SACHET puts out each one in a
+    // single language, so ordering is the useful operation, not translating.
+    return sortAlertsByLanguage(near, language.code);
+  }, [alerts, location, language.code]);
 
   const resourcePins: MapPin[] = useMemo(
     () =>
@@ -171,7 +179,7 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
 
   async function submitReport(overrideSeverity?: Severity, overrideDescription?: string) {
     if (!location) {
-      toast("error", "Location not available yet — allow location access and try again.");
+      toast("error", t("Location not available yet — allow location access and try again."));
       return;
     }
     setSubmitting(true);
@@ -201,7 +209,7 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
       setDescription("");
       setSeverity("medium");
       clearPhoto();
-      toast("success", "Report submitted. Authorities have been notified.");
+      toast("success", t("Report submitted. Authorities have been notified."));
       loadAll();
     } catch (e) {
       toast("error", `Submission failed: ${e instanceof Error ? e.message : "unknown error"}`);
@@ -219,12 +227,17 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
               <path d="M3 12h4l2-7 4 14 2-7h6" />
             </svg>
           </div>
-          <span className="text-base font-bold tracking-tight">AapdaMitra</span>
+          <span className="text-base font-bold tracking-tight">Aapda Mitra</span>
         </div>
         <div className="flex items-center gap-4">
+          {/* Only the citizen surfaces are translated. The authority console
+              and the homepage stay English: the console is read by trained
+              operators, and a mistranslated status word there could confuse a
+              dispatch. */}
+          <LanguagePicker />
           <ThemeToggle />
           <button onClick={onSignOut} className="font-mono text-xs text-text-muted hover:text-text cursor-pointer">
-            Sign out
+            {t("Sign out")}
           </button>
         </div>
       </header>
@@ -269,8 +282,8 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
                 />
                 <m.Icon size={18} className={active ? "text-accent" : undefined} />
                 <span className="text-[0.62rem] leading-none md:text-sm md:font-medium md:leading-normal">
-                  <span className="md:hidden">{m.short}</span>
-                  <span className="hidden md:inline">{m.label}</span>
+                  <span className="md:hidden">{t(m.short)}</span>
+                  <span className="hidden md:inline">{t(m.label)}</span>
                 </span>
                 {badge > 0 && (
                   <span
@@ -289,7 +302,7 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
         <main className="flex-1 min-w-0 overflow-y-auto px-4 md:px-8 py-5 md:py-6 pb-24 md:pb-6">
           <div className="max-w-3xl w-full">
             <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-2 sm:gap-4 mb-5 pb-3 border-b border-border">
-              <h2 className="text-lg font-semibold">{TAB_LABEL[tab]}</h2>
+              <h2 className="text-lg font-semibold">{t(TAB_LABEL[tab])}</h2>
               <LocationStatus
                 coords={geo.coords}
                 status={geo.status}
@@ -318,7 +331,7 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
             <button
               onClick={() => submitReport("critical", "SOS — immediate emergency assistance needed")}
               disabled={submitting || !location}
-              title={location ? undefined : "Set your location first — use the readout above."}
+              title={location ? undefined : t("Set your location first — use the readout above.")}
               className="w-full py-5 rounded-sm text-lg font-bold uppercase tracking-wide disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2.5 transition-transform duration-150 ease-out active:scale-[0.97]"
               style={{ background: "var(--critical)", color: "#fff" }}
             >
@@ -350,7 +363,7 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="What's happening? Who's affected?"
+                placeholder={t("What's happening? Who's affected?")}
                 rows={4}
                 className="bg-panel-alt border border-border rounded px-3 py-2 text-sm outline-none resize-none"
               />
@@ -360,7 +373,7 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={photoPreview}
-                    alt="Attached photo preview"
+                    alt={t("Attached photo preview")}
                     className="w-20 h-20 object-cover rounded-lg border border-border"
                   />
                   <button
@@ -387,10 +400,10 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
               <button
                 onClick={() => submitReport()}
                 disabled={submitting || !location}
-                title={location ? undefined : "Set your location first — use the readout above."}
+                title={location ? undefined : t("Set your location first — use the readout above.")}
                 className="control-primary py-2.5 text-sm font-bold uppercase disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
-                {submitting ? "Submitting…" : "Submit Report"}
+                {submitting ? t("Submitting…") : t("Submit Report")}
               </button>
               {!location && (
                 <p className="text-xs text-text-muted text-center" role="status">
@@ -414,9 +427,14 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
                       <span className="text-sm font-semibold">{a.disaster_type}</span>
                     </div>
                     <div className="flex items-center gap-1.5 shrink-0">
-                      {a.language && a.language !== "en" && (
+                      {/* Labelled against the reader, not against English: a
+                          Hindi reader used to be told which alerts were Hindi.
+                          Named in its own script so it is recognised rather
+                          than read. */}
+                      {foreignLanguageLabel(a, language.code) && (
                         <span className="text-[0.65rem] px-2 py-0.5 bg-accent/15 border border-accent/30 text-accent whitespace-nowrap">
-                          {LANGUAGE_LABEL[a.language] ?? a.language.toUpperCase()}
+                          {LANGUAGES.find((l) => l.code === a.language)?.endonym ??
+                            a.language!.toUpperCase()}
                         </span>
                       )}
                       {a.issuing_agency && (
@@ -467,7 +485,7 @@ export default function CitizenWebView({ onSignOut }: { onSignOut: () => void })
                 href={`tel:${c.number}`}
                 className="flex items-center justify-between bg-panel border border-border rounded-sm p-3.5 hover:border-accent"
               >
-                <span className="text-sm font-medium">{c.name}</span>
+                <span className="text-sm font-medium">{t(c.name)}</span>
                 <span className="font-mono text-base font-bold text-accent">{c.number}</span>
               </a>
             ))}

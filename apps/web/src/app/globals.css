@@ -76,7 +76,15 @@
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: var(--font-sans), system-ui, sans-serif;
+  /* Plex first, then a face for each script the citizen view carries. Every
+     one of these declares its own unicode-range, so the browser takes each
+     character from the first family that actually has a glyph for it: Latin
+     from Plex, Tamil from Noto Tamil, and so on. No per-language switching is
+     needed — a mixed sentence resolves correctly character by character. */
+  font-family:
+    var(--font-sans), var(--font-devanagari), var(--font-bengali), var(--font-gujarati),
+    var(--font-gurmukhi), var(--font-oriya), var(--font-tamil), var(--font-telugu),
+    var(--font-kannada), var(--font-malayalam), var(--font-arabic), system-ui, sans-serif;
 }
 
 /* Browser-owned surfaces. These ship with defaults that belong to no design

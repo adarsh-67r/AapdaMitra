@@ -11,6 +11,7 @@ import {
   searchPlaces,
   type Place,
 } from "@/lib/india-places";
+import { useLanguage } from "@/lib/i18n/use-language";
 import type { Coords, GeoSource, GeoStatus } from "@/lib/use-geolocation";
 import { MapPinIcon } from "@/components/icons";
 
@@ -74,6 +75,7 @@ export default function LocationStatus({
   onRetry: () => void;
   onManual: (c: Coords, label: string) => void;
 }) {
+  const { t } = useLanguage();
   const [picking, setPicking] = useState(false);
 
   const pick = (p: Place) => {
@@ -93,7 +95,7 @@ export default function LocationStatus({
           Locating…
         </p>
         <button onClick={onRetry} className="font-mono text-xs underline text-text-muted hover:text-text cursor-pointer">
-          Use my location
+          {t("Use my location")}
         </button>
         <button
           onClick={() => setPicking((v) => !v)}
@@ -138,17 +140,17 @@ export default function LocationStatus({
 
   return (
     <div className="panel-alt p-3 flex flex-col gap-2 w-full" role="alert">
-      <p className="text-xs text-text leading-relaxed">{what}</p>
-      <p className="text-xs text-text-muted leading-relaxed">{fix}</p>
+      <p className="text-xs text-text leading-relaxed">{t(what)}</p>
+      <p className="text-xs text-text-muted leading-relaxed">{t(fix)}</p>
       <div className="flex flex-wrap items-center gap-2">
         <button onClick={onRetry} className="control font-mono text-xs px-3 py-1.5 cursor-pointer">
-          Try again
+          {t("Try again")}
         </button>
         <button
           onClick={() => setPicking((v) => !v)}
           className="control font-mono text-xs px-3 py-1.5 cursor-pointer"
         >
-          {picking ? "Hide place list" : "Name my place"}
+          {picking ? t("Hide place list") : t("Name my place")}
         </button>
       </div>
       {picking && <PlacePicker onPick={pick} />}
@@ -170,6 +172,7 @@ export default function LocationStatus({
  * showing an empty list.
  */
 function PlacePicker({ onPick }: { onPick: (p: Place) => void }) {
+  const { t } = useLanguage();
   const [query, setQuery] = useState("");
   const [state, setState] = useState("");
   const [district, setDistrict] = useState("");
@@ -193,12 +196,15 @@ function PlacePicker({ onPick }: { onPick: (p: Place) => void }) {
   return (
     <div className="panel p-2.5 flex flex-col gap-2.5 w-full sm:w-80">
       <label className="flex flex-col gap-1">
-        <span className="sr-only">Search for your city or district</span>
+        <span className="sr-only">{t("Search for your city or district")}</span>
         <input
           autoFocus
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder={`Search ${CITY_COUNT} cities, ${DISTRICT_COUNT} districts…`}
+          placeholder={t("Search {cities} cities, {districts} districts…", {
+            cities: CITY_COUNT,
+            districts: DISTRICT_COUNT,
+          })}
           className="bg-panel-alt border border-border px-2.5 py-2 text-sm outline-none w-full"
         />
       </label>
@@ -231,7 +237,7 @@ function PlacePicker({ onPick }: { onPick: (p: Place) => void }) {
         )
       ) : (
         <div className="flex flex-col gap-2">
-          <Step n={1} label="State">
+          <Step n={1} label={t("State")}>
             <select
               value={state}
               onChange={(e) => {
@@ -250,7 +256,7 @@ function PlacePicker({ onPick }: { onPick: (p: Place) => void }) {
           </Step>
 
           {state && (
-            <Step n={2} label="District">
+            <Step n={2} label={t("District")}>
               <select
                 value={district}
                 onChange={(e) => {
@@ -270,7 +276,7 @@ function PlacePicker({ onPick }: { onPick: (p: Place) => void }) {
           )}
 
           {district && (
-            <Step n={3} label="City or town">
+            <Step n={3} label={t("City or town")}>
               {allCities.length > 0 ? (
                 <div className="flex flex-col gap-1.5">
                   {/* A district can hold 130 towns. Scrolling that is slower than
@@ -279,7 +285,7 @@ function PlacePicker({ onPick }: { onPick: (p: Place) => void }) {
                     <input
                       value={cityQuery}
                       onChange={(e) => setCityQuery(e.target.value)}
-                      placeholder={`Filter ${allCities.length} towns…`}
+                      placeholder={t("Filter {n} towns…", { n: allCities.length })}
                       className="bg-panel-alt border border-border px-2.5 py-1.5 text-sm outline-none w-full"
                     />
                   )}

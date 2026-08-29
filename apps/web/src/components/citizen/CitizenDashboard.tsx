@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { useLanguage } from "@/lib/i18n/use-language";
 import { formatKm, NEARBY_RADIUS_KM, summarise } from "@/lib/citizen-summary";
 import type { AlertLike, ReportLike, ResourceLike } from "@/lib/citizen-summary";
 import { labelFor, nearestPlace } from "@/lib/india-places";
@@ -53,6 +54,7 @@ export default function CitizenDashboard({
   resources: ResourceLike[];
   myReports: ReportLike[];
 }) {
+  const { t } = useLanguage();
   const summary = useMemo(() => {
     if (!coords) return null;
     return summarise(coords, alerts, resources, myReports);
@@ -79,46 +81,52 @@ export default function CitizenDashboard({
     <div className="flex flex-col gap-6">
       <section className="panel px-5 divide-y divide-border">
         <Field
-          label="Your position"
+          label={t("Your position")}
           value={placeLabel ?? labelFor(place)}
           hint={
             `${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}` +
-            (source === "manual" ? " · approximate, set by hand" : "")
+            (source === "manual" ? ` · ${t("approximate, set by hand")}` : "")
           }
         />
         <Field
-          label={`Active alerts within ${NEARBY_RADIUS_KM} km`}
+          label={t("Active alerts within {km} km", { km: NEARBY_RADIUS_KM })}
           value={String(nearbyAlerts.length)}
           color={worstAlert ? SEVERITY_TOKEN[worstAlert.row.severity_color] : undefined}
           hint={
             worstAlert
-              ? `Most severe: ${worstAlert.row.disaster_type}${
-                  worstAlert.row.issuing_agency ? ` · ${worstAlert.row.issuing_agency}` : ""
-                } · ${formatKm(worstAlert.km)} away`
-              : "No official warnings currently cover your area."
+              ? t("Most severe: {type}{agency} · {km} away", {
+                  type: worstAlert.row.disaster_type,
+                  agency: worstAlert.row.issuing_agency
+                    ? ` · ${worstAlert.row.issuing_agency}`
+                    : "",
+                  km: formatKm(worstAlert.km),
+                })
+              : t("No official warnings currently cover your area.")
           }
         />
         <Field
-          label="Nearest available shelter"
-          value={nearestShelter ? formatKm(nearestShelter.km) : "None listed"}
+          label={t("Nearest available shelter")}
+          value={nearestShelter ? formatKm(nearestShelter.km) : t("None listed")}
           hint={
             nearestShelter
               ? `${nearestShelter.row.name}${nearestShelter.row.capacity ? ` · capacity ${nearestShelter.row.capacity}` : ""}`
-              : "No shelter is currently marked available in the registry."
+              : t("No shelter is currently marked available in the registry.")
           }
         />
         <Field
-          label="Nearest available rescue team"
-          value={nearestTeam ? formatKm(nearestTeam.km) : "None listed"}
-          hint={nearestTeam ? nearestTeam.row.name : "No rescue team is currently marked available."}
+          label={t("Nearest available rescue team")}
+          value={nearestTeam ? formatKm(nearestTeam.km) : t("None listed")}
+          hint={
+            nearestTeam ? nearestTeam.row.name : t("No rescue team is currently marked available.")
+          }
         />
         <Field
-          label="Your open reports"
+          label={t("Your open reports")}
           value={String(openReports)}
           hint={
             openReports > 0
-              ? "Still being worked. Track them under My Reports."
-              : "Nothing outstanding from you right now."
+              ? t("Still being worked. Track them under My Reports.")
+              : t("Nothing outstanding from you right now.")
           }
         />
       </section>
