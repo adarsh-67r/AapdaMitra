@@ -43,16 +43,22 @@ export function facilityIcon(kind: FacilityKind, color: string): L.DivIcon {
   });
 }
 
-/** Replaces whatever the group held with markers for `list`. */
-export function drawFacilities(
-  group: L.LayerGroup,
-  list: Facility[],
-  color: string,
-  pane?: string
-): void {
+/**
+ * Replaces whatever the group held with markers for `list`.
+ *
+ * There is no `pane` option here on purpose. This used to take one and pass it
+ * straight into the marker, and no caller ever supplied it — but Leaflet copies
+ * options with a plain `for...in`, so a key that is present and undefined
+ * overwrites the default rather than falling back to it. Every marker was built
+ * with `pane: undefined`, `getPane()` returned undefined, and the first
+ * `appendChild` threw: ticking any of the three boxes took the whole page down
+ * to Next.js's error boundary. If facilities ever need their own pane, create it
+ * on the map and set it here unconditionally.
+ */
+export function drawFacilities(group: L.LayerGroup, list: Facility[], color: string): void {
   group.clearLayers();
   for (const f of list) {
-    L.marker([f.lat, f.lng], { icon: facilityIcon(f.kind, color), pane })
+    L.marker([f.lat, f.lng], { icon: facilityIcon(f.kind, color) })
       .bindTooltip(`${f.name}<br><span style="opacity:.7">${KIND_NOUN[f.kind]}</span>`)
       .addTo(group);
   }
