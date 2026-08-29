@@ -9,6 +9,9 @@ import { ThemedView } from "@/components/themed-view";
 import { Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
 import { apiFetchJson } from "@/lib/api-client";
+import { foreignLanguageLabel, sortAlertsByLanguage } from "@/lib/i18n/alert-language";
+import { LANGUAGES } from "@/lib/i18n/languages";
+import { useLanguage } from "@/lib/i18n/use-language";
 import { usePoll } from "@/lib/use-poll";
 import { haversineKm } from "@/lib/geo";
 import { tryGetPosition } from "@/lib/use-location";
@@ -26,25 +29,12 @@ interface Alert {
   effective_end: string | null;
 }
 
-// SACHET publishes each alert in a single language, and roughly half are not
-// English — label them so the text isn't unexplained.
-const LANGUAGE_LABEL: Record<string, string> = {
-  en: "English",
-  hi: "हिन्दी",
-  ml: "മലയാളം",
-  te: "తెలుగు",
-  or: "ଓଡ଼ିଆ",
-  ta: "தமிழ்",
-  bn: "বাংলা",
-  mr: "मराठी",
-  gu: "ગુજરાતી",
-  kn: "ಕನ್ನಡ",
-};
-
 const NEARBY_RADIUS_KM = 150;
 
 export default function AlertsScreen() {
   const theme = useTheme();
+  const { t, language } = useLanguage();
+  const readerLanguage = language.code;
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -73,14 +63,16 @@ export default function AlertsScreen() {
       const data = await apiFetchJson<Alert[]>("/alerts");
       const origin = await tryGetPosition();
       const list = origin ? data.filter((a) => haversineKm(origin!, a) <= NEARBY_RADIUS_KM) : data;
-      setAlerts(list);
+      // What the citizen can read comes first. The alerts themselves are left
+      // exactly as the agency published them.
+      setAlerts(sortAlertsByLanguage(list, readerLanguage));
     } catch (e) {
       console.error("alerts poll failed", e);
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, []);
+  }, [readerLanguage]);
 
   usePoll(load);
 
@@ -88,15 +80,15 @@ export default function AlertsScreen() {
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
         <ScreenHeader
-          title="Live Alerts"
-          subtitle={`Official warnings within ${NEARBY_RADIUS_KM} km of you`}
+          title={t("Live Alerts")}
+          subtitle={t("Official warnings within {km} km of you", { km: NEARBY_RADIUS_KM })}
         />
 
         {loading ? (
           <ActivityIndicator style={{ marginTop: Spacing.four }} />
         ) : alerts.length === 0 ? (
           <ThemedText type="small" themeColor="textSecondary" style={styles.empty}>
-            No active alerts nearby.
+            {t("No active alerts nearby.")}
           </ThemedText>
         ) : (
           <FlatList
@@ -123,16 +115,19 @@ export default function AlertsScreen() {
                   </View>
                   {/* Colour is never the only signal. */}
                   <ThemedText type="small" style={{ color: SEVERITY_COLOR[item.severity_color] }}>
-                    {SEVERITY_WORD[item.severity_color].toUpperCase()}
+                    {t(SEVERITY_WORD[item.severity_color]).toUpperCase()}
                   </ThemedText>
                 </View>
 
-                {(item.issuing_agency || (item.language && item.language !== "en")) && (
+                {(item.issuing_agency || foreignLanguageLabel(item, readerLanguage)) && (
                   <View style={styles.badgeRow}>
-                    {item.language && item.language !== "en" && (
+                    {/* Named in its own script, so a speaker recognises it
+                        without having to read English first. */}
+                    {foreignLanguageLabel(item, readerLanguage) && (
                       <View style={[styles.badge, { borderColor: theme.accent }]}>
                         <ThemedText type="small" style={{ color: theme.accent }}>
-                          {LANGUAGE_LABEL[item.language] ?? item.language.toUpperCase()}
+                          {LANGUAGES.find((l) => l.code === item.language)?.endonym ??
+                            item.language!.toUpperCase()}
                         </ThemedText>
                       </View>
                     )}

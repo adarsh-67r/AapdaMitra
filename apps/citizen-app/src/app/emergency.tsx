@@ -5,9 +5,9 @@ import { Panel } from "@/components/panel";
 import { ScreenHeader } from "@/components/screen-header";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { Type } from "@/constants/fonts";
 import { Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
+import { useLanguage } from "@/lib/i18n/use-language";
 
 /** The same list as the web client, in the same order. */
 const CONTACTS = [
@@ -21,11 +21,12 @@ const CONTACTS = [
 
 export default function EmergencyScreen() {
   const theme = useTheme();
+  const { t, type } = useLanguage();
 
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
-        <ScreenHeader title="Emergency Contacts" subtitle="Tap any number to call directly" />
+        <ScreenHeader title={t("Emergency Contacts")} subtitle={t("Tap any number to call directly")} />
 
         <ScrollView contentContainerStyle={styles.list}>
           {CONTACTS.map((c) => (
@@ -33,13 +34,17 @@ export default function EmergencyScreen() {
               key={c.number}
               onPress={() => Linking.openURL(`tel:${c.number}`)}
               accessibilityRole="button"
-              accessibilityLabel={`Call ${c.name} on ${c.number}`}
+              accessibilityLabel={t("Call {name} on {number}", { name: t(c.name), number: c.number })}
             >
               <Panel style={styles.card}>
                 <ThemedText type="smallBold" style={styles.name}>
-                  {c.name}
+                  {t(c.name)}
                 </ThemedText>
-                <ThemedText style={[styles.number, { color: theme.accent }]}>{c.number}</ThemedText>
+                <ThemedText
+                  style={[styles.number, { color: theme.accent, fontFamily: type.bold }]}
+                >
+                  {c.number}
+                </ThemedText>
               </Panel>
             </Pressable>
           ))}
@@ -60,5 +65,5 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
   },
   name: { flexShrink: 1 },
-  number: { fontSize: 20, fontFamily: Type.bold },
+  number: { fontSize: 20 },
 });
