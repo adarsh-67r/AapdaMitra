@@ -163,4 +163,39 @@ export const mr: Dictionary = {
   Change: "बदला",
   "Change language": "भाषा बदला",
   "Choose your language": "तुमची भाषा निवडा",
+
+  // Strings the citizen web view has and the app does not.
+  "Sign out": "साइन आउट",
+  "Try again": "पुन्हा प्रयत्न करा",
+  "Submitting…": "पाठवत आहे…",
+  "Hide place list": "जागांची यादी लपवा",
+  "Attached photo preview": "जोडलेल्या फोटोचे पूर्वावलोकन",
+  "Search for your city or district": "तुमचे शहर किंवा जिल्हा शोधा",
+  "Search {cities} cities, {districts} districts…": "{cities} शहरे, {districts} जिल्हे शोधा…",
+  "Filter {n} towns…": "{n} गावे गाळा…",
+  "Location not available yet — allow location access and try again.":
+    "ठिकाण अजून उपलब्ध नाही — ठिकाणाची परवानगी द्या आणि पुन्हा प्रयत्न करा.",
+  "Set your location first — use the readout above.":
+    "आधी तुमचे ठिकाण निश्चित करा — वरील माहिती वापरा.",
+  "Report submitted. Authorities have been notified.":
+    "तक्रार पाठवली. अधिकाऱ्यांना कळवण्यात आले आहे.",
+  "Official warnings near you, updated continuously": "तुमच्या जवळचे अधिकृत इशारे, सतत अद्ययावत",
+  "Nearest shelters and resources on the map": "नकाशावर सर्वात जवळचे निवारे आणि संसाधने",
+  "Fire, police, ambulance, disaster helplines": "अग्निशमन, पोलीस, रुग्णवाहिका, आपत्ती हेल्पलाइन",
+  "This site is blocked from using your location.":
+    "या साइटला तुमचे ठिकाण वापरण्यापासून रोखले आहे.",
+  "Allow location for this site in your browser settings, then try again — or just name your place below.":
+    "तुमच्या ब्राउझर सेटिंग्जमध्ये या साइटसाठी ठिकाणाची परवानगी द्या, मग पुन्हा प्रयत्न करा — किंवा खाली तुमच्या जागेचे नाव द्या.",
+  "Your device didn't return a location in time.": "तुमच्या उपकरणाने वेळेत ठिकाण दिले नाही.",
+  "Moving outdoors usually helps, or name your place below.":
+    "मोकळ्या जागी गेल्यास सहसा मदत होते, किंवा खाली तुमच्या जागेचे नाव द्या.",
+  "Your device couldn't determine a location.": "तुमच्या उपकरणाला ठिकाण ठरवता आले नाही.",
+  "Common on a desktop with no GPS, and on a phone with Location Services switched off. Name your place below instead.":
+    "जीपीएस नसलेल्या संगणकावर आणि स्थान सेवा बंद असलेल्या फोनवर हे नेहमीचे आहे. त्याऐवजी खाली तुमच्या जागेचे नाव द्या.",
+  "This browser doesn't support location lookup.": "हा ब्राउझर ठिकाण शोधण्यास पाठिंबा देत नाही.",
+  "Name your place below instead.": "त्याऐवजी खाली तुमच्या जागेचे नाव द्या.",
+  "This page is not on a secure (https) connection, so the browser will not share your location.":
+    "हे पान सुरक्षित (https) जोडणीवर नाही, त्यामुळे ब्राउझर तुमचे ठिकाण देणार नाही.",
+  "Open the deployed https site, or name your place below.":
+    "https साइट उघडा, किंवा खाली तुमच्या जागेचे नाव द्या.",
 };

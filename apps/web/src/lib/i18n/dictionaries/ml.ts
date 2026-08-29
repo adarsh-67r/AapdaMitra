@@ -161,4 +161,44 @@ export const ml: Dictionary = {
   Change: "മാറ്റുക",
   "Change language": "ഭാഷ മാറ്റുക",
   "Choose your language": "നിങ്ങളുടെ ഭാഷ തിരഞ്ഞെടുക്കുക",
+
+  // Strings the citizen web view has and the app does not.
+  "Sign out": "സൈൻ ഔട്ട്",
+  "Try again": "വീണ്ടും ശ്രമിക്കുക",
+  "Submitting…": "അയയ്ക്കുന്നു…",
+  "Hide place list": "സ്ഥലങ്ങളുടെ പട്ടിക മറയ്ക്കുക",
+  "Attached photo preview": "ചേർത്ത ചിത്രത്തിന്റെ പ്രിവ്യൂ",
+  "Search for your city or district": "നിങ്ങളുടെ നഗരമോ ജില്ലയോ തിരയുക",
+  "Search {cities} cities, {districts} districts…":
+    "{cities} നഗരങ്ങൾ, {districts} ജില്ലകളിൽ തിരയുക…",
+  "Filter {n} towns…": "{n} പട്ടണങ്ങൾ അരിച്ചെടുക്കുക…",
+  "Location not available yet — allow location access and try again.":
+    "സ്ഥലം ഇതുവരെ ലഭ്യമല്ല — സ്ഥല അനുമതി നൽകി വീണ്ടും ശ്രമിക്കുക.",
+  "Set your location first — use the readout above.":
+    "ആദ്യം നിങ്ങളുടെ സ്ഥലം നിശ്ചയിക്കുക — മുകളിലെ വിവരം ഉപയോഗിക്കുക.",
+  "Report submitted. Authorities have been notified.":
+    "റിപ്പോർട്ട് അയച്ചു. അധികൃതരെ അറിയിച്ചിട്ടുണ്ട്.",
+  "Official warnings near you, updated continuously":
+    "നിങ്ങളുടെ അടുത്തുള്ള ഔദ്യോഗിക മുന്നറിയിപ്പുകൾ, തുടർച്ചയായി പുതുക്കുന്നു",
+  "Nearest shelters and resources on the map": "ഭൂപടത്തിൽ അടുത്തുള്ള അഭയകേന്ദ്രങ്ങളും വിഭവങ്ങളും",
+  "Fire, police, ambulance, disaster helplines":
+    "അഗ്നിരക്ഷാ സേന, പോലീസ്, ആംബുലൻസ്, ദുരന്ത ഹെൽപ്‌ലൈനുകൾ",
+  "This site is blocked from using your location.":
+    "ഈ സൈറ്റിന് നിങ്ങളുടെ സ്ഥലം ഉപയോഗിക്കുന്നത് തടഞ്ഞിരിക്കുന്നു.",
+  "Allow location for this site in your browser settings, then try again — or just name your place below.":
+    "നിങ്ങളുടെ ബ്രൗസർ ക്രമീകരണങ്ങളിൽ ഈ സൈറ്റിന് സ്ഥല അനുമതി നൽകി വീണ്ടും ശ്രമിക്കുക — അല്ലെങ്കിൽ താഴെ നിങ്ങളുടെ സ്ഥലത്തിന് പേര് നൽകുക.",
+  "Your device didn't return a location in time.": "നിങ്ങളുടെ ഉപകരണം സമയത്ത് സ്ഥലം നൽകിയില്ല.",
+  "Moving outdoors usually helps, or name your place below.":
+    "പുറത്തേക്ക് നീങ്ങുന്നത് സാധാരണയായി സഹായിക്കും, അല്ലെങ്കിൽ താഴെ നിങ്ങളുടെ സ്ഥലത്തിന് പേര് നൽകുക.",
+  "Your device couldn't determine a location.":
+    "നിങ്ങളുടെ ഉപകരണത്തിന് സ്ഥലം നിർണ്ണയിക്കാനായില്ല.",
+  "Common on a desktop with no GPS, and on a phone with Location Services switched off. Name your place below instead.":
+    "ജിപിഎസ് ഇല്ലാത്ത കമ്പ്യൂട്ടറിലും ലൊക്കേഷൻ സേവനങ്ങൾ ഓഫായ ഫോണിലും ഇത് സാധാരണമാണ്. പകരം താഴെ നിങ്ങളുടെ സ്ഥലത്തിന് പേര് നൽകുക.",
+  "This browser doesn't support location lookup.":
+    "ഈ ബ്രൗസർ സ്ഥലം കണ്ടെത്തലിനെ പിന്തുണയ്ക്കുന്നില്ല.",
+  "Name your place below instead.": "പകരം താഴെ നിങ്ങളുടെ സ്ഥലത്തിന് പേര് നൽകുക.",
+  "This page is not on a secure (https) connection, so the browser will not share your location.":
+    "ഈ പേജ് സുരക്ഷിതമായ (https) കണക്ഷനിലല്ല, അതിനാൽ ബ്രൗസർ നിങ്ങളുടെ സ്ഥലം പങ്കിടില്ല.",
+  "Open the deployed https site, or name your place below.":
+    "https സൈറ്റ് തുറക്കുക, അല്ലെങ്കിൽ താഴെ നിങ്ങളുടെ സ്ഥലത്തിന് പേര് നൽകുക.",
 };

@@ -164,4 +164,42 @@ export const kn: Dictionary = {
   Change: "ಬದಲಾಯಿಸಿ",
   "Change language": "ಭಾಷೆ ಬದಲಾಯಿಸಿ",
   "Choose your language": "ನಿಮ್ಮ ಭಾಷೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ",
+
+  // Strings the citizen web view has and the app does not.
+  "Sign out": "ಸೈನ್ ಔಟ್",
+  "Try again": "ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ",
+  "Submitting…": "ಕಳುಹಿಸಲಾಗುತ್ತಿದೆ…",
+  "Hide place list": "ಸ್ಥಳಗಳ ಪಟ್ಟಿಯನ್ನು ಮರೆಮಾಡಿ",
+  "Attached photo preview": "ಲಗತ್ತಿಸಿದ ಫೋಟೋ ಮುನ್ನೋಟ",
+  "Search for your city or district": "ನಿಮ್ಮ ನಗರ ಅಥವಾ ಜಿಲ್ಲೆಯನ್ನು ಹುಡುಕಿ",
+  "Search {cities} cities, {districts} districts…":
+    "{cities} ನಗರಗಳು, {districts} ಜಿಲ್ಲೆಗಳಲ್ಲಿ ಹುಡುಕಿ…",
+  "Filter {n} towns…": "{n} ಪಟ್ಟಣಗಳನ್ನು ಸೋಸಿ…",
+  "Location not available yet — allow location access and try again.":
+    "ಸ್ಥಳ ಇನ್ನೂ ಲಭ್ಯವಿಲ್ಲ — ಸ್ಥಳದ ಅನುಮತಿ ನೀಡಿ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.",
+  "Set your location first — use the readout above.":
+    "ಮೊದಲು ನಿಮ್ಮ ಸ್ಥಳವನ್ನು ನಿಗದಿಪಡಿಸಿ — ಮೇಲಿನ ಮಾಹಿತಿಯನ್ನು ಬಳಸಿ.",
+  "Report submitted. Authorities have been notified.":
+    "ವರದಿ ಕಳುಹಿಸಲಾಗಿದೆ. ಅಧಿಕಾರಿಗಳಿಗೆ ತಿಳಿಸಲಾಗಿದೆ.",
+  "Official warnings near you, updated continuously":
+    "ನಿಮ್ಮ ಹತ್ತಿರದ ಅಧಿಕೃತ ಎಚ್ಚರಿಕೆಗಳು, ನಿರಂತರವಾಗಿ ನವೀಕರಿಸಲಾಗುತ್ತದೆ",
+  "Nearest shelters and resources on the map": "ನಕ್ಷೆಯಲ್ಲಿ ಹತ್ತಿರದ ಆಶ್ರಯಗಳು ಮತ್ತು ಸಂಪನ್ಮೂಲಗಳು",
+  "Fire, police, ambulance, disaster helplines":
+    "ಅಗ್ನಿಶಾಮಕ, ಪೊಲೀಸ್, ಆಂಬ್ಯುಲೆನ್ಸ್, ವಿಪತ್ತು ಸಹಾಯವಾಣಿಗಳು",
+  "This site is blocked from using your location.":
+    "ಈ ಸೈಟ್‌ಗೆ ನಿಮ್ಮ ಸ್ಥಳ ಬಳಸುವುದನ್ನು ತಡೆಯಲಾಗಿದೆ.",
+  "Allow location for this site in your browser settings, then try again — or just name your place below.":
+    "ನಿಮ್ಮ ಬ್ರೌಸರ್ ಸೆಟ್ಟಿಂಗ್‌ಗಳಲ್ಲಿ ಈ ಸೈಟ್‌ಗೆ ಸ್ಥಳದ ಅನುಮತಿ ನೀಡಿ, ನಂತರ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ — ಅಥವಾ ಕೆಳಗೆ ನಿಮ್ಮ ಸ್ಥಳಕ್ಕೆ ಹೆಸರಿಸಿ.",
+  "Your device didn't return a location in time.": "ನಿಮ್ಮ ಸಾಧನ ಸಮಯಕ್ಕೆ ಸ್ಥಳವನ್ನು ನೀಡಲಿಲ್ಲ.",
+  "Moving outdoors usually helps, or name your place below.":
+    "ಹೊರಗೆ ಹೋಗುವುದು ಸಾಮಾನ್ಯವಾಗಿ ಸಹಾಯ ಮಾಡುತ್ತದೆ, ಅಥವಾ ಕೆಳಗೆ ನಿಮ್ಮ ಸ್ಥಳಕ್ಕೆ ಹೆಸರಿಸಿ.",
+  "Your device couldn't determine a location.": "ನಿಮ್ಮ ಸಾಧನಕ್ಕೆ ಸ್ಥಳವನ್ನು ನಿರ್ಧರಿಸಲಾಗಲಿಲ್ಲ.",
+  "Common on a desktop with no GPS, and on a phone with Location Services switched off. Name your place below instead.":
+    "ಜಿಪಿಎಸ್ ಇಲ್ಲದ ಕಂಪ್ಯೂಟರ್‌ನಲ್ಲಿ ಮತ್ತು ಸ್ಥಳ ಸೇವೆಗಳು ಆಫ್ ಇರುವ ಫೋನ್‌ನಲ್ಲಿ ಇದು ಸಾಮಾನ್ಯ. ಬದಲಿಗೆ ಕೆಳಗೆ ನಿಮ್ಮ ಸ್ಥಳಕ್ಕೆ ಹೆಸರಿಸಿ.",
+  "This browser doesn't support location lookup.": "ಈ ಬ್ರೌಸರ್ ಸ್ಥಳ ಹುಡುಕಾಟವನ್ನು ಬೆಂಬಲಿಸುವುದಿಲ್ಲ.",
+  "Name your place below instead.": "ಬದಲಿಗೆ ಕೆಳಗೆ ನಿಮ್ಮ ಸ್ಥಳಕ್ಕೆ ಹೆಸರಿಸಿ.",
+  "This page is not on a secure (https) connection, so the browser will not share your location.":
+    "ಈ ಪುಟ ಸುರಕ್ಷಿತ (https) ಸಂಪರ್ಕದಲ್ಲಿ ಇಲ್ಲ, ಆದ್ದರಿಂದ ಬ್ರೌಸರ್ ನಿಮ್ಮ ಸ್ಥಳವನ್ನು ಹಂಚಿಕೊಳ್ಳುವುದಿಲ್ಲ.",
+  "Open the deployed https site, or name your place below.":
+    "https ಸೈಟ್ ತೆರೆಯಿರಿ, ಅಥವಾ ಕೆಳಗೆ ನಿಮ್ಮ ಸ್ಥಳಕ್ಕೆ ಹೆಸರಿಸಿ.",
 };

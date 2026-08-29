@@ -166,4 +166,44 @@ export const ta: Dictionary = {
   Change: "மாற்று",
   "Change language": "மொழியை மாற்று",
   "Choose your language": "உங்கள் மொழியைத் தேர்வுசெய்யவும்",
+
+  // Strings the citizen web view has and the app does not.
+  "Sign out": "வெளியேறு",
+  "Try again": "மீண்டும் முயற்சிக்கவும்",
+  "Submitting…": "அனுப்பப்படுகிறது…",
+  "Hide place list": "இடங்களின் பட்டியலை மறை",
+  "Attached photo preview": "இணைக்கப்பட்ட புகைப்பட முன்னோட்டம்",
+  "Search for your city or district": "உங்கள் நகரம் அல்லது மாவட்டத்தைத் தேடுங்கள்",
+  "Search {cities} cities, {districts} districts…":
+    "{cities} நகரங்கள், {districts} மாவட்டங்களில் தேடு…",
+  "Filter {n} towns…": "{n} ஊர்களை வடிகட்டு…",
+  "Location not available yet — allow location access and try again.":
+    "இடம் இன்னும் கிடைக்கவில்லை — இட அனுமதி வழங்கி மீண்டும் முயற்சிக்கவும்.",
+  "Set your location first — use the readout above.":
+    "முதலில் உங்கள் இடத்தைக் குறிக்கவும் — மேலே உள்ள விவரத்தைப் பயன்படுத்தவும்.",
+  "Report submitted. Authorities have been notified.":
+    "புகார் அனுப்பப்பட்டது. அதிகாரிகளுக்குத் தெரிவிக்கப்பட்டுள்ளது.",
+  "Official warnings near you, updated continuously":
+    "உங்கள் அருகிலுள்ள அரசு எச்சரிக்கைகள், தொடர்ந்து புதுப்பிக்கப்படுகின்றன",
+  "Nearest shelters and resources on the map":
+    "வரைபடத்தில் அருகிலுள்ள தங்குமிடங்கள் மற்றும் வளங்கள்",
+  "Fire, police, ambulance, disaster helplines":
+    "தீயணைப்பு, காவல்துறை, ஆம்புலன்ஸ், பேரிடர் உதவி எண்கள்",
+  "This site is blocked from using your location.":
+    "இந்த தளம் உங்கள் இடத்தைப் பயன்படுத்தத் தடுக்கப்பட்டுள்ளது.",
+  "Allow location for this site in your browser settings, then try again — or just name your place below.":
+    "உங்கள் உலாவி அமைப்புகளில் இந்தத் தளத்திற்கு இட அனுமதி வழங்கி, பின் மீண்டும் முயற்சிக்கவும் — அல்லது கீழே உங்கள் இடத்தின் பெயரைக் குறிப்பிடவும்.",
+  "Your device didn't return a location in time.":
+    "உங்கள் சாதனம் சரியான நேரத்தில் இடத்தைத் தரவில்லை.",
+  "Moving outdoors usually helps, or name your place below.":
+    "வெளியே செல்வது பொதுவாக உதவும், அல்லது கீழே உங்கள் இடத்தின் பெயரைக் குறிப்பிடவும்.",
+  "Your device couldn't determine a location.": "உங்கள் சாதனத்தால் இடத்தைக் கண்டறிய முடியவில்லை.",
+  "Common on a desktop with no GPS, and on a phone with Location Services switched off. Name your place below instead.":
+    "ஜிபிஎஸ் இல்லாத கணினியிலும், இடச் சேவைகள் அணைக்கப்பட்ட தொலைபேசியிலும் இது வழக்கம். மாறாக கீழே உங்கள் இடத்தின் பெயரைக் குறிப்பிடவும்.",
+  "This browser doesn't support location lookup.": "இந்த உலாவி இடம் கண்டறிதலை ஆதரிக்கவில்லை.",
+  "Name your place below instead.": "மாறாக கீழே உங்கள் இடத்தின் பெயரைக் குறிப்பிடவும்.",
+  "This page is not on a secure (https) connection, so the browser will not share your location.":
+    "இந்தப் பக்கம் பாதுகாப்பான (https) இணைப்பில் இல்லை, எனவே உலாவி உங்கள் இடத்தைப் பகிராது.",
+  "Open the deployed https site, or name your place below.":
+    "https தளத்தைத் திறக்கவும், அல்லது கீழே உங்கள் இடத்தின் பெயரைக் குறிப்பிடவும்.",
 };

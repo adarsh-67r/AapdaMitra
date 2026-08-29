@@ -158,4 +158,40 @@ export const pa: Dictionary = {
   Change: "ਬਦਲੋ",
   "Change language": "ਭਾਸ਼ਾ ਬਦਲੋ",
   "Choose your language": "ਆਪਣੀ ਭਾਸ਼ਾ ਚੁਣੋ",
+
+  // Strings the citizen web view has and the app does not.
+  "Sign out": "ਸਾਈਨ ਆਊਟ",
+  "Try again": "ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ",
+  "Submitting…": "ਭੇਜਿਆ ਜਾ ਰਿਹਾ ਹੈ…",
+  "Hide place list": "ਥਾਵਾਂ ਦੀ ਸੂਚੀ ਲੁਕਾਓ",
+  "Attached photo preview": "ਜੋੜੀ ਗਈ ਫ਼ੋਟੋ ਦੀ ਝਲਕ",
+  "Search for your city or district": "ਆਪਣਾ ਸ਼ਹਿਰ ਜਾਂ ਜ਼ਿਲ੍ਹਾ ਖੋਜੋ",
+  "Search {cities} cities, {districts} districts…": "{cities} ਸ਼ਹਿਰ, {districts} ਜ਼ਿਲ੍ਹੇ ਖੋਜੋ…",
+  "Filter {n} towns…": "{n} ਕਸਬੇ ਛਾਂਟੋ…",
+  "Location not available yet — allow location access and try again.":
+    "ਥਾਂ ਹਾਲੇ ਉਪਲਬਧ ਨਹੀਂ — ਥਾਂ ਦੀ ਇਜਾਜ਼ਤ ਦਿਓ ਅਤੇ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।",
+  "Set your location first — use the readout above.":
+    "ਪਹਿਲਾਂ ਆਪਣੀ ਥਾਂ ਤੈਅ ਕਰੋ — ਉੱਪਰ ਦਿੱਤੀ ਜਾਣਕਾਰੀ ਵਰਤੋ।",
+  "Report submitted. Authorities have been notified.":
+    "ਰਿਪੋਰਟ ਭੇਜ ਦਿੱਤੀ। ਅਧਿਕਾਰੀਆਂ ਨੂੰ ਦੱਸ ਦਿੱਤਾ ਗਿਆ ਹੈ।",
+  "Official warnings near you, updated continuously":
+    "ਤੁਹਾਡੇ ਨੇੜੇ ਦੀਆਂ ਸਰਕਾਰੀ ਚੇਤਾਵਨੀਆਂ, ਲਗਾਤਾਰ ਅੱਪਡੇਟ",
+  "Nearest shelters and resources on the map": "ਨਕਸ਼ੇ ਉੱਤੇ ਨੇੜਲੀਆਂ ਪਨਾਹਗਾਹਾਂ ਅਤੇ ਸਾਧਨ",
+  "Fire, police, ambulance, disaster helplines": "ਅੱਗ ਬੁਝਾਊ, ਪੁਲਿਸ, ਐਂਬੂਲੈਂਸ, ਆਫ਼ਤ ਹੈਲਪਲਾਈਨਾਂ",
+  "This site is blocked from using your location.":
+    "ਇਸ ਸਾਈਟ ਨੂੰ ਤੁਹਾਡੀ ਥਾਂ ਵਰਤਣ ਤੋਂ ਰੋਕਿਆ ਗਿਆ ਹੈ।",
+  "Allow location for this site in your browser settings, then try again — or just name your place below.":
+    "ਆਪਣੇ ਬ੍ਰਾਊਜ਼ਰ ਸੈਟਿੰਗਾਂ ਵਿੱਚ ਇਸ ਸਾਈਟ ਲਈ ਥਾਂ ਦੀ ਇਜਾਜ਼ਤ ਦਿਓ, ਫੇਰ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ — ਜਾਂ ਹੇਠਾਂ ਆਪਣੀ ਥਾਂ ਦਾ ਨਾਂ ਦੱਸੋ।",
+  "Your device didn't return a location in time.": "ਤੁਹਾਡੇ ਡਿਵਾਈਸ ਨੇ ਵੇਲੇ ਸਿਰ ਥਾਂ ਨਹੀਂ ਦੱਸੀ।",
+  "Moving outdoors usually helps, or name your place below.":
+    "ਖੁੱਲ੍ਹੀ ਥਾਂ ਜਾਣ ਨਾਲ ਆਮ ਤੌਰ ਉੱਤੇ ਮਦਦ ਮਿਲਦੀ ਹੈ, ਜਾਂ ਹੇਠਾਂ ਆਪਣੀ ਥਾਂ ਦਾ ਨਾਂ ਦੱਸੋ।",
+  "Your device couldn't determine a location.": "ਤੁਹਾਡਾ ਡਿਵਾਈਸ ਥਾਂ ਤੈਅ ਨਹੀਂ ਕਰ ਸਕਿਆ।",
+  "Common on a desktop with no GPS, and on a phone with Location Services switched off. Name your place below instead.":
+    "ਜੀਪੀਐਸ ਤੋਂ ਬਿਨਾਂ ਕੰਪਿਊਟਰ ਉੱਤੇ ਅਤੇ ਥਾਂ ਸੇਵਾਵਾਂ ਬੰਦ ਵਾਲੇ ਫ਼ੋਨ ਉੱਤੇ ਇਹ ਆਮ ਹੈ। ਇਸ ਦੀ ਥਾਂ ਹੇਠਾਂ ਆਪਣੀ ਥਾਂ ਦਾ ਨਾਂ ਦੱਸੋ।",
+  "This browser doesn't support location lookup.": "ਇਹ ਬ੍ਰਾਊਜ਼ਰ ਥਾਂ ਲੱਭਣ ਦੀ ਸਹੂਲਤ ਨਹੀਂ ਦਿੰਦਾ।",
+  "Name your place below instead.": "ਇਸ ਦੀ ਥਾਂ ਹੇਠਾਂ ਆਪਣੀ ਥਾਂ ਦਾ ਨਾਂ ਦੱਸੋ।",
+  "This page is not on a secure (https) connection, so the browser will not share your location.":
+    "ਇਹ ਸਫ਼ਾ ਸੁਰੱਖਿਅਤ (https) ਕਨੈਕਸ਼ਨ ਉੱਤੇ ਨਹੀਂ, ਇਸ ਲਈ ਬ੍ਰਾਊਜ਼ਰ ਤੁਹਾਡੀ ਥਾਂ ਸਾਂਝੀ ਨਹੀਂ ਕਰੇਗਾ।",
+  "Open the deployed https site, or name your place below.":
+    "https ਸਾਈਟ ਖੋਲ੍ਹੋ, ਜਾਂ ਹੇਠਾਂ ਆਪਣੀ ਥਾਂ ਦਾ ਨਾਂ ਦੱਸੋ।",
 };

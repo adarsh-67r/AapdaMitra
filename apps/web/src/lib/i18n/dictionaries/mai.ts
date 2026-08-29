@@ -158,4 +158,39 @@ export const mai: Dictionary = {
   Change: "बदलू",
   "Change language": "भाषा बदलू",
   "Choose your language": "अपन भाषा चुनू",
+
+  // Strings the citizen web view has and the app does not.
+  "Sign out": "साइन आउट",
+  "Try again": "फेरसँ कोशिश करू",
+  "Submitting…": "पठाओल जा रहल अछि…",
+  "Hide place list": "जगहक सूची नुकाउ",
+  "Attached photo preview": "जोड़ल फोटोक पूर्वावलोकन",
+  "Search for your city or district": "अपन शहर वा जिला ताकू",
+  "Search {cities} cities, {districts} districts…": "{cities} शहर, {districts} जिला मे ताकू…",
+  "Filter {n} towns…": "{n} कस्बा छाँटू…",
+  "Location not available yet — allow location access and try again.":
+    "स्थान एखन उपलब्ध नहि — स्थानक अनुमति दिअ आ फेरसँ कोशिश करू।",
+  "Set your location first — use the readout above.":
+    "पहिने अपन स्थान तय करू — उपरका जानकारी प्रयोग करू।",
+  "Report submitted. Authorities have been notified.":
+    "रिपोर्ट पठा देल गेल। अधिकारी सभकेँ सूचित क' देल गेल अछि।",
+  "Official warnings near you, updated continuously": "अहाँक लगक सरकारी चेतावनी, लगातार अद्यतन",
+  "Nearest shelters and resources on the map": "नक्शा पर लगक शरणस्थल आ संसाधन",
+  "Fire, police, ambulance, disaster helplines": "अग्निशमन, पुलिस, एम्बुलेंस, आपदा हेल्पलाइन",
+  "This site is blocked from using your location.":
+    "एहि साइटकेँ अहाँक स्थान प्रयोग करबासँ रोकल गेल अछि।",
+  "Allow location for this site in your browser settings, then try again — or just name your place below.":
+    "अपन ब्राउज़रक सेटिंग्स मे एहि साइटक लेल स्थानक अनुमति दिअ, फेर कोशिश करू — वा नीचाँ अपन जगहक नाम द' दिअ।",
+  "Your device didn't return a location in time.": "अहाँक यन्त्र समय पर स्थान नहि देलक।",
+  "Moving outdoors usually helps, or name your place below.":
+    "खुजल मे जेबासँ प्रायः मदति होइत अछि, वा नीचाँ अपन जगहक नाम दिअ।",
+  "Your device couldn't determine a location.": "अहाँक यन्त्र स्थान तय नहि क' सकल।",
+  "Common on a desktop with no GPS, and on a phone with Location Services switched off. Name your place below instead.":
+    "बिना जीपीएस वला कम्प्यूटर पर आ स्थान सेवा बन्द वला फोन पर ई आम अछि। ओकर बदला नीचाँ अपन जगहक नाम दिअ।",
+  "This browser doesn't support location lookup.": "ई ब्राउज़र स्थान ताकब समर्थित नहि करैत अछि।",
+  "Name your place below instead.": "ओकर बदला नीचाँ अपन जगहक नाम दिअ।",
+  "This page is not on a secure (https) connection, so the browser will not share your location.":
+    "ई पन्ना सुरक्षित (https) कनेक्शन पर नहि अछि, तेँ ब्राउज़र अहाँक स्थान नहि देत।",
+  "Open the deployed https site, or name your place below.":
+    "https साइट खोलू, वा नीचाँ अपन जगहक नाम दिअ।",
 };

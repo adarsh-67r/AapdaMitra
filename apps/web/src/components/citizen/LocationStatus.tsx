@@ -30,7 +30,7 @@ const EXPLANATION: Record<FailedStatus, { what: string; fix: string }> = {
     // ask again, and on iPhone the switch is in the system settings rather than
     // anywhere in the page — someone hunting the address bar for it will not
     // find one.
-    fix: "On iPhone: Settings › Privacy & Security › Location Services, turn it on and set Safari Websites to “While Using”. On desktop: tap the padlock or (i) in the address bar and allow Location. Then try again — or just name your place below.",
+    fix: "Allow location for this site in your browser settings, then try again — or just name your place below.",
   },
   timeout: {
     what: "Your device didn't return a location in time.",
@@ -45,7 +45,7 @@ const EXPLANATION: Record<FailedStatus, { what: string; fix: string }> = {
     fix: "Name your place below instead.",
   },
   insecure: {
-    what: "This page isn't on a secure (https) connection, so the browser refuses to share location and never shows a prompt.",
+    what: "This page is not on a secure (https) connection, so the browser will not share your location.",
     fix: "Open the deployed https site, or name your place below.",
   },
 };
@@ -276,7 +276,7 @@ function PlacePicker({ onPick }: { onPick: (p: Place) => void }) {
           )}
 
           {district && (
-            <Step n={3} label={t("City or town")}>
+            <Step n={3} label={t("Town or city")}>
               {allCities.length > 0 ? (
                 <div className="flex flex-col gap-1.5">
                   {/* A district can hold 130 towns. Scrolling that is slower than

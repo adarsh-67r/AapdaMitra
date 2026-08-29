@@ -178,4 +178,41 @@ export const hi: Dictionary = {
   Change: "बदलें",
   "Change language": "भाषा बदलें",
   "Choose your language": "अपनी भाषा चुनें",
+
+  // Strings the citizen web view has and the app does not.
+  "Sign out": "साइन आउट",
+  "Try again": "फिर कोशिश करें",
+  "Submitting…": "भेजा जा रहा है…",
+  "Hide place list": "जगहों की सूची छिपाएँ",
+  "Attached photo preview": "जोड़ी गई फ़ोटो का पूर्वावलोकन",
+  "Search for your city or district": "अपना शहर या ज़िला खोजें",
+  "Search {cities} cities, {districts} districts…": "{cities} शहर, {districts} ज़िले खोजें…",
+  "Filter {n} towns…": "{n} कस्बे छाँटें…",
+  "Location not available yet — allow location access and try again.":
+    "स्थान अभी उपलब्ध नहीं है — स्थान की अनुमति दें और फिर कोशिश करें।",
+  "Set your location first — use the readout above.":
+    "पहले अपना स्थान निर्धारित करें — ऊपर दिया गया विवरण इस्तेमाल करें।",
+  "Report submitted. Authorities have been notified.":
+    "रिपोर्ट भेज दी गई। अधिकारियों को सूचित कर दिया गया है।",
+  "Official warnings near you, updated continuously":
+    "आपके पास की सरकारी चेतावनियाँ, लगातार अद्यतन",
+  "Nearest shelters and resources on the map": "मानचित्र पर निकटतम शरणस्थल और संसाधन",
+  "Fire, police, ambulance, disaster helplines": "अग्निशमन, पुलिस, एम्बुलेंस, आपदा हेल्पलाइन",
+  "This site is blocked from using your location.":
+    "इस साइट को आपका स्थान इस्तेमाल करने से रोका गया है।",
+  "Allow location for this site in your browser settings, then try again — or just name your place below.":
+    "अपने ब्राउज़र की सेटिंग्स में इस साइट के लिए स्थान की अनुमति दें, फिर कोशिश करें — या नीचे अपनी जगह का नाम दे दें।",
+  "Your device didn't return a location in time.": "आपके डिवाइस ने समय पर स्थान नहीं बताया।",
+  "Moving outdoors usually helps, or name your place below.":
+    "खुले में जाने से आमतौर पर मदद मिलती है, या नीचे अपनी जगह का नाम दें।",
+  "Your device couldn't determine a location.": "आपका डिवाइस स्थान तय नहीं कर सका।",
+  "Common on a desktop with no GPS, and on a phone with Location Services switched off. Name your place below instead.":
+    "बिना जीपीएस वाले कंप्यूटर पर और स्थान सेवाएँ बंद वाले फ़ोन पर यह आम है। इसके बजाय नीचे अपनी जगह का नाम दें।",
+  "This browser doesn't support location lookup.":
+    "यह ब्राउज़र स्थान का पता लगाना समर्थित नहीं करता।",
+  "Name your place below instead.": "इसके बजाय नीचे अपनी जगह का नाम दें।",
+  "This page is not on a secure (https) connection, so the browser will not share your location.":
+    "यह पेज सुरक्षित (https) कनेक्शन पर नहीं है, इसलिए ब्राउज़र आपका स्थान साझा नहीं करेगा।",
+  "Open the deployed https site, or name your place below.":
+    "तैनात https साइट खोलें, या नीचे अपनी जगह का नाम दें।",
 };

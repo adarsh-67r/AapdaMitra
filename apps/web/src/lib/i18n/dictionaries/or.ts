@@ -159,4 +159,40 @@ export const or: Dictionary = {
   Change: "ବଦଳାନ୍ତୁ",
   "Change language": "ଭାଷା ବଦଳାନ୍ତୁ",
   "Choose your language": "ଆପଣଙ୍କ ଭାଷା ବାଛନ୍ତୁ",
+
+  // Strings the citizen web view has and the app does not.
+  "Sign out": "ସାଇନ୍ ଆଉଟ୍",
+  "Try again": "ପୁଣି ଚେଷ୍ଟା କରନ୍ତୁ",
+  "Submitting…": "ପଠାଯାଉଛି…",
+  "Hide place list": "ସ୍ଥାନ ତାଲିକା ଲୁଚାନ୍ତୁ",
+  "Attached photo preview": "ଯୋଡ଼ାଯାଇଥିବା ଫଟୋର ପୂର୍ବାବଲୋକନ",
+  "Search for your city or district": "ଆପଣଙ୍କ ସହର କିମ୍ବା ଜିଲ୍ଲା ଖୋଜନ୍ତୁ",
+  "Search {cities} cities, {districts} districts…": "{cities} ସହର, {districts} ଜିଲ୍ଲାରେ ଖୋଜନ୍ତୁ…",
+  "Filter {n} towns…": "{n} ସହର ଛାଣନ୍ତୁ…",
+  "Location not available yet — allow location access and try again.":
+    "ସ୍ଥାନ ଏବେ ଉପଲବ୍ଧ ନାହିଁ — ସ୍ଥାନ ଅନୁମତି ଦିଅନ୍ତୁ ଓ ପୁଣି ଚେଷ୍ଟା କରନ୍ତୁ।",
+  "Set your location first — use the readout above.":
+    "ପ୍ରଥମେ ଆପଣଙ୍କ ସ୍ଥାନ ନିର୍ଣ୍ଣୟ କରନ୍ତୁ — ଉପରର ସୂଚନା ବ୍ୟବହାର କରନ୍ତୁ।",
+  "Report submitted. Authorities have been notified.":
+    "ରିପୋର୍ଟ ପଠାଯାଇଛି। କର୍ତ୍ତୃପକ୍ଷଙ୍କୁ ଜଣାଇ ଦିଆଯାଇଛି।",
+  "Official warnings near you, updated continuously": "ଆପଣଙ୍କ ପାଖର ସରକାରୀ ସତର୍କତା, ଲଗାତାର ଅଦ୍ୟତନ",
+  "Nearest shelters and resources on the map": "ମାନଚିତ୍ରରେ ନିକଟତମ ଆଶ୍ରୟସ୍ଥଳୀ ଓ ସମ୍ବଳ",
+  "Fire, police, ambulance, disaster helplines":
+    "ଅଗ୍ନିଶମ, ପୋଲିସ, ଆମ୍ବୁଲାନ୍ସ, ବିପର୍ଯ୍ୟୟ ହେଲ୍ପଲାଇନ",
+  "This site is blocked from using your location.":
+    "ଏହି ସାଇଟକୁ ଆପଣଙ୍କ ସ୍ଥାନ ବ୍ୟବହାର କରିବାରୁ ଅଟକାଯାଇଛି।",
+  "Allow location for this site in your browser settings, then try again — or just name your place below.":
+    "ଆପଣଙ୍କ ବ୍ରାଉଜର ସେଟିଂସରେ ଏହି ସାଇଟ ପାଇଁ ସ୍ଥାନ ଅନୁମତି ଦିଅନ୍ତୁ, ତା'ପରେ ପୁଣି ଚେଷ୍ଟା କରନ୍ତୁ — କିମ୍ବା ତଳେ ଆପଣଙ୍କ ଜାଗାର ନାମ ଦିଅନ୍ତୁ।",
+  "Your device didn't return a location in time.": "ଆପଣଙ୍କ ଉପକରଣ ସମୟରେ ସ୍ଥାନ ଦେଲା ନାହିଁ।",
+  "Moving outdoors usually helps, or name your place below.":
+    "ଖୋଲା ଜାଗାକୁ ଗଲେ ସାଧାରଣତଃ ସାହାଯ୍ୟ ମିଳେ, କିମ୍ବା ତଳେ ଆପଣଙ୍କ ଜାଗାର ନାମ ଦିଅନ୍ତୁ।",
+  "Your device couldn't determine a location.": "ଆପଣଙ୍କ ଉପକରଣ ସ୍ଥାନ ନିର୍ଣ୍ଣୟ କରିପାରିଲା ନାହିଁ।",
+  "Common on a desktop with no GPS, and on a phone with Location Services switched off. Name your place below instead.":
+    "ଜିପିଏସ୍ ନଥିବା କମ୍ପ୍ୟୁଟରରେ ଏବଂ ଲୋକେସନ୍ ସେବା ବନ୍ଦ ଥିବା ଫୋନରେ ଏହା ସାଧାରଣ। ପରିବର୍ତ୍ତେ ତଳେ ଆପଣଙ୍କ ଜାଗାର ନାମ ଦିଅନ୍ତୁ।",
+  "This browser doesn't support location lookup.": "ଏହି ବ୍ରାଉଜର ସ୍ଥାନ ଖୋଜିବାକୁ ସମର୍ଥନ କରେ ନାହିଁ।",
+  "Name your place below instead.": "ପରିବର୍ତ୍ତେ ତଳେ ଆପଣଙ୍କ ଜାଗାର ନାମ ଦିଅନ୍ତୁ।",
+  "This page is not on a secure (https) connection, so the browser will not share your location.":
+    "ଏହି ପୃଷ୍ଠା ସୁରକ୍ଷିତ (https) ସଂଯୋଗରେ ନାହିଁ, ତେଣୁ ବ୍ରାଉଜର ଆପଣଙ୍କ ସ୍ଥାନ ଦେବ ନାହିଁ।",
+  "Open the deployed https site, or name your place below.":
+    "https ସାଇଟ ଖୋଲନ୍ତୁ, କିମ୍ବା ତଳେ ଆପଣଙ୍କ ଜାଗାର ନାମ ଦିଅନ୍ତୁ।",
 };

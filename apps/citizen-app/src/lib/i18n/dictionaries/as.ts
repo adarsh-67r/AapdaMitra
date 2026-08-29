@@ -157,4 +157,41 @@ export const as: Dictionary = {
   Change: "সলনি কৰক",
   "Change language": "ভাষা সলনি কৰক",
   "Choose your language": "আপোনাৰ ভাষা বাছক",
+
+  // Strings the citizen web view has and the app does not.
+  "Sign out": "ছাইন আউট",
+  "Try again": "আকৌ চেষ্টা কৰক",
+  "Submitting…": "পঠিওৱা হৈছে…",
+  "Hide place list": "ঠাইৰ তালিকা লুকুৱাওক",
+  "Attached photo preview": "সংলগ্ন ফটোৰ পূৰ্বদৰ্শন",
+  "Search for your city or district": "আপোনাৰ চহৰ বা জিলা বিচাৰক",
+  "Search {cities} cities, {districts} districts…": "{cities} চহৰ, {districts} জিলাত বিচাৰক…",
+  "Filter {n} towns…": "{n} চহৰ বাছনি কৰক…",
+  "Location not available yet — allow location access and try again.":
+    "ঠাই এতিয়াও পোৱা নাই — ঠাইৰ অনুমতি দিয়ক আৰু আকৌ চেষ্টা কৰক।",
+  "Set your location first — use the readout above.":
+    "প্ৰথমে আপোনাৰ ঠাই নিৰ্ধাৰণ কৰক — ওপৰৰ তথ্য ব্যৱহাৰ কৰক।",
+  "Report submitted. Authorities have been notified.":
+    "প্ৰতিবেদন পঠিওৱা হ’ল। কৰ্তৃপক্ষক জনোৱা হৈছে।",
+  "Official warnings near you, updated continuously":
+    "আপোনাৰ ওচৰৰ চৰকাৰী সতৰ্কবাণী, নিৰন্তৰ আপডেট",
+  "Nearest shelters and resources on the map": "মানচিত্ৰত ওচৰৰ আশ্ৰয়স্থল আৰু সম্পদ",
+  "Fire, police, ambulance, disaster helplines":
+    "অগ্নিনিৰ্বাপক, আৰক্ষী, এম্বুলেন্স, দুৰ্যোগ হেল্পলাইন",
+  "This site is blocked from using your location.":
+    "এই ছাইটক আপোনাৰ ঠাই ব্যৱহাৰ কৰাৰ পৰা বাধা দিয়া হৈছে।",
+  "Allow location for this site in your browser settings, then try again — or just name your place below.":
+    "আপোনাৰ ব্ৰাউজাৰ ছেটিংছত এই ছাইটৰ বাবে ঠাইৰ অনুমতি দিয়ক, তাৰ পিছত আকৌ চেষ্টা কৰক — বা তলত আপোনাৰ ঠাইৰ নাম দিয়ক।",
+  "Your device didn't return a location in time.": "আপোনাৰ যন্ত্ৰই সময়মতে ঠাই দিয়া নাই।",
+  "Moving outdoors usually helps, or name your place below.":
+    "বাহিৰলৈ ওলাই গ’লে সাধাৰণতে সহায় হয়, বা তলত আপোনাৰ ঠাইৰ নাম দিয়ক।",
+  "Your device couldn't determine a location.": "আপোনাৰ যন্ত্ৰই ঠাই নিৰ্ধাৰণ কৰিব নোৱাৰিলে।",
+  "Common on a desktop with no GPS, and on a phone with Location Services switched off. Name your place below instead.":
+    "জিপিএছ নথকা কম্পিউটাৰত আৰু ল’কেচন সেৱা বন্ধ থকা ফোনত ই সাধাৰণ। তাৰ সলনি তলত আপোনাৰ ঠাইৰ নাম দিয়ক।",
+  "This browser doesn't support location lookup.": "এই ব্ৰাউজাৰে ঠাই বিচৰাক সমৰ্থন নকৰে।",
+  "Name your place below instead.": "তাৰ সলনি তলত আপোনাৰ ঠাইৰ নাম দিয়ক।",
+  "This page is not on a secure (https) connection, so the browser will not share your location.":
+    "এই পৃষ্ঠা সুৰক্ষিত (https) সংযোগত নাই, সেয়েহে ব্ৰাউজাৰে আপোনাৰ ঠাই নিদিয়ে।",
+  "Open the deployed https site, or name your place below.":
+    "https ছাইটটো খোলক, বা তলত আপোনাৰ ঠাইৰ নাম দিয়ক।",
 };

@@ -32,16 +32,16 @@ type IconComponent = (props: { size?: number; className?: string }) => React.Rea
 
 const MENU: { id: Tab; label: string; short: string; Icon: IconComponent; description: string }[] = [
   { id: "dashboard", label: "Dashboard", short: "Home", Icon: DashboardIcon, description: "Alerts, shelters and teams nearest to where you are" },
-  { id: "report", label: "Report Incident", short: "Report", Icon: MapPinIcon, description: "Photo, location, severity — filed in under a minute" },
+  { id: "report", label: "Report an Incident", short: "Report", Icon: MapPinIcon, description: "Photo, location, severity — filed in under a minute" },
   { id: "alerts", label: "Live Alerts", short: "Alerts", Icon: AlertTriangleIcon, description: "Official warnings near you, updated continuously" },
   { id: "shelters", label: "Find Shelter", short: "Shelter", Icon: ShelterIcon, description: "Nearest shelters and resources on the map" },
-  { id: "mine", label: "My Reports", short: "Mine", Icon: ReportsIcon, description: "Track the status of what you've reported" },
+  { id: "mine", label: "My Reports", short: "Mine", Icon: ReportsIcon, description: "Track the status of what you have reported" },
   { id: "emergency", label: "Emergency Contacts", short: "Help", Icon: PhoneIcon, description: "Fire, police, ambulance, disaster helplines" },
 ];
 
 const TAB_LABEL: Record<Tab, string> = {
   dashboard: "Dashboard",
-  report: "Report Incident",
+  report: "Report an Incident",
   alerts: "Live Alerts",
   shelters: "Find Shelter",
   mine: "My Reports",

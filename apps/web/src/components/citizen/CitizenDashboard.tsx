@@ -15,9 +15,9 @@ const SEVERITY_TOKEN = {
 } as const;
 
 const TYPE_LABEL = {
-  shelter: "Shelter",
-  rescue_team: "Rescue team",
-  supply_stock: "Supply stock",
+  shelter: "shelter",
+  rescue_team: "rescue team",
+  supply_stock: "supply stock",
 } as const;
 
 /** A labelled readout. The label sits above the value, as on a real instrument. */

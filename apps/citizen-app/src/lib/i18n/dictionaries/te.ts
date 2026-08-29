@@ -162,4 +162,42 @@ export const te: Dictionary = {
   Change: "మార్చండి",
   "Change language": "భాష మార్చండి",
   "Choose your language": "మీ భాషను ఎంచుకోండి",
+
+  // Strings the citizen web view has and the app does not.
+  "Sign out": "సైన్ అవుట్",
+  "Try again": "మళ్ళీ ప్రయత్నించండి",
+  "Submitting…": "పంపుతోంది…",
+  "Hide place list": "ప్రదేశాల జాబితాను దాచండి",
+  "Attached photo preview": "జోడించిన ఫోటో ప్రివ్యూ",
+  "Search for your city or district": "మీ నగరం లేదా జిల్లాను వెతకండి",
+  "Search {cities} cities, {districts} districts…":
+    "{cities} నగరాలు, {districts} జిల్లాలలో వెతకండి…",
+  "Filter {n} towns…": "{n} పట్టణాలను వడపోయండి…",
+  "Location not available yet — allow location access and try again.":
+    "ప్రదేశం ఇంకా అందుబాటులో లేదు — ప్రదేశ అనుమతి ఇచ్చి మళ్ళీ ప్రయత్నించండి.",
+  "Set your location first — use the readout above.":
+    "ముందుగా మీ ప్రదేశాన్ని నిర్ణయించండి — పైన ఉన్న సమాచారాన్ని వాడండి.",
+  "Report submitted. Authorities have been notified.":
+    "నివేదిక పంపబడింది. అధికారులకు తెలియజేయబడింది.",
+  "Official warnings near you, updated continuously":
+    "మీ దగ్గరి అధికారిక హెచ్చరికలు, నిరంతరం నవీకరించబడతాయి",
+  "Nearest shelters and resources on the map": "మ్యాప్‌లో సమీప ఆశ్రయాలు మరియు వనరులు",
+  "Fire, police, ambulance, disaster helplines":
+    "అగ్నిమాపక, పోలీసు, అంబులెన్స్, విపత్తు హెల్ప్‌లైన్‌లు",
+  "This site is blocked from using your location.":
+    "ఈ సైట్ మీ ప్రదేశాన్ని వాడకుండా నిరోధించబడింది.",
+  "Allow location for this site in your browser settings, then try again — or just name your place below.":
+    "మీ బ్రౌజర్ సెట్టింగ్‌లలో ఈ సైట్‌కు ప్రదేశ అనుమతి ఇవ్వండి, ఆపై మళ్ళీ ప్రయత్నించండి — లేదా క్రింద మీ ప్రదేశానికి పేరు పెట్టండి.",
+  "Your device didn't return a location in time.": "మీ పరికరం సమయానికి ప్రదేశాన్ని ఇవ్వలేదు.",
+  "Moving outdoors usually helps, or name your place below.":
+    "బయటికి వెళ్ళడం సాధారణంగా సహాయపడుతుంది, లేదా క్రింద మీ ప్రదేశానికి పేరు పెట్టండి.",
+  "Your device couldn't determine a location.": "మీ పరికరం ప్రదేశాన్ని నిర్ణయించలేకపోయింది.",
+  "Common on a desktop with no GPS, and on a phone with Location Services switched off. Name your place below instead.":
+    "జీపీఎస్ లేని కంప్యూటర్‌లో, లొకేషన్ సర్వీసెస్ ఆఫ్ ఉన్న ఫోన్‌లో ఇది సాధారణం. బదులుగా క్రింద మీ ప్రదేశానికి పేరు పెట్టండి.",
+  "This browser doesn't support location lookup.": "ఈ బ్రౌజర్ ప్రదేశ గుర్తింపును సమర్థించదు.",
+  "Name your place below instead.": "బదులుగా క్రింద మీ ప్రదేశానికి పేరు పెట్టండి.",
+  "This page is not on a secure (https) connection, so the browser will not share your location.":
+    "ఈ పేజీ సురక్షిత (https) కనెక్షన్‌లో లేదు, కాబట్టి బ్రౌజర్ మీ ప్రదేశాన్ని పంచుకోదు.",
+  "Open the deployed https site, or name your place below.":
+    "https సైట్‌ను తెరవండి, లేదా క్రింద మీ ప్రదేశానికి పేరు పెట్టండి.",
 };

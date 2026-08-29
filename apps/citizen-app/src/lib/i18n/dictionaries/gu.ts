@@ -162,4 +162,41 @@ export const gu: Dictionary = {
   Change: "બદલો",
   "Change language": "ભાષા બદલો",
   "Choose your language": "તમારી ભાષા પસંદ કરો",
+
+  // Strings the citizen web view has and the app does not.
+  "Sign out": "સાઇન આઉટ",
+  "Try again": "ફરી પ્રયાસ કરો",
+  "Submitting…": "મોકલાઈ રહ્યું છે…",
+  "Hide place list": "જગ્યાઓની યાદી છુપાવો",
+  "Attached photo preview": "જોડેલા ફોટોનું પૂર્વાવલોકન",
+  "Search for your city or district": "તમારું શહેર કે જિલ્લો શોધો",
+  "Search {cities} cities, {districts} districts…": "{cities} શહેરો, {districts} જિલ્લામાં શોધો…",
+  "Filter {n} towns…": "{n} નગરો ગાળો…",
+  "Location not available yet — allow location access and try again.":
+    "સ્થળ હજુ ઉપલબ્ધ નથી — સ્થળની પરવાનગી આપો અને ફરી પ્રયાસ કરો.",
+  "Set your location first — use the readout above.":
+    "પહેલાં તમારું સ્થળ નક્કી કરો — ઉપરની માહિતી વાપરો.",
+  "Report submitted. Authorities have been notified.":
+    "જાણ મોકલાઈ. અધિકારીઓને જાણ કરવામાં આવી છે.",
+  "Official warnings near you, updated continuously":
+    "તમારી નજીકની સરકારી ચેતવણીઓ, સતત અપડેટ થાય છે",
+  "Nearest shelters and resources on the map": "નકશા પર નજીકનાં આશ્રયસ્થાનો અને સંસાધનો",
+  "Fire, police, ambulance, disaster helplines":
+    "ફાયર બ્રિગેડ, પોલીસ, એમ્બ્યુલન્સ, આપત્તિ હેલ્પલાઇન",
+  "This site is blocked from using your location.":
+    "આ સાઇટને તમારું સ્થળ વાપરવાથી અટકાવવામાં આવી છે.",
+  "Allow location for this site in your browser settings, then try again — or just name your place below.":
+    "તમારા બ્રાઉઝર સેટિંગ્સમાં આ સાઇટ માટે સ્થળની પરવાનગી આપો, પછી ફરી પ્રયાસ કરો — અથવા નીચે તમારી જગ્યાનું નામ આપો.",
+  "Your device didn't return a location in time.": "તમારા ઉપકરણે સમયસર સ્થળ આપ્યું નહીં.",
+  "Moving outdoors usually helps, or name your place below.":
+    "ખુલ્લામાં જવાથી સામાન્ય રીતે મદદ મળે છે, અથવા નીચે તમારી જગ્યાનું નામ આપો.",
+  "Your device couldn't determine a location.": "તમારું ઉપકરણ સ્થળ નક્કી કરી શક્યું નહીં.",
+  "Common on a desktop with no GPS, and on a phone with Location Services switched off. Name your place below instead.":
+    "જીપીએસ વગરના કમ્પ્યુટર પર અને સ્થળ સેવાઓ બંધ હોય તેવા ફોન પર આ સામાન્ય છે. તેના બદલે નીચે તમારી જગ્યાનું નામ આપો.",
+  "This browser doesn't support location lookup.": "આ બ્રાઉઝર સ્થળ શોધવાને સમર્થન આપતું નથી.",
+  "Name your place below instead.": "તેના બદલે નીચે તમારી જગ્યાનું નામ આપો.",
+  "This page is not on a secure (https) connection, so the browser will not share your location.":
+    "આ પાનું સુરક્ષિત (https) જોડાણ પર નથી, તેથી બ્રાઉઝર તમારું સ્થળ શેર કરશે નહીં.",
+  "Open the deployed https site, or name your place below.":
+    "https સાઇટ ખોલો, અથવા નીચે તમારી જગ્યાનું નામ આપો.",
 };
