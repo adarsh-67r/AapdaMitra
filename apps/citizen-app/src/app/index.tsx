@@ -20,9 +20,9 @@ import { ScreenHeader } from "@/components/screen-header";
 import { SosButton } from "@/components/sos-button";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { Type } from "@/constants/fonts";
 import { Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
+import { useLanguage } from "@/lib/i18n/use-language";
 import { fileReport } from "@/lib/file-report";
 import { getQueue, subscribeToQueue } from "@/lib/offline-queue";
 import { SMS_GATEWAY_NUMBER, encodeReportSms, smsUri } from "@/lib/sms-fallback";
@@ -33,6 +33,7 @@ const SEVERITIES: Severity[] = ["low", "medium", "high", "critical"];
 
 export default function ReportScreen() {
   const theme = useTheme();
+  const { t, type } = useLanguage();
   const [description, setDescription] = useState("");
   const [severity, setSeverity] = useState<Severity>("medium");
   const [photoUri, setPhotoUri] = useState<string | null>(null);
@@ -62,8 +63,8 @@ export default function ReportScreen() {
     const permission = await ImagePicker.requestCameraPermissionsAsync();
     if (!permission.granted) {
       Alert.alert(
-        "Camera permission needed",
-        "Allow camera access to photograph the incident, or choose an existing photo instead."
+        t("Camera permission needed"),
+        t("Allow camera access to photograph the incident, or choose an existing photo instead.")
       );
       return;
     }
@@ -81,7 +82,7 @@ export default function ReportScreen() {
   async function pickPhoto() {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
-      Alert.alert("Photo permission needed", "Enable photo access to attach an image.");
+      Alert.alert(t("Photo permission needed"), t("Enable photo access to attach an image."));
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -118,9 +119,11 @@ export default function ReportScreen() {
     try {
       await Linking.openURL(uri);
     } catch {
+      // The number is not repeated back here. It is in the build so the
+      // composer can be addressed, but nothing puts it on screen.
       Alert.alert(
-        "Could not open messages",
-        `Send this text to ${SMS_GATEWAY_NUMBER} yourself:
+        t("Could not open messages"),
+        t("Open your messages app and send this to the Aapda Mitra number:") + `
 
 ${body}`
       );
@@ -129,7 +132,7 @@ ${body}`
 
   async function submit() {
     if (!location) {
-      Alert.alert("Location required", "Tag your location before submitting.");
+      Alert.alert(t("Location required"), t("Tag your location before submitting."));
       return;
     }
     setSubmitting(true);
@@ -145,7 +148,7 @@ ${body}`
     setSubmitting(false);
 
     if (outcome.status === "failed") {
-      Alert.alert("Could not save your report", `${outcome.reason}. Please try again.`);
+      Alert.alert(t("Could not save your report"), `${outcome.reason}. ${t("Please try again.")}`);
       return;
     }
 
@@ -155,17 +158,17 @@ ${body}`
 
     if (outcome.status === "queued") {
       Alert.alert(
-        "Saved offline",
-        "No connection right now. Your report is saved and will be sent automatically when you're back online."
+        t("Saved offline"),
+        t("No connection right now. Your report is saved and will be sent automatically when you're back online.")
       );
       return;
     }
 
     Alert.alert(
-      "Report submitted",
+      t("Report submitted"),
       outcome.photo === "failed"
-        ? "Authorities have been notified. Your photo could not be uploaded."
-        : "Authorities have been notified."
+        ? t("Authorities have been notified. Your photo could not be uploaded.")
+        : t("Authorities have been notified.")
     );
   }
 
@@ -186,14 +189,14 @@ ${body}`
     setSubmitting(false);
 
     if (outcome.status === "failed") {
-      Alert.alert("SOS could not be saved", `${outcome.reason}. Try again, or call 112.`);
+      Alert.alert(t("SOS could not be saved"), `${outcome.reason}. ${t("Try again, or call 112.")}`);
       return;
     }
     Alert.alert(
-      outcome.status === "queued" ? "SOS saved offline" : "SOS sent",
+      outcome.status === "queued" ? t("SOS saved offline") : t("SOS sent"),
       outcome.status === "queued"
-        ? "No connection right now. It will send automatically when you are back online. If you can, call 112."
-        : "Authorities have been notified of your location."
+        ? t("No connection right now. It will send automatically when you are back online. If you can, call 112.")
+        : t("Authorities have been notified of your location.")
     );
   }
 
@@ -201,18 +204,20 @@ ${body}`
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
         <ScreenHeader
-          title="Report an Incident"
-          subtitle="Photo, location, severity — filed in under a minute"
+          title={t("Report an Incident")}
+          subtitle={t("Photo, location, severity — filed in under a minute")}
         />
 
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
           {pendingCount > 0 && (
             <Panel tone="recessed" style={{ borderColor: theme.high }}>
               <ThemedText type="smallBold">
-                {pendingCount} report{pendingCount === 1 ? "" : "s"} waiting to send
+                {pendingCount === 1
+                  ? t("1 report waiting to send")
+                  : t("{count} reports waiting to send", { count: pendingCount })}
               </ThemedText>
               <ThemedText type="small" themeColor="textSecondary">
-                Saved on this device. They&apos;ll upload automatically once you&apos;re back online.
+                {t("Saved on this device. They'll upload automatically once you're back online.")}
               </ThemedText>
               {/* Only when a gateway number is configured. Offering a fallback
                   that goes nowhere is worse than not offering one. */}
@@ -220,14 +225,14 @@ ${body}`
                 <Pressable
                   onPress={sendBySms}
                   accessibilityRole="button"
-                  accessibilityLabel="Send the oldest waiting report as a text message"
+                  accessibilityLabel={t("Send the oldest waiting report as a text message")}
                   style={[styles.smsButton, { borderColor: theme.high }]}
                 >
                   <ThemedText type="smallBold" style={{ color: theme.high }}>
-                    Send by SMS instead
+                    {t("Send by SMS instead")}
                   </ThemedText>
                   <ThemedText type="small" themeColor="textSecondary">
-                    Opens your messages app. Works without mobile data.
+                    {t("Opens your messages app. Works without mobile data.")}
                   </ThemedText>
                 </Pressable>
               )}
@@ -239,7 +244,7 @@ ${body}`
           <SosButton disabled={!location} busy={submitting} onSend={sendSos} />
 
           <Panel>
-            <ThemedText type="smallBold">Location</ThemedText>
+            <ThemedText type="smallBold">{t("Location")}</ThemedText>
             <LocationField
               coords={geo.coords}
               status={geo.status}
@@ -252,7 +257,7 @@ ${body}`
           </Panel>
 
           <Panel>
-            <ThemedText type="smallBold">Severity</ThemedText>
+            <ThemedText type="smallBold">{t("Severity")}</ThemedText>
             <View style={styles.severityRow}>
               {SEVERITIES.map((s) => {
                 const selected = severity === s;
@@ -284,11 +289,11 @@ ${body}`
           </Panel>
 
           <Panel>
-            <ThemedText type="smallBold">Description</ThemedText>
+            <ThemedText type="smallBold">{t("Description")}</ThemedText>
             <TextInput
               value={description}
               onChangeText={setDescription}
-              placeholder="What's happening? Who's affected?"
+              placeholder={t("What's happening? Who's affected?")}
               placeholderTextColor={theme.textSecondary}
               multiline
               numberOfLines={4}
@@ -297,21 +302,21 @@ ${body}`
           </Panel>
 
           <Panel>
-            <ThemedText type="smallBold">Photo (optional)</ThemedText>
+            <ThemedText type="smallBold">{t("Photo (optional)")}</ThemedText>
             <View style={styles.photoRow}>
               <Pressable
                 style={[styles.secondaryButton, styles.photoButton, { borderColor: theme.border }]}
                 onPress={takePhoto}
                 accessibilityRole="button"
               >
-                <ThemedText type="small">Take a photo</ThemedText>
+                <ThemedText type="small">{t("Take a photo")}</ThemedText>
               </Pressable>
               <Pressable
                 style={[styles.secondaryButton, styles.photoButton, { borderColor: theme.border }]}
                 onPress={pickPhoto}
                 accessibilityRole="button"
               >
-                <ThemedText type="small">Choose existing</ThemedText>
+                <ThemedText type="small">{t("Choose existing")}</ThemedText>
               </Pressable>
             </View>
             {photoUri && (
@@ -335,8 +340,10 @@ ${body}`
             {submitting ? (
               <ActivityIndicator color={theme.accentContrast} />
             ) : (
-              <ThemedText style={[styles.submitText, { color: theme.accentContrast }]}>
-                Submit Report
+              <ThemedText
+                style={[styles.submitText, { color: theme.accentContrast, fontFamily: type.bold }]}
+              >
+                {t("Submit Report")}
               </ThemedText>
             )}
           </Pressable>
@@ -380,7 +387,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: Spacing.two,
   },
-  submitText: { fontFamily: Type.bold, fontSize: 16 },
+  submitText: { fontSize: 16 },
   smsButton: {
     marginTop: Spacing.one,
     paddingVertical: Spacing.one,
