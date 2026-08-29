@@ -1,0 +1,43 @@
+import { LANGUAGES } from "./languages";
+
+/**
+ * Ordering alerts by what the reader can read.
+ *
+ * SACHET publishes each alert in exactly one language, as its own alert rather
+ * than as a translation of another — roughly a third of the live feed is not
+ * English. So the useful thing to do with a citizen's language is order and
+ * label what already exists. Translating an official warning is the one thing
+ * this must not do: it would put our words in NDMA's mouth, and "evacuate" is
+ * not a word to get approximately right.
+ */
+
+const ENGLISH_NAME = new Map(LANGUAGES.map((l) => [l.code, l.english]));
+
+interface HasLanguage {
+  language?: string | null;
+}
+
+function tier(alertLanguage: string | null | undefined, reader: string): number {
+  if (alertLanguage && alertLanguage === reader) return 0;
+  if (alertLanguage === "en") return 1;
+  return 2;
+}
+
+export function sortAlertsByLanguage<T extends HasLanguage>(alerts: T[], reader: string): T[] {
+  // A stable sort, so the feed's newest-first order survives inside each tier.
+  // That ordering is the alert's urgency and is not ours to shuffle.
+  return [...alerts].sort((a, b) => tier(a.language, reader) - tier(b.language, reader));
+}
+
+/**
+ * The name of the language an alert is in, when that is not the reader's and we
+ * actually know it. Null when there is nothing worth saying — an alert the
+ * reader can read, or one whose language the feed never recorded. Guessing is
+ * worse than silence: a wrong label tells a citizen they cannot read something
+ * they can.
+ */
+export function foreignLanguageLabel(alert: HasLanguage, reader: string): string | null {
+  const language = alert.language;
+  if (!language || language === reader) return null;
+  return ENGLISH_NAME.get(language) ?? language;
+}
