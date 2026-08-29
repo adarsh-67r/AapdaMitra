@@ -1,3 +1,4 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useFonts } from 'expo-font';
 import { DarkTheme, DefaultTheme, ThemeProvider, Tabs } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -10,6 +11,27 @@ import { ThemedView } from '@/components/themed-view';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/use-auth';
+import { useQueueFlush } from '@/lib/use-queue-flush';
+
+/**
+ * Every tab needs its own icon.
+ *
+ * expo-router substitutes `MissingIcon` — the character U+23F7, which no font
+ * on the device has a glyph for — for any screen that declares none, so the bar
+ * rendered six identical tofu boxes. The pairs are Ionicons' filled and outline
+ * cuts of the same shape: the selected tab fills in rather than changing shape,
+ * which is the convention the whole platform already uses.
+ */
+const TABS = [
+  // Dashboard first, matching the web client: what is true where you are
+  // standing comes before the form for telling anyone about it.
+  { name: 'dashboard', title: 'Home', icon: 'home' },
+  { name: 'index', title: 'Report', icon: 'add-circle' },
+  { name: 'alerts', title: 'Alerts', icon: 'warning' },
+  { name: 'shelters', title: 'Shelter', icon: 'business' },
+  { name: 'my-reports', title: 'Mine', icon: 'document-text' },
+  { name: 'emergency', title: 'Help', icon: 'call' },
+] as const;
 
 SplashScreen.preventAutoHideAsync();
 
@@ -18,6 +40,10 @@ export default function RootLayout() {
   const theme = useTheme();
   const { status } = useAuth();
   const [fontsLoaded] = useFonts(FONT_ASSETS);
+
+  // App-wide, not per-screen: a report queued from SOS must keep retrying
+  // whichever tab the citizen is looking at.
+  useQueueFlush();
 
   // The splash stays up until the faces are ready. Without this the first
   // frame renders in the system font and then reflows when Plex arrives, which
@@ -62,14 +88,22 @@ export default function RootLayout() {
             tabBarLabelStyle: { fontFamily: Type.medium, fontSize: 11 },
           }}
         >
-          {/* Dashboard first, matching the web client: what is true where you
-              are standing comes before the form for telling anyone about it. */}
-          <Tabs.Screen name="dashboard" options={{ title: 'Home' }} />
-          <Tabs.Screen name="index" options={{ title: 'Report' }} />
-          <Tabs.Screen name="alerts" options={{ title: 'Alerts' }} />
-          <Tabs.Screen name="shelters" options={{ title: 'Shelter' }} />
-          <Tabs.Screen name="my-reports" options={{ title: 'Mine' }} />
-          <Tabs.Screen name="emergency" options={{ title: 'Help' }} />
+          {TABS.map((tab) => (
+            <Tabs.Screen
+              key={tab.name}
+              name={tab.name}
+              options={{
+                title: tab.title,
+                tabBarIcon: ({ color, size, focused }) => (
+                  <Ionicons
+                    name={focused ? tab.icon : (`${tab.icon}-outline` as const)}
+                    size={size}
+                    color={color}
+                  />
+                ),
+              }}
+            />
+          ))}
         </Tabs>
       )}
     </ThemeProvider>

@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
-  AppState,
   Image,
   Pressable,
   ScrollView,
@@ -23,7 +22,7 @@ import { Type } from "@/constants/fonts";
 import { Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
 import { fileReport } from "@/lib/file-report";
-import { flushQueue, subscribeToQueue } from "@/lib/offline-queue";
+import { subscribeToQueue } from "@/lib/offline-queue";
 import { useLocation } from "@/lib/use-location";
 
 type Severity = "low" | "medium" | "high" | "critical";
@@ -47,16 +46,6 @@ export default function ReportScreen() {
   };
 
   useEffect(() => subscribeToQueue(setPendingCount), []);
-
-  // Retry queued reports on mount and whenever the app comes back to the
-  // foreground — the most likely moment for connectivity to have returned.
-  useEffect(() => {
-    flushQueue();
-    const sub = AppState.addEventListener("change", (state) => {
-      if (state === "active") flushQueue();
-    });
-    return () => sub.remove();
-  }, []);
 
   /**
    * Photograph the incident.
