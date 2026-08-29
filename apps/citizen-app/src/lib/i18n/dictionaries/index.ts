@@ -1,6 +1,9 @@
 import type { Dictionary } from "../translate";
 
+import { bn } from "./bn";
 import { hi } from "./hi";
+import { mr } from "./mr";
+import { te } from "./te";
 
 /**
  * One dictionary per language, keyed by the English source string.
@@ -15,4 +18,4 @@ import { hi } from "./hi";
  * speaker. Each file says so at the top and names the lines worth checking
  * first.
  */
-export const DICTIONARIES: Record<string, Dictionary> = { hi };
+export const DICTIONARIES: Record<string, Dictionary> = { hi, bn, mr, te };
