@@ -193,4 +193,14 @@ export const pa: Dictionary = {
     "ਇਹ ਸਫ਼ਾ ਸੁਰੱਖਿਅਤ (https) ਕਨੈਕਸ਼ਨ ਉੱਤੇ ਨਹੀਂ, ਇਸ ਲਈ ਬ੍ਰਾਊਜ਼ਰ ਤੁਹਾਡੀ ਥਾਂ ਸਾਂਝੀ ਨਹੀਂ ਕਰੇਗਾ।",
   "Open the deployed https site, or name your place below.":
     "https ਸਾਈਟ ਖੋਲ੍ਹੋ, ਜਾਂ ਹੇਠਾਂ ਆਪਣੀ ਥਾਂ ਦਾ ਨਾਂ ਦੱਸੋ।",
+
+  // Strings the citizen web view has and the app does not.
+  "Hospitals": "ਹਸਪਤਾਲ",
+  "Police stations": "ਪੁਲਿਸ ਥਾਣੇ",
+  "Fire stations": "ਫਾਇਰ ਸਟੇਸ਼ਨ",
+  "Zoom in to see facilities": "ਸਹੂਲਤਾਂ ਵੇਖਣ ਲਈ ਜ਼ੂਮ ਕਰੋ",
+  "None nearby": "ਨੇੜੇ ਕੁਝ ਨਹੀਂ",
+  "Showing {shown} of {total}": "{total} ਵਿੱਚੋਂ {shown} ਵਿਖਾ ਰਹੇ ਹਾਂ",
+  "{n} nearby": "ਨੇੜੇ {n}",
+  "Could not load facilities": "ਸਹੂਲਤਾਂ ਲੋਡ ਨਹੀਂ ਹੋ ਸਕੀਆਂ",
 };

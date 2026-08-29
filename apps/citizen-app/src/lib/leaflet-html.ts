@@ -14,6 +14,25 @@ export interface MapChrome {
   border: string;
   text: string;
   ground: string;
+  /** The ink facilities are drawn in — see the note on setFacilities. */
+  muted: string;
+}
+
+/** What the map posts back to React Native whenever the view settles. */
+export interface MapView {
+  south: number;
+  west: number;
+  north: number;
+  east: number;
+  zoom: number;
+}
+
+/** A facility as the API returns it, and as setFacilities expects it. */
+export interface MapFacility {
+  kind: "hospital" | "police" | "fire";
+  lat: number;
+  lng: number;
+  name: string;
 }
 
 /**
@@ -29,6 +48,13 @@ export interface MapChrome {
  */
 const OSM = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
 const OSM_ATTRIBUTION = "&copy; OpenStreetMap contributors";
+
+/** Said in the popup, so one muted ink can serve all three kinds. */
+const FACILITY_NOUN = {
+  hospital: "Hospital",
+  police: "Police station",
+  fire: "Fire station",
+};
 
 /** Applied to Leaflet's tile pane only, so the pins on top keep their colour. */
 const DARK_FILTER = "invert(1) hue-rotate(180deg) brightness(0.93) contrast(0.92) saturate(0.8)";
@@ -97,6 +123,57 @@ export function leafletHtml(
         .addTo(map)
         .bindPopup('<b>' + p.title + '</b><br/>' + p.description);
     });
+
+    // Hospitals, police and fire stations, put on the map by React Native
+    // rather than baked into this document: the HTML is rebuilt whenever the
+    // shelters poll returns something new, and a rebuild reloads the WebView.
+    // Anything drawn through here survives a toggle without the map jumping
+    // back to where it started.
+    var facilityLayer = L.layerGroup().addTo(map);
+
+    var FACILITY_NOUN = {
+      hospital: '${FACILITY_NOUN.hospital}',
+      police: '${FACILITY_NOUN.police}',
+      fire: '${FACILITY_NOUN.fire}'
+    };
+
+    // Drawn small, hollow and in one muted ink, separated by the word in the
+    // popup rather than by colour. Giving fire stations red would spend the one
+    // colour this map reserves for an emergency on a building that is not on
+    // fire.
+    window.setFacilities = function (list) {
+      facilityLayer.clearLayers();
+      list.forEach(function (f) {
+        L.circleMarker([f.lat, f.lng], {
+          radius: 5,
+          color: '${chrome.muted}',
+          weight: 2,
+          fillColor: '${chrome.ground}',
+          fillOpacity: 1
+        })
+          .addTo(facilityLayer)
+          .bindPopup('<b>' + f.name + '</b><br/>' + (FACILITY_NOUN[f.kind] || ''));
+      });
+    };
+
+    // React Native decides what to fetch, so it needs to know what is on
+    // screen. Sent once the map has settled rather than during the gesture:
+    // a pan fires this at the end, not for every frame of it.
+    function postView() {
+      if (!window.ReactNativeWebView) return;
+      var b = map.getBounds();
+      window.ReactNativeWebView.postMessage(JSON.stringify({
+        type: 'view',
+        south: b.getSouth(),
+        west: b.getWest(),
+        north: b.getNorth(),
+        east: b.getEast(),
+        zoom: map.getZoom()
+      }));
+    }
+
+    map.on('moveend', postView);
+    postView();
   </script>
 </body>
 </html>`;

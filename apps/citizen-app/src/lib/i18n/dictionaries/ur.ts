@@ -208,4 +208,14 @@ export const ur: Dictionary = {
     "یہ صفحہ محفوظ (https) کنکشن پر نہیں، اس لیے براؤزر آپ کا مقام شیئر نہیں کرے گا۔",
   "Open the deployed https site, or name your place below.":
     "https سائٹ کھولیں، یا نیچے اپنی جگہ کا نام دیں۔",
+
+  // Strings the citizen web view has and the app does not.
+  "Hospitals": "ہسپتال",
+  "Police stations": "پولیس اسٹیشن",
+  "Fire stations": "فائر اسٹیشن",
+  "Zoom in to see facilities": "سہولیات دیکھنے کے لیے زوم کریں",
+  "None nearby": "قریب کچھ نہیں",
+  "Showing {shown} of {total}": "{total} میں سے {shown} دکھائے جا رہے ہیں",
+  "{n} nearby": "قریب {n}",
+  "Could not load facilities": "سہولیات لوڈ نہیں ہو سکیں",
 };

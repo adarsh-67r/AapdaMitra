@@ -214,4 +214,14 @@ export const hi: Dictionary = {
     "यह पेज सुरक्षित (https) कनेक्शन पर नहीं है, इसलिए ब्राउज़र आपका स्थान साझा नहीं करेगा।",
   "Open the deployed https site, or name your place below.":
     "तैनात https साइट खोलें, या नीचे अपनी जगह का नाम दें।",
+
+  // Strings the citizen web view has and the app does not.
+  "Hospitals": "अस्पताल",
+  "Police stations": "पुलिस स्टेशन",
+  "Fire stations": "दमकल केंद्र",
+  "Zoom in to see facilities": "सुविधाएँ देखने के लिए ज़ूम करें",
+  "None nearby": "आसपास कुछ नहीं",
+  "Showing {shown} of {total}": "{total} में से {shown} दिखाए जा रहे हैं",
+  "{n} nearby": "आसपास {n}",
+  "Could not load facilities": "सुविधाएँ लोड नहीं हो सकीं",
 };

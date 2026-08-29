@@ -194,4 +194,14 @@ export const as: Dictionary = {
     "এই পৃষ্ঠা সুৰক্ষিত (https) সংযোগত নাই, সেয়েহে ব্ৰাউজাৰে আপোনাৰ ঠাই নিদিয়ে।",
   "Open the deployed https site, or name your place below.":
     "https ছাইটটো খোলক, বা তলত আপোনাৰ ঠাইৰ নাম দিয়ক।",
+
+  // Strings the citizen web view has and the app does not.
+  "Hospitals": "চিকিৎসালয়",
+  "Police stations": "আৰক্ষী থানা",
+  "Fire stations": "অগ্নিনিৰ্বাপক কেন্দ্ৰ",
+  "Zoom in to see facilities": "সুবিধাসমূহ চাবলৈ জুম কৰক",
+  "None nearby": "ওচৰত একো নাই",
+  "Showing {shown} of {total}": "{total}ৰ ভিতৰত {shown} দেখুওৱা হৈছে",
+  "{n} nearby": "ওচৰত {n}",
+  "Could not load facilities": "সুবিধাসমূহ ল'ড কৰিব পৰা নগ'ল",
 };

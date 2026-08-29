@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import alerts, allocate, auth, reports, resources, sms
+from app.routers import alerts, allocate, auth, facilities, reports, resources, sms
 
 app = FastAPI(title="AapdaMitra API")
 
@@ -17,6 +17,7 @@ app.include_router(resources.router)
 app.include_router(alerts.router)
 app.include_router(allocate.router)
 app.include_router(sms.router)
+app.include_router(facilities.router)
 
 
 @app.get("/health")
