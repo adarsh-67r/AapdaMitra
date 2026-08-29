@@ -226,6 +226,14 @@ html {
   background: var(--panel-alt);
 }
 
+/* The dark basemap. Sits on the tile layer's own container rather than on the
+   map, so markers, popups and controls above it are left alone — only the
+   paper is turned over. See DARK_BASEMAP_FILTER in lib/map-basemap.ts for why
+   the hue rotation is there. */
+.basemap-dark {
+  filter: invert(1) hue-rotate(180deg) brightness(0.93) contrast(0.92) saturate(0.8);
+}
+
 /* Leaflet's own chrome — popups, tooltips, zoom buttons, attribution — ships
    white and stays white. Against the dark basemap those are the brightest
    things on the screen, and against the paper one they are the only surfaces

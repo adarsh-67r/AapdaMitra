@@ -6,9 +6,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import MapFacilityControl from "@/components/MapFacilityControl";
 import {
   FACILITY_MIN_ZOOM,
+  cachedFacilitiesFor,
   facilitiesInView,
-  loadFacilities,
-  type Facility,
+  loadFacilitiesFor,
   type FacilityKind,
 } from "@/lib/facilities";
 import { drawFacilities } from "@/lib/facility-markers";
@@ -49,7 +49,8 @@ export default function CitizenMapClient({
 
   const theme = useThemeName();
   const [kinds, setKinds] = useState<Set<FacilityKind>>(new Set());
-  const [facilities, setFacilities] = useState<Facility[] | null>(null);
+  // Bumped when a newly fetched cell lands, which re-runs the redraw below.
+  const [cellsLoaded, setCellsLoaded] = useState(0);
   const [note, setNote] = useState<string | null>(null);
 
   useEffect(() => {
@@ -84,6 +85,7 @@ export default function CitizenMapClient({
     const next = L.tileLayer(basemap.url, {
       attribution: basemap.attribution,
       maxZoom: MAX_TILE_ZOOM,
+      className: basemap.className,
     });
     // Added before the old one is removed, so the background never shows
     // through for a frame.
@@ -110,33 +112,15 @@ export default function CitizenMapClient({
     }
   }, [pins]);
 
-  // Fetch the facility file the first time a layer is switched on.
-  useEffect(() => {
-    if (kinds.size === 0 || facilities) return;
-    let cancelled = false;
-    setNote("Loading facilities…");
-    loadFacilities()
-      .then((list) => {
-        if (cancelled) return;
-        setFacilities(list);
-        setNote(null);
-      })
-      .catch((e: unknown) => {
-        if (cancelled) return;
-        setNote(e instanceof Error ? e.message : "Facility data unavailable.");
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [kinds, facilities]);
 
   const redrawFacilities = useCallback(() => {
     const map = mapRef.current;
     const group = facilityGroupRef.current;
     if (!map || !group) return;
 
-    if (kinds.size === 0 || !facilities) {
+    if (kinds.size === 0) {
       group.clearLayers();
+      setNote(null);
       return;
     }
 
@@ -147,11 +131,31 @@ export default function CitizenMapClient({
     }
 
     const b = map.getBounds();
-    const { shown, total } = facilitiesInView(
-      facilities,
-      { south: b.getSouth(), west: b.getWest(), north: b.getNorth(), east: b.getEast() },
-      kinds
-    );
+    const bounds = {
+      south: b.getSouth(),
+      west: b.getWest(),
+      north: b.getNorth(),
+      east: b.getEast(),
+    };
+
+    // Re-created whenever a cell arrives, so a redraw that had to wait runs
+    // again with the data in hand.
+    void cellsLoaded;
+
+    const here = cachedFacilitiesFor(bounds);
+    if (!here) {
+      setNote("Loading facilities…");
+      loadFacilitiesFor(bounds)
+        .then(() => setCellsLoaded((n) => n + 1))
+        .catch((e: unknown) => {
+          // The layer is context, not the job. Say why it is missing and leave
+          // the incident map working.
+          setNote(e instanceof Error ? e.message : "Facility data unavailable.");
+        });
+      return;
+    }
+
+    const { shown, total } = facilitiesInView(here, bounds, kinds);
 
     const muted =
       getComputedStyle(document.documentElement).getPropertyValue("--text-muted").trim() ||
@@ -165,7 +169,7 @@ export default function CitizenMapClient({
           ? `Showing ${shown.length} of ${total} in view — zoom in for the rest.`
           : `${total} in view.`
     );
-  }, [facilities, kinds]);
+  }, [cellsLoaded, kinds]);
 
   useEffect(() => {
     redrawFacilities();

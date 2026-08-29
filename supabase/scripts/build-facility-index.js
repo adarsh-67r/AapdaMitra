@@ -16,8 +16,10 @@
 //
 //   node build-facility-index.js <dir with hospital.json police.json fire.json>
 //
-// Output: apps/web/public/india-facilities.json — served as a static asset and
-// fetched only when the layer is switched on, so 2.9 MB never enters the bundle.
+// Output: apps/web/public/facilities/ — one JSON file per one-degree cell plus
+// an index of the cells that exist. Served as static assets and fetched only
+// for the view on screen, so nothing like the whole 2.9 MB ever reaches a
+// browser. See facility-cells.js.
 //
 // Source: OpenStreetMap contributors (ODbL). The map already carries OSM
 // attribution for its tiles; the facility layer is covered by the same credit.
@@ -25,8 +27,10 @@
 const fs = require("fs");
 const path = require("path");
 
-const OUT_PATH = path.join(
-  __dirname, "..", "..", "apps", "web", "public", "india-facilities.json"
+const { writeFacilityCells } = require("./facility-cells");
+
+const OUT_DIR = path.join(
+  __dirname, "..", "..", "apps", "web", "public", "facilities"
 );
 const RAW_PATH = path.join(__dirname, "..", "district_raw.geojson");
 
@@ -152,11 +156,10 @@ for (const { file, kind } of SOURCES) {
 // ever needs to; more immediately, it makes the diff of a rebuild readable.
 rows.sort((a, b) => b[1] - a[1] || a[2] - b[2]);
 
-const json = JSON.stringify(rows);
-fs.writeFileSync(OUT_PATH, json);
+const { cells, largest } = writeFacilityCells(rows, OUT_DIR);
 
 console.log(
   `${rows.length} facilities · ${counts.hospital} hospitals · ${counts.police} police · ` +
     `${counts.fire} fire · ${unnamed} unnamed and ${outsideIndia} outside India skipped · ` +
-    `${(json.length / 1024 / 1024).toFixed(2)} MB`
+    `${cells} cells, largest ${(largest / 1024).toFixed(1)} KB`
 );

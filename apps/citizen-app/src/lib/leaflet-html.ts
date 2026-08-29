@@ -19,21 +19,19 @@ export interface MapChrome {
 /**
  * The tiles under everything else, matched to the two web basemaps.
  *
- * Light stays on plain OpenStreetMap. Dark uses CARTO's dark basemap rather
- * than a CSS inversion of the same tiles: inverting OSM turns its parkland
- * magenta and its water orange. Both are drawn from OSM data, so the map reads
- * identically between themes.
+ * Both themes draw plain OpenStreetMap tiles; dark filters them in the WebView.
+ * This was CARTO's ready-made dark basemap until CARTO began stamping API KEY
+ * REQUIRED across every tile of the keyless endpoint. A plain `invert(1)` is
+ * what the old comment here rightly refused — it turns parkland magenta and
+ * water orange — but inversion moves every hue half way round the wheel, and
+ * `hue-rotate(180deg)` moves it back, so the colours survive and only the paper
+ * goes black.
  */
-const BASEMAP = {
-  light: {
-    url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-    attribution: "&copy; OpenStreetMap contributors",
-  },
-  dark: {
-    url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png",
-    attribution: "&copy; OpenStreetMap contributors &copy; CARTO",
-  },
-};
+const OSM = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+const OSM_ATTRIBUTION = "&copy; OpenStreetMap contributors";
+
+/** Applied to Leaflet's tile pane only, so the pins on top keep their colour. */
+const DARK_FILTER = "invert(1) hue-rotate(180deg) brightness(0.93) contrast(0.92) saturate(0.8)";
 
 // A self-contained Leaflet map for react-native-webview. Loads Leaflet from
 // unpkg (needs internet — same requirement the app already has for
@@ -45,7 +43,7 @@ export function leafletHtml(
   pins: MapPin[],
   chrome: MapChrome
 ): string {
-  const basemap = chrome.dark ? BASEMAP.dark : BASEMAP.light;
+  const darkTiles = chrome.dark ? `.leaflet-tile-pane { filter: ${DARK_FILTER}; }` : "";
 
   return `<!DOCTYPE html>
 <html>
@@ -55,6 +53,7 @@ export function leafletHtml(
   <style>
     html, body, #map { height: 100%; margin: 0; padding: 0; }
     #map { background: ${chrome.ground}; }
+    ${darkTiles}
     /* Leaflet's own chrome ships white and stays white. Against the dark
        basemap those become the brightest things on the screen, so they are put
        on the app's own surfaces. */
@@ -82,8 +81,8 @@ export function leafletHtml(
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     const map = L.map('map').setView([${center.lat}, ${center.lng}], 11);
-    L.tileLayer('${basemap.url}', {
-      attribution: '${basemap.attribution}'
+    L.tileLayer('${OSM}', {
+      attribution: '${OSM_ATTRIBUTION}'
     }).addTo(map);
 
     const pins = ${JSON.stringify(pins)};

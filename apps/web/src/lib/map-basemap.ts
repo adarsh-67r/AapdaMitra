@@ -3,6 +3,8 @@ import type { Theme } from "./useTheme";
 export interface Basemap {
   url: string;
   attribution: string;
+  /** Put on the layer's tile container, so the filter reaches tiles only. */
+  className?: string;
 }
 
 /**
@@ -14,14 +16,18 @@ export interface Basemap {
  * severity colours depend on, because every marker is judged against the ground
  * it sits on.
  *
- * Light stays on plain OpenStreetMap tiles. Dark uses CARTO's dark basemap
- * rather than a CSS filter over the same tiles: inverting OSM turns its green
- * parkland magenta and its blue water orange, which is worse than no dark mode
- * at all. CARTO's is drawn dark, and it is drawn from the same OSM data, so
- * place names and roads stay identical between the two themes.
+ * Both themes now draw the same plain OpenStreetMap tiles, and dark is filtered
+ * in the browser. This used to be CARTO's ready-made dark basemap, which was
+ * better: a CSS `invert(1)` over OSM turns its green parkland magenta and its
+ * blue water orange. But CARTO began stamping API KEY REQUIRED diagonally
+ * across every tile of the keyless endpoint, so that basemap is gone whatever
+ * its merits. `hue-rotate(180deg)` after the inversion is what answers the old
+ * objection: inversion moves every hue half way round the wheel, and the
+ * rotation moves it back, so parkland stays green and water stays blue while
+ * the paper goes black. Roads and labels, being neutral, simply flip.
  *
- * Both require attribution, and Leaflet renders it in the corner from these
- * strings.
+ * Filtering our own tiles also means no third party can put a watermark, a
+ * price, or a key on this map again.
  */
 export const BASEMAPS: Record<Theme, Basemap> = {
   light: {
@@ -29,9 +35,14 @@ export const BASEMAPS: Record<Theme, Basemap> = {
     attribution: "&copy; OpenStreetMap contributors",
   },
   dark: {
-    url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-    attribution: "&copy; OpenStreetMap contributors &copy; CARTO",
+    url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    attribution: "&copy; OpenStreetMap contributors",
+    className: "basemap-dark",
   },
 };
+
+/** The filter that turns the light basemap into the dark one. */
+export const DARK_BASEMAP_FILTER =
+  "invert(1) hue-rotate(180deg) brightness(0.93) contrast(0.92) saturate(0.8)";
 
 export const MAX_TILE_ZOOM = 19;
