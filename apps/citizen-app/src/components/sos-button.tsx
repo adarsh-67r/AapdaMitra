@@ -2,9 +2,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Animated, Easing, Pressable, StyleSheet } from "react-native";
 
 import { ThemedText } from "@/components/themed-text";
-import { Type } from "@/constants/fonts";
 import { Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
+import { useLanguage } from "@/lib/i18n/use-language";
 
 /**
  * Long enough that a phone loose in a pocket cannot file a critical report,
@@ -32,6 +32,7 @@ export function SosButton({
   onSend: () => void;
 }) {
   const theme = useTheme();
+  const { t, type } = useLanguage();
   // A lazy useState initialiser rather than a ref: the animated value is read
   // during render to build the fill style, and reading a ref there is exactly
   // what React's rules forbid. The value is still created once.
@@ -83,7 +84,7 @@ export function SosButton({
     }).start();
   }, [progress]);
 
-  const label = busy ? "Sending…" : holding ? "Keep holding…" : "SOS — hold to send";
+  const label = busy ? t("Sending…") : holding ? t("Keep holding…") : t("SOS — hold to send");
 
   return (
     <>
@@ -92,8 +93,10 @@ export function SosButton({
         onPressOut={cancel}
         disabled={disabled || busy}
         accessibilityRole="button"
-        accessibilityLabel="Send an SOS"
-        accessibilityHint="Press and hold for just over a second to file a critical report at your location"
+        accessibilityLabel={t("Send an SOS")}
+        accessibilityHint={t(
+          "Press and hold for just over a second to file a critical report at your location"
+        )}
         accessibilityState={{ disabled: disabled || busy, busy }}
         style={[
           styles.button,
@@ -102,12 +105,12 @@ export function SosButton({
         ]}
       >
         <Animated.View style={[styles.fill, { width: fillWidth }]} />
-        <ThemedText style={styles.label}>{label}</ThemedText>
+        <ThemedText style={[styles.label, { fontFamily: type.bold }]}>{label}</ThemedText>
       </Pressable>
       <ThemedText type="small" themeColor="textSecondary" style={styles.hint}>
         {disabled
-          ? "Set your location below before sending an SOS."
-          : "Files a critical report at your location. No description needed."}
+          ? t("Set your location below before sending an SOS.")
+          : t("Files a critical report at your location. No description needed.")}
       </ThemedText>
     </>
   );
@@ -133,7 +136,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#00000038",
     pointerEvents: "none",
   },
-  label: { color: "#fff", fontFamily: Type.bold, fontSize: 16, letterSpacing: 0.5 },
+  label: { color: "#fff", fontSize: 16, letterSpacing: 0.5 },
   disabled: { opacity: 0.5 },
   hint: { textAlign: "center", marginTop: Spacing.one },
 });

@@ -7,10 +7,10 @@ import { Panel } from "@/components/panel";
 import { ScreenHeader } from "@/components/screen-header";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { Type } from "@/constants/fonts";
 import { Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
 import { apiFetchJson } from "@/lib/api-client";
+import { useLanguage } from "@/lib/i18n/use-language";
 import { usePoll } from "@/lib/use-poll";
 import {
   NEARBY_RADIUS_KM,
@@ -44,6 +44,7 @@ function Field({
   last?: boolean;
 }) {
   const theme = useTheme();
+  const { type } = useLanguage();
   return (
     <View
       style={[styles.field, !last && { borderBottomWidth: 1, borderBottomColor: theme.border }]}
@@ -51,7 +52,9 @@ function Field({
       <ThemedText type="small" themeColor="textSecondary" style={styles.fieldLabel}>
         {label.toUpperCase()}
       </ThemedText>
-      <ThemedText style={[styles.fieldValue, color ? { color } : null]}>{value}</ThemedText>
+      <ThemedText style={[styles.fieldValue, { fontFamily: type.semibold }, color ? { color } : null]}>
+        {value}
+      </ThemedText>
       {hint && (
         <ThemedText type="small" themeColor="textSecondary">
           {hint}
@@ -71,6 +74,7 @@ function Field({
  */
 export default function DashboardScreen() {
   const theme = useTheme();
+  const { t } = useLanguage();
   const geo = useLocation();
   const coords = geo.coords;
 
@@ -116,8 +120,8 @@ export default function DashboardScreen() {
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
         <ScreenHeader
-          title="Dashboard"
-          subtitle="Alerts, shelters and teams nearest to where you are"
+          title={t("Dashboard")}
+          subtitle={t("Alerts, shelters and teams nearest to where you are")}
         />
 
         <ScrollView
@@ -158,15 +162,15 @@ export default function DashboardScreen() {
             <>
               <Panel style={styles.readout}>
                 <Field
-                  label="Your position"
+                  label={t("Your position")}
                   value={geo.placeLabel ?? labelFor(nearestPlace(coords.lat, coords.lng))}
                   hint={
                     `${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}` +
-                    (geo.source === "manual" ? "  ·  approximate, set by hand" : "")
+                    (geo.source === "manual" ? `  ·  ${t("approximate, set by hand")}` : "")
                   }
                 />
                 <Field
-                  label={`Active alerts within ${NEARBY_RADIUS_KM} km`}
+                  label={t("Active alerts within {km} km", { km: NEARBY_RADIUS_KM })}
                   value={String(summary.nearbyAlerts.length)}
                   color={
                     summary.worstAlert
@@ -175,44 +179,48 @@ export default function DashboardScreen() {
                   }
                   hint={
                     summary.worstAlert
-                      ? `Most severe: ${summary.worstAlert.row.disaster_type}${
-                          summary.worstAlert.row.issuing_agency
+                      ? t("Most severe: {type}{agency} · {km} away", {
+                          type: summary.worstAlert.row.disaster_type,
+                          agency: summary.worstAlert.row.issuing_agency
                             ? ` · ${summary.worstAlert.row.issuing_agency}`
-                            : ""
-                        } · ${formatKm(summary.worstAlert.km)} away`
-                      : "No official warnings currently cover your area."
+                            : "",
+                          km: formatKm(summary.worstAlert.km),
+                        })
+                      : t("No official warnings currently cover your area.")
                   }
                 />
                 <Field
-                  label="Nearest available shelter"
-                  value={summary.nearestShelter ? formatKm(summary.nearestShelter.km) : "None listed"}
+                  label={t("Nearest available shelter")}
+                  value={
+                    summary.nearestShelter ? formatKm(summary.nearestShelter.km) : t("None listed")
+                  }
                   hint={
                     summary.nearestShelter
                       ? `${summary.nearestShelter.row.name}${
                           summary.nearestShelter.row.capacity
-                            ? ` · capacity ${summary.nearestShelter.row.capacity}`
+                            ? ` · ${t("capacity {n}", { n: summary.nearestShelter.row.capacity })}`
                             : ""
                         }`
-                      : "No shelter is currently marked available in the registry."
+                      : t("No shelter is currently marked available in the registry.")
                   }
                 />
                 <Field
-                  label="Nearest available rescue team"
-                  value={summary.nearestTeam ? formatKm(summary.nearestTeam.km) : "None listed"}
+                  label={t("Nearest available rescue team")}
+                  value={summary.nearestTeam ? formatKm(summary.nearestTeam.km) : t("None listed")}
                   hint={
                     summary.nearestTeam
                       ? summary.nearestTeam.row.name
-                      : "No rescue team is currently marked available."
+                      : t("No rescue team is currently marked available.")
                   }
                 />
                 <Field
                   last
-                  label="Your open reports"
+                  label={t("Your open reports")}
                   value={String(summary.openReports)}
                   hint={
                     summary.openReports > 0
-                      ? "Still being worked. Track them under My Reports."
-                      : "Nothing outstanding from you right now."
+                      ? t("Still being worked. Track them under My Reports.")
+                      : t("Nothing outstanding from you right now.")
                   }
                 />
               </Panel>
@@ -283,7 +291,7 @@ const styles = StyleSheet.create({
   readout: { paddingVertical: 0, gap: 0 },
   field: { paddingVertical: Spacing.three, gap: Spacing.one },
   fieldLabel: { letterSpacing: 1.4, fontSize: 11 },
-  fieldValue: { fontSize: 20, fontFamily: Type.semibold },
+  fieldValue: { fontSize: 20 },
   section: { gap: Spacing.two },
   sectionTitle: { letterSpacing: 1.4, fontSize: 11 },
   rowPanel: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },

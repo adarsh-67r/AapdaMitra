@@ -15,6 +15,7 @@ import {
   searchPlaces,
   type Place,
 } from "@/lib/india-places";
+import { useLanguage } from "@/lib/i18n/use-language";
 import type { Coords, LocationSource, LocationStatus } from "@/lib/use-location";
 
 /**
@@ -54,6 +55,7 @@ export function LocationField({
   onManual: (c: Coords, label: string) => void;
 }) {
   const theme = useTheme();
+  const { t } = useLanguage();
   const [picking, setPicking] = useState(false);
 
   const choose = (p: Place) => {
@@ -65,7 +67,7 @@ export function LocationField({
 
   return (
     <ThemedView style={styles.wrap}>
-      {status === "locating" && <ThemedText type="small">Finding your location…</ThemedText>}
+      {status === "locating" && <ThemedText type="small">{t("Finding your location…")}</ThemedText>}
 
       {status === "ready" && coords && (
         <ThemedText type="small">
@@ -80,7 +82,7 @@ export function LocationField({
 
       {failed && (
         <ThemedText type="small" style={{ color: theme.high }}>
-          {EXPLANATION[status]}
+          {t(EXPLANATION[status])}
         </ThemedText>
       )}
 
@@ -91,7 +93,7 @@ export function LocationField({
           accessibilityRole="button"
         >
           <ThemedText type="small">
-            {status === "ready" ? "Update location" : "Use my location"}
+            {status === "ready" ? t("Update location") : t("Use my location")}
           </ThemedText>
         </Pressable>
         <Pressable
@@ -99,7 +101,7 @@ export function LocationField({
           onPress={() => setPicking(true)}
           accessibilityRole="button"
         >
-          <ThemedText type="small">Name my place</ThemedText>
+          <ThemedText type="small">{t("Name my place")}</ThemedText>
         </Pressable>
       </View>
 
@@ -130,6 +132,7 @@ function PlacePicker({
   onPick: (p: Place) => void;
 }) {
   const theme = useTheme();
+  const { t } = useLanguage();
   const [query, setQuery] = useState("");
   const [state, setState] = useState<string | null>(null);
   const [district, setDistrict] = useState<string | null>(null);
@@ -169,16 +172,19 @@ function PlacePicker({
     <Modal visible={visible} animationType="slide" onRequestClose={close} transparent={false}>
       <ThemedView style={styles.sheet}>
         <View style={styles.sheetHead}>
-          <ThemedText type="subtitle">Where are you?</ThemedText>
+          <ThemedText type="subtitle">{t("Where are you?")}</ThemedText>
           <Pressable onPress={close} accessibilityRole="button">
-            <ThemedText type="small">Close</ThemedText>
+            <ThemedText type="small">{t("Close")}</ThemedText>
           </Pressable>
         </View>
 
         <TextInput
           value={query}
           onChangeText={setQuery}
-          placeholder={`Search ${CITY_COUNT} towns, ${DISTRICT_COUNT} districts`}
+          placeholder={t("Search {towns} towns, {districts} districts", {
+            towns: CITY_COUNT,
+            districts: DISTRICT_COUNT,
+          })}
           placeholderTextColor={theme.textSecondary}
           style={[styles.search, { borderColor: theme.border, color: theme.text }]}
         />
@@ -208,7 +214,7 @@ function PlacePicker({
           )
         ) : (
           <ScrollView keyboardShouldPersistTaps="handled">
-            <Step n={1} label="State">
+            <Step n={1} label={t("State")}>
               {state ? (
                 <Chosen
                   value={state}
@@ -233,7 +239,7 @@ function PlacePicker({
             </Step>
 
             {state && (
-              <Step n={2} label="District">
+              <Step n={2} label={t("District")}>
                 {district ? (
                   <Chosen
                     value={district}
@@ -258,7 +264,7 @@ function PlacePicker({
             )}
 
             {state && district && (
-              <Step n={3} label="Town or city">
+              <Step n={3} label={t("Town or city")}>
                 {allTowns.length === 0
                   ? districtPlace && (
                       <Pressable
@@ -267,7 +273,7 @@ function PlacePicker({
                         accessibilityRole="button"
                       >
                         <ThemedText>Use {district} district</ThemedText>
-                        <ThemedText type="small">No town is listed here</ThemedText>
+                        <ThemedText type="small">{t("No town is listed here")}</ThemedText>
                       </Pressable>
                     )
                   : (
@@ -278,7 +284,7 @@ function PlacePicker({
                         <TextInput
                           value={townQuery}
                           onChangeText={setTownQuery}
-                          placeholder={`Filter ${allTowns.length} towns`}
+                          placeholder={t("Filter {n} towns", { n: allTowns.length })}
                           placeholderTextColor={theme.textSecondary}
                           style={[styles.search, { borderColor: theme.border, color: theme.text }]}
                         />
@@ -333,11 +339,12 @@ function Step({ n, label, children }: { n: number; label: string; children: Reac
 
 /** A step already answered, collapsed to its answer and a way back. */
 function Chosen({ value, onChange }: { value: string; onChange: () => void }) {
+  const { t } = useLanguage();
   return (
     <View style={styles.chosen}>
       <ThemedText>{value}</ThemedText>
       <Pressable onPress={onChange} accessibilityRole="button">
-        <ThemedText type="small">Change</ThemedText>
+        <ThemedText type="small">{t("Change")}</ThemedText>
       </Pressable>
     </View>
   );

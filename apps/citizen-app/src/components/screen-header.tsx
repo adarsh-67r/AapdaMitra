@@ -1,5 +1,6 @@
 import { StyleSheet, View } from "react-native";
 
+import { LanguagePicker } from "@/components/language-picker";
 import { ThemedText } from "@/components/themed-text";
 import { Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
@@ -27,6 +28,9 @@ export function ScreenHeader({ title, subtitle }: { title: string; subtitle?: st
           </View>
           <ThemedText type="smallBold">Aapda Mitra</ThemedText>
         </View>
+        {/* On every screen, because someone who cannot read this one cannot be
+            expected to find a settings screen to fix it. */}
+        <LanguagePicker />
       </View>
 
       <ThemedText type="title" style={styles.title}>

@@ -9,6 +9,7 @@ import { ThemedView } from "@/components/themed-view";
 import { Spacing } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useTheme } from "@/hooks/use-theme";
+import { useLanguage } from "@/lib/i18n/use-language";
 import { apiFetchJson } from "@/lib/api-client";
 import { haversineKm } from "@/lib/geo";
 import { leafletHtml, type MapPin } from "@/lib/leaflet-html";
@@ -29,6 +30,7 @@ const DEFAULT_CENTER = { lat: 13.0674, lng: 80.2376 };
 
 export default function SheltersScreen() {
   const theme = useTheme();
+  const { t } = useLanguage();
   const scheme = useColorScheme();
   const [resources, setResources] = useState<Resource[]>([]);
   const [loading, setLoading] = useState(true);
@@ -76,7 +78,7 @@ export default function SheltersScreen() {
         color: PIN_COLOR[r.status],
         title: r.name,
         // Status in words as well as colour, inside the popup.
-        description: `${r.type.replace("_", " ")} — ${r.status}`,
+        description: `${t(r.type.replace("_", " "))} — ${t(r.status)}`,
       })),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [resources, theme]
@@ -108,11 +110,14 @@ export default function SheltersScreen() {
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={["top"]}>
         <ScreenHeader
-          title="Find Shelter"
+          title={t("Find Shelter")}
           subtitle={
             nearestShelter
-              ? `Nearest open shelter: ${nearestShelter.resource.name}, ${nearestShelter.km.toFixed(1)} km`
-              : "Shelters, teams and supply points on the map"
+              ? t("Nearest open shelter: {name}, {km} km", {
+                  name: nearestShelter.resource.name,
+                  km: nearestShelter.km.toFixed(1),
+                })
+              : t("Shelters, teams and supply points on the map")
           }
         />
 
@@ -127,9 +132,9 @@ export default function SheltersScreen() {
         <View style={[styles.legend, { borderTopColor: theme.border }]}>
           {(
             [
-              ["available", "Open"],
-              ["full", "Full"],
-              ["dispatched", "Out on a call"],
+              ["available", t("Open")],
+              ["full", t("Full")],
+              ["dispatched", t("Out on a call")],
             ] as const
           ).map(([status, label]) => (
             <View key={status} style={styles.legendItem}>

@@ -9,6 +9,7 @@ import { ThemedView } from "@/components/themed-view";
 import { Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
 import { apiFetchJson } from "@/lib/api-client";
+import { useLanguage } from "@/lib/i18n/use-language";
 import { usePoll } from "@/lib/use-poll";
 
 interface Report {
@@ -24,6 +25,7 @@ interface Report {
 
 export default function MyReportsScreen() {
   const theme = useTheme();
+  const { t } = useLanguage();
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -57,13 +59,16 @@ export default function MyReportsScreen() {
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
-        <ScreenHeader title="My Reports" subtitle="Track the status of what you have reported" />
+        <ScreenHeader
+          title={t("My Reports")}
+          subtitle={t("Track the status of what you have reported")}
+        />
 
         {loading ? (
           <ActivityIndicator style={{ marginTop: Spacing.four }} />
         ) : reports.length === 0 ? (
           <ThemedText type="small" themeColor="textSecondary" style={styles.empty}>
-            You haven&apos;t submitted any reports yet.
+            {t("You haven't submitted any reports yet.")}
           </ThemedText>
         ) : (
           <FlatList
@@ -88,11 +93,11 @@ export default function MyReportsScreen() {
                     />
                     {/* Severity is never colour alone — the word carries it. */}
                     <ThemedText type="smallBold" style={{ color: SEVERITY_COLOR[item.severity] }}>
-                      {item.severity.toUpperCase()}
+                      {t(item.severity).toUpperCase()}
                     </ThemedText>
                   </View>
                   <ThemedText type="small" style={{ color: STATUS_COLOR[item.status] }}>
-                    {item.status.toUpperCase()}
+                    {t(item.status).toUpperCase()}
                   </ThemedText>
                 </View>
 
@@ -111,7 +116,11 @@ export default function MyReportsScreen() {
                 {item.place_label && (
                   <ThemedText type="small" themeColor="textSecondary">
                     {item.place_label}
-                    {item.location_source === "manual" ? "  ·  approximate" : ""}
+                    {/* Anything but a device fix is approximate. This read
+                        "manual" only, so a report filed by SMS — placed from
+                        where that number last reported — was shown as if it
+                        were a GPS position. */}
+                    {item.location_source !== "device" ? `  ·  ${t("approximate")}` : ""}
                   </ThemedText>
                 )}
 
