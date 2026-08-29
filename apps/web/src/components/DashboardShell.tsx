@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import BrandMark from "@/components/BrandMark";
 import BroadcastAlertModal from "@/components/BroadcastAlertModal";
 import DashboardMap from "@/components/DashboardMap";
 import FallbackPanel from "@/components/FallbackPanel";
@@ -77,11 +78,10 @@ export default function DashboardShell({ onSignOut }: { onSignOut: () => void })
     <div className="flex flex-col h-[100dvh] bg-bg text-text">
       <header className="flex items-center justify-between gap-3 flex-wrap px-3 md:px-7 py-2.5 md:py-4 border-b border-border bg-panel">
         <div className="flex items-center gap-3.5">
-          <div className="w-8 h-8 border border-accent rounded-md flex items-center justify-center">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M3 12h4l2-7 4 14 2-7h6" />
-            </svg>
-          </div>
+          {/* Not a link, unlike everywhere else the mark appears: an authority
+              watching a live incident should not be one stray tap from
+              leaving the console. */}
+          <BrandMark />
           <span className="text-[19px] font-bold tracking-tight">AapdaMitra</span>
           <span className="hidden lg:inline text-border">|</span>
           <span className="hidden lg:inline font-mono text-[13px] text-text-muted uppercase tracking-wider">

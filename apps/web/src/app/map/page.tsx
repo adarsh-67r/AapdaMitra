@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useMarkerPalette } from "@/lib/severity-colors";
-import Link from "next/link";
+import BrandMark from "@/components/BrandMark";
 import CitizenMap from "@/components/CitizenMap";
 import type { MapPin } from "@/components/CitizenMapClient";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -120,9 +120,14 @@ export default function MapPage() {
   return (
     <div className="flex flex-col h-[100dvh] bg-bg text-text">
       <header className="flex items-center justify-between px-6 py-3.5 border-b border-border">
-        <Link href="/" className="text-base font-bold tracking-tight">
-          AapdaMitra
-        </Link>
+        {/* Same plain anchor as the homepage: the mark goes home, freshly
+            loaded, from wherever the citizen has got to. */}
+        <a href="/" className="flex items-center gap-2.5 group">
+          <BrandMark size={26} />
+          <span className="text-base font-bold tracking-tight group-hover:text-accent transition-colors">
+            AapdaMitra
+          </span>
+        </a>
         <div className="flex items-center gap-3.5">
           <div className="hidden md:flex gap-3 font-mono text-[0.68rem] text-text-muted flex-wrap">
             <span className="flex items-center gap-1.5">

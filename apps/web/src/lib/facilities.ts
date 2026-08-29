@@ -53,7 +53,7 @@ interface Manifest {
  * The 58,232 hospitals, police stations and fire stations OpenStreetMap has for
  * India, cut into one-degree cells.
  *
- * This was one 2.9 MB file, fetched whole the moment a checkbox was ticked and
+ * This was one 2.6 MB file, fetched whole the moment a checkbox was ticked and
  * then turned into 58,232 objects on the main thread — several seconds of a
  * frozen tab on a phone, for a layer that only draws at zoom 11 and closer,
  * where the view is a fraction of one cell. Now a view pulls the two to four

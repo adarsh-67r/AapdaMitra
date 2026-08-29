@@ -18,7 +18,7 @@
 //
 // Output: apps/web/public/facilities/ — one JSON file per one-degree cell plus
 // an index of the cells that exist. Served as static assets and fetched only
-// for the view on screen, so nothing like the whole 2.9 MB ever reaches a
+// for the view on screen, so nothing like the whole 2.6 MB ever reaches a
 // browser. See facility-cells.js.
 //
 // Source: OpenStreetMap contributors (ODbL). The map already carries OSM

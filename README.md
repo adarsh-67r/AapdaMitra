@@ -7,7 +7,7 @@ Smart India Hackathon · Problem Statement **PS-05** · Disaster Management
 [![Web](https://img.shields.io/badge/web-Next.js%2016-000000)](apps/web)
 [![Citizen App](https://img.shields.io/badge/citizen%20app-Expo%20%2F%20React%20Native-4630EB)](apps/citizen-app)
 [![Database](https://img.shields.io/badge/database-PostgreSQL-4169E1)](supabase/migrations)
-[![Tests](https://img.shields.io/badge/backend%20tests-32%20passing-2c6742)](apps/backend/tests)
+[![Tests](https://img.shields.io/badge/tests-63%20backend%20%2B%2051%20app-2c6742)](apps/backend/tests)
 
 **[Live demo →](https://aapda-mitra-sih.vercel.app/)** · no signup needed — the sign-in screen offers a
 one-tap demo account for both the citizen app and the authority console.
@@ -35,12 +35,15 @@ not the absence of information — it is the time spent assembling it into a dec
 | **Groups developing incidents** | Reports within **2 km and 30 minutes** of each other are clustered into one incident, so five calls about one collapsed bridge read as one event, not five. |
 | **Dispatches the nearest unit** | A scored allocator picks the resource to send and reports how far it has to travel, guarded so two operators cannot double-dispatch the same unit. |
 | **Broadcasts advisories** | Authorities push an advisory that reaches every connected citizen client. |
-| **Shows what is already there** | An optional layer draws **58,232 real hospitals, police stations and fire stations** from OpenStreetMap, so a dispatcher can see the facilities near an incident that this system does not own. |
+| **Shows what is already there** | An optional layer draws **58,232 real hospitals, police stations and fire stations** from OpenStreetMap — on the console, the public map and the citizen app — so whoever is deciding can see the facilities near an incident that this system does not own. |
+| **Works without data** | A citizen with signal but no data can file a report by **SMS**. The app composes the message and opens the messaging app; the backend parses it, dedupes it against the offline queue, and files the same report the API would have. |
+| **Speaks 14 languages** | The citizen app and the citizen web view run in **English plus 13 Indian languages across 10 scripts**. Official alert text is never translated — see below. |
 | **Public map, no login** | Anyone can open `/map` and see active alerts and resources across India. |
 
-Not built, and labelled as such everywhere it appears: **SMS/IVR fallback** for no-connectivity zones.
-The console carries a simulated channel panel marked `SIMULATED — no live telephony`. There is no
-telephony integration behind it, and the product never claims otherwise.
+Not built, and labelled as such everywhere it appears: **IVR**. The console carries a simulated
+channel panel marked `SIMULATED — no live telephony`. There is no voice integration behind it, and the
+product never claims otherwise. The SMS half *is* built and live — see below for exactly how far it
+goes.
 
 ## What's actually hard here
 
@@ -74,10 +77,40 @@ mistakes a district centroid for an address.
 Overpass for the whole country in one request — it times out — so they come back in six bounding-box
 tiles, and a box drawn around India contains parts of six other countries. The first build had a
 hospital in Xinjiang at the top of the file. Every facility is now tested for containment against the
-same GADM district polygons the rest of the system uses, which drops 7,591 foreign points. The layer
-is served as a static file and fetched only when it is switched on, so its 2.6 MB never enters the
-bundle, and it draws at most 400 markers in view — the map says how many it is not showing rather
-than quietly hiding them.
+same GADM district polygons the rest of the system uses, which drops 7,591 foreign points.
+
+Delivering it is its own problem. The layer only draws at zoom 11 and closer, where the view is a
+fraction of a degree, so shipping all 58,232 rows to answer a question about one neighbourhood is
+waste that a phone pays for. On the web it is cut into **331 one-degree cells** — median 4 KB, largest
+79 KB — behind a 2.6 KB manifest of which cells exist, and a view fetches the one to four it covers.
+The app asks `GET /facilities` for a bounding box instead, and the server refuses a box wider than a
+degree: its own copy of the zoom rule, so a client that stops respecting it cannot ask for everything.
+Either way the map draws at most 400 markers and says how many it is not showing rather than quietly
+hiding them.
+
+**SMS carries a report where data cannot.** A citizen with signal but no data cannot reach the API at
+all, and the offline queue only helps someone who later regains it — a text rides the voice network,
+which survives the congestion that takes data down first. The grammar is `AM <1-4> [lat,lng] [text]`,
+short enough to fit one 160-character segment and simple enough to dictate over a phone call. An
+SMS-only citizen has no email, so the phone number becomes the identity and the account is created on
+first contact. The message carries the same `client_local_id` the app minted when it queued the report,
+so a report sent by text and then replayed by the queue when data returns is one incident rather than
+two. Coordinates are optional, because someone typing by hand cannot know their latitude; without them
+the report falls back to that sender's last known position, stamped `sms-approx` so nobody downstream
+mistakes it for a fix.
+
+The receiving half is built, deployed and authenticated with a shared secret. The sending half needs a
+number that forwards its messages to the endpoint — an Android forwarder pointed at a spare SIM, or a
+bought number — and that is a deployment step, not code.
+
+**Fourteen languages, and one thing deliberately left in the original.** The citizen app and citizen web
+view run in English plus 13 Indian languages, which is 10 scripts — React Native cannot synthesise a
+face it has not loaded, so each script ships its own font family and only the selected language's fonts
+are loaded. Everything the product says is translated. **Nothing an authority said is.** SACHET alert
+text stays exactly as the issuing agency published it, ordered so the reader's own language comes first
+and labelled with the language it is in. Machine-translating an official warning would put words in a
+government's mouth during an emergency, and the translation is the least trustworthy part of the
+pipeline.
 
 **The homepage map is real data.** India is drawn from **589 district centroids** — the same coordinates
 the ingestion uses to place district warnings — not a traced outline, and the per-belt district counts
@@ -118,11 +151,12 @@ python -m venv .venv && .venv/Scripts/activate     # or: source .venv/bin/activa
 pip install -r requirements.txt
 cp .env.example .env                               # DATABASE_URL, JWT_SECRET, SUPABASE_*, INGEST_SECRET
 uvicorn app.main:app --reload
-pytest                                             # 32 tests, no database required
+pytest                                             # 63 tests, no database required
 ```
 
 Routes: `/auth/signup`, `/auth/login`, `/auth/request-password-reset`, `/auth/reset-password`,
-`/alerts`, `/reports`, `/resources`, `/allocate`, `/internal/ingest-alerts`.
+`/alerts`, `/reports`, `/resources`, `/allocate`, `/facilities`, `/sms/inbound`,
+`/internal/ingest-alerts`.
 
 ### Web
 
@@ -143,6 +177,7 @@ npm run dev          # set NEXT_PUBLIC_API_URL — see .env.local.example
 cd apps/citizen-app
 npm install
 npx expo start       # set EXPO_PUBLIC_API_URL — see .env.example
+npx jest             # 51 tests
 ```
 
 ## Status

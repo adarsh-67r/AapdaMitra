@@ -1,6 +1,6 @@
 // Writes the facility index as a grid of one-degree cells.
 //
-// The layer used to ship as a single 2.9 MB india-facilities.json. Ticking one
+// The layer used to ship as a single 2.6 MB india-facilities.json. Ticking one
 // of the three checkboxes fetched all of it, parsed it, and turned 58,232 rows
 // into 58,232 objects on the main thread before a single marker could be drawn
 // — on a phone, long enough for the browser to offer to reload the page. None

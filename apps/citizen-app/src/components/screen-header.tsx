@@ -1,5 +1,6 @@
 import { StyleSheet, View } from "react-native";
 
+import { BrandMark } from "@/components/brand-mark";
 import { LanguagePicker } from "@/components/language-picker";
 import { ThemedText } from "@/components/themed-text";
 import { Spacing } from "@/constants/theme";
@@ -23,9 +24,7 @@ export function ScreenHeader({ title, subtitle }: { title: string; subtitle?: st
     <View style={[styles.wrap, { borderBottomColor: theme.border }]}>
       <View style={styles.row}>
         <View style={styles.brand}>
-          <View style={[styles.mark, { borderColor: theme.accent }]}>
-            <View style={[styles.markPulse, { backgroundColor: theme.accent }]} />
-          </View>
+          <BrandMark />
           <ThemedText type="smallBold">Aapda Mitra</ThemedText>
         </View>
         {/* On every screen, because someone who cannot read this one cannot be
@@ -59,14 +58,5 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   brand: { flexDirection: "row", alignItems: "center", gap: Spacing.two },
-  mark: {
-    width: 22,
-    height: 22,
-    borderWidth: 1,
-    borderRadius: 2,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  markPulse: { width: 8, height: 2 },
   title: { fontSize: 26, lineHeight: 32, marginTop: Spacing.two },
 });
