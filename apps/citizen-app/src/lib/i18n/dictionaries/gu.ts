@@ -1,0 +1,165 @@
+import type { Dictionary } from "../translate";
+
+/**
+ * Gujarati.
+ *
+ * MACHINE-TRANSLATED, NOT REVIEWED BY A NATIVE SPEAKER. Check the SOS strings,
+ * the offline and SMS strings, and the severity words first.
+ */
+export const gu: Dictionary = {
+  Home: "હોમ",
+  Report: "જાણ",
+  Alerts: "ચેતવણીઓ",
+  Shelter: "આશ્રય",
+  Mine: "મારા",
+  Help: "મદદ",
+  Dashboard: "ડેશબોર્ડ",
+  "Live Alerts": "જીવંત ચેતવણીઓ",
+  "Find Shelter": "આશ્રય શોધો",
+  "My Reports": "મારી જાણ",
+  "Emergency Contacts": "કટોકટી સંપર્કો",
+  "Report an Incident": "ઘટનાની જાણ કરો",
+
+  "Alerts, shelters and teams nearest to where you are":
+    "તમારી સૌથી નજીકની ચેતવણીઓ, આશ્રયસ્થાનો અને ટીમો",
+  "Photo, location, severity — filed in under a minute":
+    "ફોટો, સ્થળ, ગંભીરતા — એક મિનિટથી ઓછા સમયમાં નોંધાય",
+  "Official warnings within {km} km of you": "તમારાથી {km} કિમીની અંદર સરકારી ચેતવણીઓ",
+  "Track the status of what you have reported": "તમે જે જાણ કરી છે તેની સ્થિતિ જુઓ",
+  "Tap any number to call directly": "સીધો ફોન કરવા કોઈપણ નંબર પર ટૅપ કરો",
+  "Shelters, teams and supply points on the map": "નકશા પર આશ્રયસ્થાનો, ટીમો અને પુરવઠા કેન્દ્રો",
+  "Nearest open shelter: {name}, {km} km": "નજીકનું ખુલ્લું આશ્રયસ્થાન: {name}, {km} કિમી",
+
+  "SOS — hold to send": "એસઓએસ — મોકલવા દબાવી રાખો",
+  "Keep holding…": "દબાવી રાખો…",
+  "Sending…": "મોકલાઈ રહ્યું છે…",
+  "Send an SOS": "એસઓએસ મોકલો",
+  "Press and hold for just over a second to file a critical report at your location":
+    "તમારા સ્થળેથી ગંભીર જાણ નોંધાવવા એક સેકન્ડથી થોડું વધુ દબાવી રાખો",
+  "Files a critical report at your location. No description needed.":
+    "તમારા સ્થળેથી ગંભીર જાણ નોંધાવે છે. વર્ણનની જરૂર નથી.",
+  "Set your location below before sending an SOS.":
+    "એસઓએસ મોકલતા પહેલાં નીચે તમારું સ્થળ નક્કી કરો.",
+  "SOS sent": "એસઓએસ મોકલાયો",
+  "SOS saved offline": "એસઓએસ ઑફલાઇન સાચવ્યો",
+  "SOS could not be saved": "એસઓએસ સાચવી શકાયો નહીં",
+  "Try again, or call 112.": "ફરી પ્રયાસ કરો, અથવા ૧૧૨ પર ફોન કરો.",
+  "Authorities have been notified of your location.":
+    "અધિકારીઓને તમારા સ્થળની જાણ કરવામાં આવી છે.",
+  "No connection right now. It will send automatically when you are back online. If you can, call 112.":
+    "અત્યારે કોઈ જોડાણ નથી. તમે ઑનલાઇન આવશો કે તરત આ આપોઆપ મોકલાઈ જશે. શક્ય હોય તો ૧૧૨ પર ફોન કરો.",
+
+  Location: "સ્થળ",
+  Severity: "ગંભીરતા",
+  Description: "વર્ણન",
+  "Photo (optional)": "ફોટો (વૈકલ્પિક)",
+  "Take a photo": "ફોટો પાડો",
+  "Choose existing": "હાલનો પસંદ કરો",
+  "Submit Report": "જાણ મોકલો",
+  "What's happening? Who's affected?": "શું થઈ રહ્યું છે? કોણ અસરગ્રસ્ત છે?",
+  "Location required": "સ્થળ જરૂરી છે",
+  "Tag your location before submitting.": "મોકલતા પહેલાં તમારું સ્થળ નોંધો.",
+  "Report submitted": "જાણ મોકલાઈ",
+  "Authorities have been notified.": "અધિકારીઓને જાણ કરવામાં આવી છે.",
+  "Authorities have been notified. Your photo could not be uploaded.":
+    "અધિકારીઓને જાણ કરવામાં આવી છે. તમારો ફોટો અપલોડ થઈ શક્યો નહીં.",
+  "Could not save your report": "તમારી જાણ સાચવી શકાઈ નહીં",
+  "Please try again.": "કૃપા કરી ફરી પ્રયાસ કરો.",
+  "Camera permission needed": "કૅમેરા પરવાનગી જરૂરી",
+  "Allow camera access to photograph the incident, or choose an existing photo instead.":
+    "ઘટનાનો ફોટો પાડવા કૅમેરાની પરવાનગી આપો, અથવા તેના બદલે હાલનો ફોટો પસંદ કરો.",
+  "Photo permission needed": "ફોટો પરવાનગી જરૂરી",
+  "Enable photo access to attach an image.": "છબી જોડવા ફોટોની પરવાનગી ચાલુ કરો.",
+
+  "Saved offline": "ઑફલાઇન સાચવ્યું",
+  "No connection right now. Your report is saved and will be sent automatically when you're back online.":
+    "અત્યારે કોઈ જોડાણ નથી. તમારી જાણ સચવાઈ ગઈ છે અને તમે ઑનલાઇન આવશો કે તરત આપોઆપ મોકલાઈ જશે.",
+  "1 report waiting to send": "૧ જાણ મોકલવાની બાકી છે",
+  "{count} reports waiting to send": "{count} જાણ મોકલવાની બાકી છે",
+  "Saved on this device. They'll upload automatically once you're back online.":
+    "આ ઉપકરણ પર સચવાયેલી છે. તમે ઑનલાઇન આવશો કે તરત આપોઆપ અપલોડ થઈ જશે.",
+  "Send by SMS instead": "તેના બદલે એસએમએસથી મોકલો",
+  "Opens your messages app. Works without mobile data.":
+    "તમારી સંદેશ ઍપ ખોલે છે. મોબાઇલ ડેટા વગર ચાલે છે.",
+  "Send the oldest waiting report as a text message":
+    "સૌથી જૂની બાકી જાણ સંદેશ તરીકે મોકલો",
+  "Could not open messages": "સંદેશ ઍપ ખોલી શકાઈ નહીં",
+  "Open your messages app and send this to the Aapda Mitra number:":
+    "તમારી સંદેશ ઍપ ખોલો અને આ આપદા મિત્ર નંબર પર મોકલો:",
+
+  "Your position": "તમારું સ્થાન",
+  "Finding your location…": "તમારું સ્થળ શોધાઈ રહ્યું છે…",
+  "Use my location": "મારું સ્થળ વાપરો",
+  "Update location": "સ્થળ અપડેટ કરો",
+  "Name my place": "મારી જગ્યાનું નામ આપો",
+  "Where are you?": "તમે ક્યાં છો?",
+  State: "રાજ્ય",
+  District: "જિલ્લો",
+  "Town or city": "નગર કે શહેર",
+  "No town is listed here": "અહીં કોઈ નગર યાદીમાં નથી",
+  "Search {towns} towns, {districts} districts": "{towns} નગરો, {districts} જિલ્લામાં શોધો",
+  "Filter {n} towns": "{n} નગરો ગાળો",
+  approximate: "અંદાજિત",
+  "approximate, set by hand": "અંદાજિત, હાથે નોંધેલું",
+  "Location access is turned off for this app. Allow it in Settings, or name your place below.":
+    "આ ઍપ માટે સ્થળની પરવાનગી બંધ છે. સેટિંગ્સમાં તે આપો, અથવા નીચે તમારી જગ્યાનું નામ આપો.",
+  "Location Services is switched off on this device. Turn it on, or name your place below.":
+    "આ ઉપકરણ પર સ્થળ સેવાઓ બંધ છે. તે ચાલુ કરો, અથવા નીચે તમારી જગ્યાનું નામ આપો.",
+  "Your device didn't return a location in time. Moving outdoors often helps.":
+    "તમારા ઉપકરણે સમયસર સ્થળ આપ્યું નહીં. ખુલ્લામાં જવાથી ઘણી વાર મદદ મળે છે.",
+  "Location lookup failed. You can name your place instead.":
+    "સ્થળ શોધી શકાયું નહીં. તેના બદલે તમે તમારી જગ્યાનું નામ આપી શકો છો.",
+
+  "Active alerts within {km} km": "{km} કિમીની અંદર સક્રિય ચેતવણીઓ",
+  "Most severe: {type}{agency} · {km} away": "સૌથી ગંભીર: {type}{agency} · {km} દૂર",
+  "No official warnings currently cover your area.":
+    "અત્યારે તમારા વિસ્તાર માટે કોઈ સરકારી ચેતવણી નથી.",
+  "Nearest available shelter": "નજીકનું ઉપલબ્ધ આશ્રયસ્થાન",
+  "No shelter is currently marked available in the registry.":
+    "અત્યારે નોંધણીમાં કોઈ આશ્રયસ્થાન ઉપલબ્ધ દર્શાવેલું નથી.",
+  "Nearest available rescue team": "નજીકની ઉપલબ્ધ બચાવ ટીમ",
+  "No rescue team is currently marked available.":
+    "અત્યારે કોઈ બચાવ ટીમ ઉપલબ્ધ દર્શાવેલી નથી.",
+  "Your open reports": "તમારી બાકી જાણ",
+  "Still being worked. Track them under My Reports.":
+    "હજુ કામ ચાલુ છે. મારી જાણમાં તે જુઓ.",
+  "Nothing outstanding from you right now.": "અત્યારે તમારું કંઈ બાકી નથી.",
+  "None listed": "કંઈ નથી",
+  "capacity {n}": "ક્ષમતા {n}",
+  "No active alerts nearby.": "નજીકમાં કોઈ સક્રિય ચેતવણી નથી.",
+  "You haven't submitted any reports yet.": "તમે હજુ સુધી કોઈ જાણ મોકલી નથી.",
+
+  low: "ઓછી",
+  medium: "મધ્યમ",
+  high: "વધુ",
+  critical: "ગંભીર",
+  advisory: "સૂચના",
+  watch: "સતર્કતા",
+  warning: "ચેતવણી",
+  severe: "અતિ ગંભીર",
+  open: "ખુલ્લી",
+  assigned: "સોંપાયેલી",
+  resolved: "ઉકેલાયેલી",
+  available: "ઉપલબ્ધ",
+  full: "ભરેલું",
+  dispatched: "રવાના કરેલું",
+  shelter: "આશ્રયસ્થાન",
+  "rescue team": "બચાવ ટીમ",
+  "supply stock": "પુરવઠા સ્ટોક",
+  Open: "ખુલ્લું",
+  Full: "ભરેલું",
+  "Out on a call": "કામ પર ગયેલું",
+
+  "National Emergency Number": "રાષ્ટ્રીય કટોકટી નંબર",
+  Police: "પોલીસ",
+  Fire: "ફાયર બ્રિગેડ",
+  Ambulance: "એમ્બ્યુલન્સ",
+  "NDMA Disaster Management Helpline": "એનડીએમએ આપત્તિ વ્યવસ્થાપન હેલ્પલાઇન",
+  "Women's Helpline": "મહિલા હેલ્પલાઇન",
+  "Call {name} on {number}": "{name} ને {number} પર ફોન કરો",
+
+  Close: "બંધ કરો",
+  Change: "બદલો",
+  "Change language": "ભાષા બદલો",
+  "Choose your language": "તમારી ભાષા પસંદ કરો",
+};

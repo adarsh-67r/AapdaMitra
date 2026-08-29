@@ -3,6 +3,7 @@ import type { Dictionary } from "../translate";
 import { bn } from "./bn";
 import { hi } from "./hi";
 import { mr } from "./mr";
+import { ta } from "./ta";
 import { te } from "./te";
 
 /**
@@ -18,4 +19,4 @@ import { te } from "./te";
  * speaker. Each file says so at the top and names the lines worth checking
  * first.
  */
-export const DICTIONARIES: Record<string, Dictionary> = { hi, bn, mr, te };
+export const DICTIONARIES: Record<string, Dictionary> = { hi, bn, mr, ta, te };
