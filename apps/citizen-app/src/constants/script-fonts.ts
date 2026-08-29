@@ -14,10 +14,6 @@ import { NotoSansKannada_400Regular } from "@expo-google-fonts/noto-sans-kannada
 import { NotoSansKannada_700Bold } from "@expo-google-fonts/noto-sans-kannada/700Bold";
 import { NotoSansMalayalam_400Regular } from "@expo-google-fonts/noto-sans-malayalam/400Regular";
 import { NotoSansMalayalam_700Bold } from "@expo-google-fonts/noto-sans-malayalam/700Bold";
-import { NotoSansMeeteiMayek_400Regular } from "@expo-google-fonts/noto-sans-meetei-mayek/400Regular";
-import { NotoSansMeeteiMayek_700Bold } from "@expo-google-fonts/noto-sans-meetei-mayek/700Bold";
-import { NotoSansOlChiki_400Regular } from "@expo-google-fonts/noto-sans-ol-chiki/400Regular";
-import { NotoSansOlChiki_700Bold } from "@expo-google-fonts/noto-sans-ol-chiki/700Bold";
 import { NotoSansOriya_400Regular } from "@expo-google-fonts/noto-sans-oriya/400Regular";
 import { NotoSansOriya_700Bold } from "@expo-google-fonts/noto-sans-oriya/700Bold";
 import { NotoSansTamil_400Regular } from "@expo-google-fonts/noto-sans-tamil/400Regular";
@@ -82,8 +78,6 @@ export const TYPE_BY_SCRIPT: Record<Script, ScriptType> = {
   kannada: notoType("NotoSansKannada"),
   malayalam: notoType("NotoSansMalayalam"),
   arabic: notoType("NotoSansArabic"),
-  olchiki: notoType("NotoSansOlChiki"),
-  meeteimayek: notoType("NotoSansMeeteiMayek"),
 };
 
 export const FONTS_BY_SCRIPT: Record<Script, Record<string, unknown>> = {
@@ -103,6 +97,4 @@ export const FONTS_BY_SCRIPT: Record<Script, Record<string, unknown>> = {
   kannada: { NotoSansKannada_400Regular, NotoSansKannada_700Bold },
   malayalam: { NotoSansMalayalam_400Regular, NotoSansMalayalam_700Bold },
   arabic: { NotoSansArabic_400Regular, NotoSansArabic_700Bold },
-  olchiki: { NotoSansOlChiki_400Regular, NotoSansOlChiki_700Bold },
-  meeteimayek: { NotoSansMeeteiMayek_400Regular, NotoSansMeeteiMayek_700Bold },
 };

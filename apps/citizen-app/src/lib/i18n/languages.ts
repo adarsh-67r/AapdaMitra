@@ -1,6 +1,14 @@
 /**
- * The languages this app speaks: the twenty-two in the Eighth Schedule of the
- * Constitution, plus English.
+ * The languages this app speaks.
+ *
+ * The thirteen languages of the Eighth Schedule with more than ten million
+ * speakers, plus English — together roughly 97% of India by mother tongue.
+ *
+ * The other nine scheduled languages were cut deliberately rather than left
+ * half-translated: each dictionary is 124 strings no native speaker has read,
+ * and a shallow twenty-two is worth less than a solid thirteen. The argument
+ * against is real and belongs on the record: Santali and Bodo speakers live
+ * disproportionately in remote, disaster-exposed districts.
  *
  * `script` is the reason this list exists rather than a bare array of codes. No
  * single font covers these — IBM Plex, which both clients use for Latin, reaches
@@ -22,9 +30,7 @@ export type Script =
   | "telugu"
   | "kannada"
   | "malayalam"
-  | "arabic"
-  | "olchiki"
-  | "meeteimayek";
+  | "arabic";
 
 export interface Language {
   code: string;
@@ -48,15 +54,6 @@ export const LANGUAGES: Language[] = [
   { code: "pa", endonym: "ਪੰਜਾਬੀ", english: "Punjabi", script: "gurmukhi" },
   { code: "as", endonym: "অসমীয়া", english: "Assamese", script: "bengali" },
   { code: "mai", endonym: "मैथिली", english: "Maithili", script: "devanagari" },
-  { code: "sat", endonym: "ᱥᱟᱱᱛᱟᱲᱤ", english: "Santali", script: "olchiki" },
-  { code: "ks", endonym: "کٲشُر", english: "Kashmiri", script: "arabic" },
-  { code: "ne", endonym: "नेपाली", english: "Nepali", script: "devanagari" },
-  { code: "sd", endonym: "سنڌي", english: "Sindhi", script: "arabic" },
-  { code: "kok", endonym: "कोंकणी", english: "Konkani", script: "devanagari" },
-  { code: "doi", endonym: "डोगरी", english: "Dogri", script: "devanagari" },
-  { code: "mni", endonym: "ꯃꯤꯇꯩꯂꯣꯟ", english: "Manipuri", script: "meeteimayek" },
-  { code: "bo", endonym: "बड़ो", english: "Bodo", script: "devanagari" },
-  { code: "sa", endonym: "संस्कृतम्", english: "Sanskrit", script: "devanagari" },
 ];
 
 const BY_CODE = new Map(LANGUAGES.map((l) => [l.code, l]));

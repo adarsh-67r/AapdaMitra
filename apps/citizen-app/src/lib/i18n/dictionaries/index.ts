@@ -1,10 +1,18 @@
 import type { Dictionary } from "../translate";
 
+import { as } from "./as";
 import { bn } from "./bn";
+import { gu } from "./gu";
 import { hi } from "./hi";
+import { kn } from "./kn";
+import { mai } from "./mai";
+import { ml } from "./ml";
 import { mr } from "./mr";
+import { or } from "./or";
+import { pa } from "./pa";
 import { ta } from "./ta";
 import { te } from "./te";
+import { ur } from "./ur";
 
 /**
  * One dictionary per language, keyed by the English source string.
@@ -19,4 +27,18 @@ import { te } from "./te";
  * speaker. Each file says so at the top and names the lines worth checking
  * first.
  */
-export const DICTIONARIES: Record<string, Dictionary> = { hi, bn, mr, ta, te };
+export const DICTIONARIES: Record<string, Dictionary> = {
+  hi,
+  bn,
+  mr,
+  te,
+  ta,
+  gu,
+  ur,
+  kn,
+  or,
+  ml,
+  pa,
+  as,
+  mai,
+};
