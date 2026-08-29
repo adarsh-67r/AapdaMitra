@@ -17,3 +17,8 @@ services:
         sync: false
       - key: INGEST_SECRET
         sync: false
+      # Shared secret the SMS gateway presents on /sms/inbound. Unset means the
+      # endpoint refuses everything, which is the safe default for a route that
+      # is open to the internet by necessity.
+      - key: SMS_INBOUND_KEY
+        sync: false
