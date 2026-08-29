@@ -195,4 +195,14 @@ export const or: Dictionary = {
     "ଏହି ପୃଷ୍ଠା ସୁରକ୍ଷିତ (https) ସଂଯୋଗରେ ନାହିଁ, ତେଣୁ ବ୍ରାଉଜର ଆପଣଙ୍କ ସ୍ଥାନ ଦେବ ନାହିଁ।",
   "Open the deployed https site, or name your place below.":
     "https ସାଇଟ ଖୋଲନ୍ତୁ, କିମ୍ବା ତଳେ ଆପଣଙ୍କ ଜାଗାର ନାମ ଦିଅନ୍ତୁ।",
+
+  // Strings the citizen web view has and the app does not.
+  "Hospitals": "ଡାକ୍ତରଖାନା",
+  "Police stations": "ପୋଲିସ ଥାନା",
+  "Fire stations": "ଅଗ୍ନିଶମ କେନ୍ଦ୍ର",
+  "Zoom in to see facilities": "ସୁବିଧା ଦେଖିବାକୁ ଜୁମ୍ କରନ୍ତୁ",
+  "None nearby": "ନିକଟରେ କିଛି ନାହିଁ",
+  "Showing {shown} of {total}": "{total} ମଧ୍ୟରୁ {shown} ଦେଖାଉଛି",
+  "{n} nearby": "ନିକଟରେ {n}",
+  "Could not load facilities": "ସୁବିଧା ଲୋଡ୍ ହୋଇପାରିଲା ନାହିଁ",
 };

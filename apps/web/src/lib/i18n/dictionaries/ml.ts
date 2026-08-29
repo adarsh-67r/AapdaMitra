@@ -201,4 +201,14 @@ export const ml: Dictionary = {
     "ഈ പേജ് സുരക്ഷിതമായ (https) കണക്ഷനിലല്ല, അതിനാൽ ബ്രൗസർ നിങ്ങളുടെ സ്ഥലം പങ്കിടില്ല.",
   "Open the deployed https site, or name your place below.":
     "https സൈറ്റ് തുറക്കുക, അല്ലെങ്കിൽ താഴെ നിങ്ങളുടെ സ്ഥലത്തിന് പേര് നൽകുക.",
+
+  // Strings the citizen web view has and the app does not.
+  "Hospitals": "ആശുപത്രികൾ",
+  "Police stations": "പോലീസ് സ്റ്റേഷനുകൾ",
+  "Fire stations": "അഗ്നിശമന നിലയങ്ങൾ",
+  "Zoom in to see facilities": "സൗകര്യങ്ങൾ കാണാൻ സൂം ചെയ്യുക",
+  "None nearby": "അടുത്ത് ഒന്നുമില്ല",
+  "Showing {shown} of {total}": "{total}-ൽ {shown} കാണിക്കുന്നു",
+  "{n} nearby": "അടുത്ത് {n}",
+  "Could not load facilities": "സൗകര്യങ്ങൾ ലോഡ് ചെയ്യാനായില്ല",
 };

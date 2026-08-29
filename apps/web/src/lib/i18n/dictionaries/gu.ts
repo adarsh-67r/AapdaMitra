@@ -200,4 +200,14 @@ export const gu: Dictionary = {
     "આ પાનું સુરક્ષિત (https) જોડાણ પર નથી, તેથી બ્રાઉઝર તમારું સ્થળ શેર કરશે નહીં.",
   "Open the deployed https site, or name your place below.":
     "https સાઇટ ખોલો, અથવા નીચે તમારી જગ્યાનું નામ આપો.",
+
+  // Strings the citizen web view has and the app does not.
+  "Hospitals": "હોસ્પિટલો",
+  "Police stations": "પોલીસ સ્ટેશન",
+  "Fire stations": "ફાયર સ્ટેશન",
+  "Zoom in to see facilities": "સુવિધાઓ જોવા માટે ઝૂમ કરો",
+  "None nearby": "નજીકમાં કંઈ નથી",
+  "Showing {shown} of {total}": "{total} માંથી {shown} બતાવી રહ્યા છીએ",
+  "{n} nearby": "નજીકમાં {n}",
+  "Could not load facilities": "સુવિધાઓ લોડ થઈ શકી નથી",
 };

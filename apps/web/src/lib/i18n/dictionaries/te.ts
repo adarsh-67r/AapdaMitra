@@ -201,4 +201,14 @@ export const te: Dictionary = {
     "ఈ పేజీ సురక్షిత (https) కనెక్షన్‌లో లేదు, కాబట్టి బ్రౌజర్ మీ ప్రదేశాన్ని పంచుకోదు.",
   "Open the deployed https site, or name your place below.":
     "https సైట్‌ను తెరవండి, లేదా క్రింద మీ ప్రదేశానికి పేరు పెట్టండి.",
+
+  // Strings the citizen web view has and the app does not.
+  "Hospitals": "ఆసుపత్రులు",
+  "Police stations": "పోలీస్ స్టేషన్లు",
+  "Fire stations": "అగ్నిమాపక కేంద్రాలు",
+  "Zoom in to see facilities": "సౌకర్యాలు చూడటానికి జూమ్ చేయండి",
+  "None nearby": "దగ్గరలో ఏవీ లేవు",
+  "Showing {shown} of {total}": "{total}లో {shown} చూపిస్తోంది",
+  "{n} nearby": "దగ్గరలో {n}",
+  "Could not load facilities": "సౌకర్యాలను లోడ్ చేయలేకపోయాం",
 };

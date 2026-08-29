@@ -202,4 +202,14 @@ export const kn: Dictionary = {
     "ಈ ಪುಟ ಸುರಕ್ಷಿತ (https) ಸಂಪರ್ಕದಲ್ಲಿ ಇಲ್ಲ, ಆದ್ದರಿಂದ ಬ್ರೌಸರ್ ನಿಮ್ಮ ಸ್ಥಳವನ್ನು ಹಂಚಿಕೊಳ್ಳುವುದಿಲ್ಲ.",
   "Open the deployed https site, or name your place below.":
     "https ಸೈಟ್ ತೆರೆಯಿರಿ, ಅಥವಾ ಕೆಳಗೆ ನಿಮ್ಮ ಸ್ಥಳಕ್ಕೆ ಹೆಸರಿಸಿ.",
+
+  // Strings the citizen web view has and the app does not.
+  "Hospitals": "ಆಸ್ಪತ್ರೆಗಳು",
+  "Police stations": "ಪೊಲೀಸ್ ಠಾಣೆಗಳು",
+  "Fire stations": "ಅಗ್ನಿಶಾಮಕ ಠಾಣೆಗಳು",
+  "Zoom in to see facilities": "ಸೌಲಭ್ಯಗಳನ್ನು ನೋಡಲು ಜೂಮ್ ಮಾಡಿ",
+  "None nearby": "ಹತ್ತಿರ ಯಾವುದೂ ಇಲ್ಲ",
+  "Showing {shown} of {total}": "{total} ರಲ್ಲಿ {shown} ತೋರಿಸಲಾಗುತ್ತಿದೆ",
+  "{n} nearby": "ಹತ್ತಿರ {n}",
+  "Could not load facilities": "ಸೌಲಭ್ಯಗಳನ್ನು ಲೋಡ್ ಮಾಡಲಾಗಲಿಲ್ಲ",
 };

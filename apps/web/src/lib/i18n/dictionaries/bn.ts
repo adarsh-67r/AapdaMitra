@@ -201,4 +201,14 @@ export const bn: Dictionary = {
     "এই পৃষ্ঠাটি নিরাপদ (https) সংযোগে নেই, তাই ব্রাউজার আপনার অবস্থান জানাবে না।",
   "Open the deployed https site, or name your place below.":
     "https সাইটটি খুলুন, অথবা নিচে আপনার জায়গার নাম দিন।",
+
+  // Strings the citizen web view has and the app does not.
+  "Hospitals": "হাসপাতাল",
+  "Police stations": "থানা",
+  "Fire stations": "দমকল কেন্দ্র",
+  "Zoom in to see facilities": "সুবিধা দেখতে জুম করুন",
+  "None nearby": "কাছাকাছি কিছু নেই",
+  "Showing {shown} of {total}": "{total}-এর মধ্যে {shown} দেখানো হচ্ছে",
+  "{n} nearby": "কাছাকাছি {n}",
+  "Could not load facilities": "সুবিধা লোড করা যায়নি",
 };

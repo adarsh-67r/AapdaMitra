@@ -207,4 +207,14 @@ export const ta: Dictionary = {
     "இந்தப் பக்கம் பாதுகாப்பான (https) இணைப்பில் இல்லை, எனவே உலாவி உங்கள் இடத்தைப் பகிராது.",
   "Open the deployed https site, or name your place below.":
     "https தளத்தைத் திறக்கவும், அல்லது கீழே உங்கள் இடத்தின் பெயரைக் குறிப்பிடவும்.",
+
+  // Strings the citizen web view has and the app does not.
+  "Hospitals": "மருத்துவமனைகள்",
+  "Police stations": "காவல் நிலையங்கள்",
+  "Fire stations": "தீயணைப்பு நிலையங்கள்",
+  "Zoom in to see facilities": "வசதிகளைப் பார்க்க பெரிதாக்கவும்",
+  "None nearby": "அருகில் எதுவும் இல்லை",
+  "Showing {shown} of {total}": "{total}இல் {shown} காட்டப்படுகிறது",
+  "{n} nearby": "அருகில் {n}",
+  "Could not load facilities": "வசதிகளை ஏற்ற முடியவில்லை",
 };

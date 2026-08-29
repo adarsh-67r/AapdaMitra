@@ -193,4 +193,14 @@ export const mai: Dictionary = {
     "ई पन्ना सुरक्षित (https) कनेक्शन पर नहि अछि, तेँ ब्राउज़र अहाँक स्थान नहि देत।",
   "Open the deployed https site, or name your place below.":
     "https साइट खोलू, वा नीचाँ अपन जगहक नाम दिअ।",
+
+  // Strings the citizen web view has and the app does not.
+  "Hospitals": "अस्पताल",
+  "Police stations": "पुलिस थाना",
+  "Fire stations": "अग्निशमन केन्द्र",
+  "Zoom in to see facilities": "सुविधा देखबाक लेल ज़ूम करू",
+  "None nearby": "लग मे किछु नहि",
+  "Showing {shown} of {total}": "{total} मे सँ {shown} देखाओल जा रहल अछि",
+  "{n} nearby": "लग मे {n}",
+  "Could not load facilities": "सुविधा लोड नहि भ' सकल",
 };
