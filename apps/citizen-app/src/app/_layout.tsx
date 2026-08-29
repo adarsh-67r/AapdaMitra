@@ -5,12 +5,14 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { ActivityIndicator } from 'react-native';
 
-import { FONT_ASSETS, Type } from '@/constants/fonts';
+import { FONT_ASSETS } from '@/constants/fonts';
+import { FONTS_BY_SCRIPT, TYPE_BY_SCRIPT } from '@/constants/script-fonts';
 
 import { ThemedView } from '@/components/themed-view';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/use-auth';
+import { LanguageProvider, useLanguage } from '@/lib/i18n/use-language';
 import { useQueueFlush } from '@/lib/use-queue-flush';
 
 /**
@@ -36,10 +38,25 @@ const TABS = [
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  // The language has to be known before anything renders: it decides which
+  // fonts load, and a screen that paints in Latin and then reflows into Tamil
+  // is worse than a splash screen held a moment longer.
+  return (
+    <LanguageProvider>
+      <RootNavigator />
+    </LanguageProvider>
+  );
+}
+
+function RootNavigator() {
   const scheme = useColorScheme();
   const theme = useTheme();
   const { status } = useAuth();
-  const [fontsLoaded] = useFonts(FONT_ASSETS);
+  const { language, t, ready: languageReady } = useLanguage();
+  // Plex for Latin and Devanagari, Noto for the nine scripts it does not reach.
+  // Only the active language's faces are loaded; the rest are in the bundle but
+  // never handed to the text system.
+  const [fontsLoaded] = useFonts({ ...FONT_ASSETS, ...FONTS_BY_SCRIPT[language.script] });
 
   // App-wide, not per-screen: a report queued from SOS must keep retrying
   // whichever tab the citizen is looking at.
@@ -49,8 +66,8 @@ export default function RootLayout() {
   // frame renders in the system font and then reflows when Plex arrives, which
   // is more jarring than a splash screen a moment longer.
   useEffect(() => {
-    if (status !== "loading" && fontsLoaded) SplashScreen.hideAsync();
-  }, [status, fontsLoaded]);
+    if (status !== "loading" && fontsLoaded && languageReady) SplashScreen.hideAsync();
+  }, [status, fontsLoaded, languageReady]);
 
   // The navigator's own chrome is themed too. Left on the stock DarkTheme /
   // DefaultTheme, the tab bar and the screen background underneath sit on
@@ -69,7 +86,7 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={navigationTheme}>
-      {status === "loading" || !fontsLoaded ? (
+      {status === "loading" || !fontsLoaded || !languageReady ? (
         <ThemedView style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
           <ActivityIndicator />
         </ThemedView>
@@ -85,7 +102,7 @@ export default function RootLayout() {
             },
             // React Navigation styles its labels itself, so they would stay on
             // the system font while every other word in the app is Plex.
-            tabBarLabelStyle: { fontFamily: Type.medium, fontSize: 11 },
+            tabBarLabelStyle: { fontFamily: TYPE_BY_SCRIPT[language.script].medium, fontSize: 11 },
           }}
         >
           {TABS.map((tab) => (
@@ -93,7 +110,7 @@ export default function RootLayout() {
               key={tab.name}
               name={tab.name}
               options={{
-                title: tab.title,
+                title: t(tab.title),
                 tabBarIcon: ({ color, size, focused }) => (
                   <Ionicons
                     name={focused ? tab.icon : (`${tab.icon}-outline` as const)}
