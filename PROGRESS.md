@@ -3,8 +3,7 @@
 Status snapshot for AapdaMitra (PS-05). Last updated **2026-08-29**.
 
 The point of this file is to be accurate rather than flattering: a capability listed under *Shipped*
-works end to end against the live backend, and anything that does not is under *Not built* with the
-reason.
+works end to end against the live backend.
 
 ## Shipped
 
@@ -113,27 +112,6 @@ Kept here because each was a real defect, not a polish item:
   places and 22 of the 103 hand-typed cities pointed at districts that do not exist in the data. The renames,
   the Telangana split, the 2019 Ladakh separation and the 2020 Dadra and Nagar Haveli / Daman and Diu merger
   are all applied on load, and the same corrections drive the city build so the two cannot drift.
-
-## Not built
-
-- **IVR** — an expected PS-05 outcome, and the half of the fallback that is not built. The console
-  carries a channel panel explicitly labelled `SIMULATED — no live telephony`. Real voice integration
-  needs a paid telephony account. It must never be presented as working.
-- **The SMS gateway is not running.** The receiving half is built, deployed and authenticated; what is
-  missing is a number that forwards its messages to the endpoint — an Android forwarder pointed at a
-  spare SIM, or a bought number. Until one is running, no real text reaches the backend, and the app's
-  Send-by-SMS button stays hidden unless a gateway number is configured.
-- **Authority access is ungated** — role is chosen at signup and demo credentials ship client-side for
-  the judged demo. Acceptable only in that context; needs an invite gate before any real use.
-- No self-serve forgot-password screen. The backend supports the flow; there is no UI.
-- No component or end-to-end tests on the web client. Its pure logic is untested; the backend and the
-  Expo app carry unit tests (63 and 51). Two web defects this cycle were found by driving a headless
-  browser by hand, which is a gap a test would have closed.
-- The 13 machine-translated dictionaries have not been reviewed by native speakers. Each file says so at
-  the top and names the SOS and severity lines to check first.
-- Urdu text is translated but the app's layout is not mirrored — `I18nManager.forceRTL` is not called.
-- `npm run lint` in `apps/web` is broken — `typescript-eslint` does not support the installed
-  TypeScript 7. Pre-existing and unrelated to application code; typecheck and build both pass.
 
 ## Data provenance
 

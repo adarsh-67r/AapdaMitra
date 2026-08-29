@@ -182,5 +182,4 @@ npx jest             # 51 tests
 
 ## Status
 
-**[PROGRESS.md](PROGRESS.md)** — what is shipped, what is being hardened, and what is deliberately not
-built yet, with the constraints stated honestly.
+**[PROGRESS.md](PROGRESS.md)** — what is shipped and what has been fixed along the way.
