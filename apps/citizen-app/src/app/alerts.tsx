@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -9,6 +9,7 @@ import { ThemedView } from "@/components/themed-view";
 import { Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
 import { apiFetchJson } from "@/lib/api-client";
+import { usePoll } from "@/lib/use-poll";
 import { haversineKm } from "@/lib/geo";
 import { tryGetPosition } from "@/lib/use-location";
 
@@ -81,11 +82,7 @@ export default function AlertsScreen() {
     }
   }, []);
 
-  useEffect(() => {
-    load();
-    const interval = setInterval(load, 12000);
-    return () => clearInterval(interval);
-  }, [load]);
+  usePoll(load);
 
   return (
     <ThemedView style={styles.container}>

@@ -19,6 +19,7 @@ function loadClient(apiUrl: string | undefined) {
   else process.env.EXPO_PUBLIC_API_URL = apiUrl;
   let mod!: typeof import("@/lib/api-client");
   jest.isolateModules(() => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports -- jest.isolateModules is synchronous, so a dynamic import() cannot be used here.
     mod = require("@/lib/api-client");
   });
   return mod;

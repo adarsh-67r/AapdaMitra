@@ -101,7 +101,7 @@ export function SosButton({
           (disabled || busy) && styles.disabled,
         ]}
       >
-        <Animated.View pointerEvents="none" style={[styles.fill, { width: fillWidth }]} />
+        <Animated.View style={[styles.fill, { width: fillWidth }]} />
         <ThemedText style={styles.label}>{label}</ThemedText>
       </Pressable>
       <ThemedText type="small" themeColor="textSecondary" style={styles.hint}>
@@ -122,7 +122,17 @@ const styles = StyleSheet.create({
     // Keeps the fill inside the corners.
     overflow: "hidden",
   },
-  fill: { position: "absolute", left: 0, top: 0, bottom: 0, backgroundColor: "#00000038" },
+  // pointerEvents belongs in the style, not on the prop: React Native
+  // deprecated the prop and warns about it on every render. The fill is
+  // decoration painted over the button and must never swallow the hold.
+  fill: {
+    position: "absolute",
+    left: 0,
+    top: 0,
+    bottom: 0,
+    backgroundColor: "#00000038",
+    pointerEvents: "none",
+  },
   label: { color: "#fff", fontFamily: Type.bold, fontSize: 16, letterSpacing: 0.5 },
   disabled: { opacity: 0.5 },
   hint: { textAlign: "center", marginTop: Spacing.one },

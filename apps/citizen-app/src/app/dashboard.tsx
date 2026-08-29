@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -11,6 +11,7 @@ import { Type } from "@/constants/fonts";
 import { Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
 import { apiFetchJson } from "@/lib/api-client";
+import { usePoll } from "@/lib/use-poll";
 import {
   NEARBY_RADIUS_KM,
   formatKm,
@@ -104,11 +105,7 @@ export default function DashboardScreen() {
     }
   }, []);
 
-  useEffect(() => {
-    load();
-    const interval = setInterval(load, 12000);
-    return () => clearInterval(interval);
-  }, [load]);
+  usePoll(load);
 
   const summary = useMemo(
     () => (coords ? summarise(coords, alerts, resources, myReports) : null),

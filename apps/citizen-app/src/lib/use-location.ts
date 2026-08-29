@@ -101,6 +101,11 @@ export function useLocation() {
   }, []);
 
   useEffect(() => {
+    // locate() sets "locating" before it awaits anything, deliberately: the
+    // field must say it is working the moment the screen appears, not after
+    // the first GPS round trip, which on a cold fix is seconds of looking
+    // broken.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     locate();
   }, [locate]);
 
