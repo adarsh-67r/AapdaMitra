@@ -22,6 +22,11 @@ class CreateReportBody(BaseModel):
     # position is a city or district centroid and must never be read as an
     # address, so the console labels it as approximate wherever it is shown.
     location_source: str = "device"
+    # The id the client minted when it queued this report. One incident can
+    # reach here twice — by SMS from a phone with no data, then again when the
+    # offline queue replays it — and this is what makes the second arrival a
+    # no-op instead of a second report.
+    client_local_id: str | None = None
 
 
 class UpdateReportBody(BaseModel):
@@ -52,6 +57,86 @@ CLUSTER_WINDOW_MINUTES = 30
 _DEG_PER_KM = 1.0 / 111.0
 
 
+def insert_report(
+    cur,
+    *,
+    citizen_id,
+    lat: float,
+    lng: float,
+    severity: str,
+    description: str | None,
+    photo_url: str | None = None,
+    place_label: str | None = None,
+    location_source: str = "device",
+    client_local_id: str | None = None,
+):
+    """
+    Files one report, joining or starting a cluster.
+
+    Shared with the SMS path so a report that arrives as a text message is
+    clustered by exactly the same rules as one from the app. Takes a cursor
+    rather than a connection: the caller owns the transaction, because the SMS
+    path has a citizen to create in the same one.
+    """
+    # An incident already filed under this client id is the same incident. The
+    # SMS path and the offline queue can both deliver it, and whichever loses
+    # the race must not create a second row.
+    if client_local_id is not None:
+        cur.execute("select * from reports where client_local_id = %s", (client_local_id,))
+        existing = cur.fetchone()
+        if existing:
+            return existing
+
+    # Find a recent nearby report to join. The bounding-box filter is an index-
+    # friendly pre-filter; earth_distance-style exactness isn't needed at a 2km
+    # radius, so a plain haversine in SQL settles it.
+    span = CLUSTER_RADIUS_KM * _DEG_PER_KM
+    cur.execute(
+        """select cluster_id
+             from reports
+            where cluster_id is not null
+              and status <> 'resolved'
+              and created_at > now() - make_interval(mins => %s)
+              and lat between %s - %s and %s + %s
+              and lng between %s - %s and %s + %s
+              and 6371 * acos(
+                    least(1, greatest(-1,
+                      cos(radians(%s)) * cos(radians(lat)) * cos(radians(lng) - radians(%s))
+                      + sin(radians(%s)) * sin(radians(lat))
+                    ))
+                  ) <= %s
+         order by created_at desc
+            limit 1""",
+        (
+            CLUSTER_WINDOW_MINUTES,
+            lat, span, lat, span,
+            lng, span, lng, span,
+            lat, lng, lat,
+            CLUSTER_RADIUS_KM,
+        ),
+    )
+    existing = cur.fetchone()
+    cluster_id = existing["cluster_id"] if existing else uuid.uuid4()
+
+    cur.execute(
+        """insert into reports (citizen_id, lat, lng, severity, description, photo_url, cluster_id, place_label, location_source, client_local_id)
+           values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) returning *""",
+        (citizen_id, lat, lng, severity, description, photo_url, cluster_id, place_label, location_source, client_local_id),
+    )
+    row = cur.fetchone()
+
+    # Keep the denormalised size in step for every member of the cluster, so the
+    # dashboard can flag a hotspot straight off the report list.
+    cur.execute(
+        """update reports
+              set cluster_size = (select count(*) from reports where cluster_id = %s)
+            where cluster_id = %s""",
+        (cluster_id, cluster_id),
+    )
+    cur.execute("select * from reports where id = %s", (row["id"],))
+    return cur.fetchone()
+
+
 @router.post("")
 def create_report(
     body: CreateReportBody,
@@ -59,54 +144,18 @@ def create_report(
     user: dict = Depends(get_current_user),
 ):
     with conn.cursor() as cur:
-        # Find a recent nearby report to join. The bounding-box filter is an index-
-        # friendly pre-filter; earth_distance-style exactness isn't needed at a 2km
-        # radius, so a plain haversine in SQL settles it.
-        span = CLUSTER_RADIUS_KM * _DEG_PER_KM
-        cur.execute(
-            """select cluster_id
-                 from reports
-                where cluster_id is not null
-                  and status <> 'resolved'
-                  and created_at > now() - make_interval(mins => %s)
-                  and lat between %s - %s and %s + %s
-                  and lng between %s - %s and %s + %s
-                  and 6371 * acos(
-                        least(1, greatest(-1,
-                          cos(radians(%s)) * cos(radians(lat)) * cos(radians(lng) - radians(%s))
-                          + sin(radians(%s)) * sin(radians(lat))
-                        ))
-                      ) <= %s
-             order by created_at desc
-                limit 1""",
-            (
-                CLUSTER_WINDOW_MINUTES,
-                body.lat, span, body.lat, span,
-                body.lng, span, body.lng, span,
-                body.lat, body.lng, body.lat,
-                CLUSTER_RADIUS_KM,
-            ),
+        row = insert_report(
+            cur,
+            citizen_id=user["user_id"],
+            lat=body.lat,
+            lng=body.lng,
+            severity=body.severity,
+            description=body.description,
+            photo_url=body.photo_url,
+            place_label=body.place_label,
+            location_source=body.location_source,
+            client_local_id=body.client_local_id,
         )
-        existing = cur.fetchone()
-        cluster_id = existing["cluster_id"] if existing else uuid.uuid4()
-
-        cur.execute(
-            """insert into reports (citizen_id, lat, lng, severity, description, photo_url, cluster_id, place_label, location_source)
-               values (%s, %s, %s, %s, %s, %s, %s, %s, %s) returning *""",
-            (user["user_id"], body.lat, body.lng, body.severity, body.description, body.photo_url, cluster_id, body.place_label, body.location_source),
-        )
-        row = cur.fetchone()
-
-        # Keep the denormalised size in step for every member of the cluster, so the
-        # dashboard can flag a hotspot straight off the report list.
-        cur.execute(
-            """update reports
-                  set cluster_size = (select count(*) from reports where cluster_id = %s)
-                where cluster_id = %s""",
-            (cluster_id, cluster_id),
-        )
-        cur.execute("select * from reports where id = %s", (row["id"],))
-        row = cur.fetchone()
     conn.commit()
     return row
 

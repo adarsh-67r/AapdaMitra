@@ -42,6 +42,7 @@ test("sends the report and carries the place provenance to the backend", async (
     description: BASE.description,
     place_label: "Bhuj, Kachchh, Gujarat",
     location_source: "manual",
+    client_local_id: expect.any(String),
   });
   expect(mockEnqueue).not.toHaveBeenCalled();
 });
@@ -79,6 +80,7 @@ test("queues the report offline when the backend is unreachable", async () => {
 
   expect(outcome).toEqual({ status: "queued", reason: "Network request failed" });
   expect(mockEnqueue).toHaveBeenCalledWith({
+    localId: expect.any(String),
     lat: 23.242,
     lng: 69.6669,
     severity: "critical",
@@ -98,4 +100,21 @@ test("never rejects, even when the offline queue itself fails", async () => {
   const outcome = await fileReport(BASE);
 
   expect(outcome).toEqual({ status: "failed", reason: "storage full" });
+});
+
+test("one incident carries one client id down whichever path reaches the server", async () => {
+  // The SMS fallback and the offline queue can both deliver the same report.
+  // The client id is what makes the second arrival a no-op rather than a second
+  // incident in the console, so it must be minted once — here — and not
+  // separately by each path.
+  mockFetchJson.mockRejectedValue(new Error("Network request failed"));
+  mockEnqueue.mockResolvedValue(undefined);
+
+  const outcome = await fileReport(BASE);
+
+  const sent = JSON.parse(mockFetchJson.mock.calls[0][1]!.body as string);
+  const queued = mockEnqueue.mock.calls[0][0];
+  expect(sent.client_local_id).toEqual(expect.any(String));
+  expect(queued.localId).toBe(sent.client_local_id);
+  expect(outcome.status).toBe("queued");
 });

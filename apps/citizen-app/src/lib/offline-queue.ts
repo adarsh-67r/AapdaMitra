@@ -56,14 +56,10 @@ async function writeQueue(queue: PendingReport[]): Promise<void> {
 }
 
 export async function enqueueReport(
-  report: Omit<PendingReport, "localId" | "queuedAt">
+  report: Omit<PendingReport, "queuedAt">
 ): Promise<void> {
   const queue = await getQueue();
-  queue.push({
-    ...report,
-    localId: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-    queuedAt: new Date().toISOString(),
-  });
+  queue.push({ ...report, queuedAt: new Date().toISOString() });
   await writeQueue(queue);
 }
 
@@ -77,6 +73,7 @@ async function sendOne(item: PendingReport): Promise<void> {
       description: item.description,
       place_label: item.placeLabel ?? null,
       location_source: item.locationSource ?? "device",
+      client_local_id: item.localId,
     }),
   });
 

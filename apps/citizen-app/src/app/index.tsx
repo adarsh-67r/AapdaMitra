@@ -1,8 +1,10 @@
 import * as ImagePicker from "expo-image-picker";
+import * as Linking from "expo-linking";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  Platform,
   Image,
   Pressable,
   ScrollView,
@@ -22,7 +24,8 @@ import { Type } from "@/constants/fonts";
 import { Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
 import { fileReport } from "@/lib/file-report";
-import { subscribeToQueue } from "@/lib/offline-queue";
+import { getQueue, subscribeToQueue } from "@/lib/offline-queue";
+import { SMS_GATEWAY_NUMBER, encodeReportSms, smsUri } from "@/lib/sms-fallback";
 import { useLocation } from "@/lib/use-location";
 
 type Severity = "low" | "medium" | "high" | "critical";
@@ -87,6 +90,40 @@ export default function ReportScreen() {
     });
     if (!result.canceled) {
       setPhotoUri(result.assets[0].uri);
+    }
+  }
+
+  /**
+   * Send the oldest queued report as a text message.
+   *
+   * The queue only helps a citizen who later regains data. SMS rides the voice
+   * network, which stays up through the congestion that takes data down first,
+   * so this is the way out of a no-connectivity zone rather than a wait inside
+   * one. The report stays queued afterwards: the composer does not tell us
+   * whether it was sent, and both paths carry the same client id, so the server
+   * discards whichever arrives second.
+   */
+  async function sendBySms() {
+    const queue = await getQueue();
+    const oldest = queue[0];
+    if (!oldest || !SMS_GATEWAY_NUMBER) return;
+
+    const body = encodeReportSms({
+      severity: oldest.severity,
+      lat: oldest.lat,
+      lng: oldest.lng,
+      description: oldest.description,
+    });
+    const uri = smsUri(SMS_GATEWAY_NUMBER, body, Platform.OS === "ios" ? "ios" : "android");
+    try {
+      await Linking.openURL(uri);
+    } catch {
+      Alert.alert(
+        "Could not open messages",
+        `Send this text to ${SMS_GATEWAY_NUMBER} yourself:
+
+${body}`
+      );
     }
   }
 
@@ -177,6 +214,23 @@ export default function ReportScreen() {
               <ThemedText type="small" themeColor="textSecondary">
                 Saved on this device. They&apos;ll upload automatically once you&apos;re back online.
               </ThemedText>
+              {/* Only when a gateway number is configured. Offering a fallback
+                  that goes nowhere is worse than not offering one. */}
+              {SMS_GATEWAY_NUMBER && (
+                <Pressable
+                  onPress={sendBySms}
+                  accessibilityRole="button"
+                  accessibilityLabel="Send the oldest waiting report as a text message"
+                  style={[styles.smsButton, { borderColor: theme.high }]}
+                >
+                  <ThemedText type="smallBold" style={{ color: theme.high }}>
+                    Send by SMS instead
+                  </ThemedText>
+                  <ThemedText type="small" themeColor="textSecondary">
+                    Opens your messages app. Works without mobile data.
+                  </ThemedText>
+                </Pressable>
+              )}
             </Panel>
           )}
 
@@ -327,5 +381,13 @@ const styles = StyleSheet.create({
     marginTop: Spacing.two,
   },
   submitText: { fontFamily: Type.bold, fontSize: 16 },
+  smsButton: {
+    marginTop: Spacing.one,
+    paddingVertical: Spacing.one,
+    paddingHorizontal: Spacing.one,
+    borderWidth: 1,
+    borderRadius: 6,
+    gap: 2,
+  },
   disabled: { opacity: 0.5 },
 });

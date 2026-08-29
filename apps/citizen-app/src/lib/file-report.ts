@@ -1,6 +1,10 @@
 import { apiFetch, apiFetchJson } from "./api-client";
 import { enqueueReport } from "./offline-queue";
 
+function newLocalId(): string {
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
 export interface FileReportInput {
   lat: number;
   lng: number;
@@ -28,6 +32,11 @@ export type FileReportOutcome =
  */
 export async function fileReport(input: FileReportInput): Promise<FileReportOutcome> {
   const photoUri = input.photoUri ?? null;
+  // Minted here rather than by each path, because the whole point of it is to
+  // be the same on both: this report can reach the server live, replayed from
+  // the queue, or as a text message, and only an id decided before any of that
+  // makes the second arrival a no-op instead of a second incident.
+  const localId = newLocalId();
 
   try {
     const report = await apiFetchJson<{ id: string }>("/reports", {
@@ -39,6 +48,7 @@ export async function fileReport(input: FileReportInput): Promise<FileReportOutc
         description: input.description,
         place_label: input.placeLabel ?? null,
         location_source: input.locationSource ?? "device",
+        client_local_id: localId,
       }),
     });
 
@@ -71,6 +81,7 @@ export async function fileReport(input: FileReportInput): Promise<FileReportOutc
     const reason = e instanceof Error ? e.message : "unknown error";
     try {
       await enqueueReport({
+        localId,
         lat: input.lat,
         lng: input.lng,
         severity: input.severity,
