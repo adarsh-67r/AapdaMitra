@@ -1,0 +1,113 @@
+1 report waiting to send
+Active alerts within {km} km
+Alerts, shelters and teams nearest to where you are
+Allow camera access to photograph the incident, or choose an existing photo instead.
+Ambulance
+Authorities have been notified of your location.
+Authorities have been notified.
+Authorities have been notified. Your photo could not be uploaded.
+Call {name} on {number}
+Camera permission needed
+Change
+Change language
+Choose existing
+Choose your language
+Close
+Could not open messages
+Could not save your report
+Dashboard
+Description
+District
+Emergency Contacts
+Enable photo access to attach an image.
+Files a critical report at your location. No description needed.
+Filter {n} towns
+Find Shelter
+Finding your location…
+Fire
+Full
+Keep holding…
+Live Alerts
+Location
+Location required
+Most severe: {type}{agency} · {km} away
+My Reports
+NDMA Disaster Management Helpline
+Name my place
+National Emergency Number
+Nearest available rescue team
+Nearest available shelter
+Nearest open shelter: {name}, {km} km
+No active alerts nearby.
+No connection right now. It will send automatically when you are back online. If you can, call 112.
+No connection right now. Your report is saved and will be sent automatically when you're back online.
+No official warnings currently cover your area.
+No rescue team is currently marked available.
+No shelter is currently marked available in the registry.
+No town is listed here
+None listed
+Nothing outstanding from you right now.
+Official warnings within {km} km of you
+Open
+Open your messages app and send this to the Aapda Mitra number:
+Opens your messages app. Works without mobile data.
+Out on a call
+Photo (optional)
+Photo permission needed
+Photo, location, severity — filed in under a minute
+Please try again.
+Police
+Report an Incident
+Report submitted
+SOS could not be saved
+SOS saved offline
+SOS sent
+SOS — hold to send
+Saved offline
+Saved on this device. They'll upload automatically once you're back online.
+Search {towns} towns, {districts} districts
+Send an SOS
+Send by SMS instead
+Send the oldest waiting report as a text message
+Sending…
+Set your location below before sending an SOS.
+Severity
+Shelters, teams and supply points on the map
+State
+Still being worked. Track them under My Reports.
+Submit Report
+Tag your location before submitting.
+Take a photo
+Tap any number to call directly
+Town or city
+Track the status of what you have reported
+Try again, or call 112.
+Update location
+Use my location
+What's happening? Who's affected?
+Where are you?
+Women's Helpline
+You haven't submitted any reports yet.
+Your open reports
+Your position
+advisory
+approximate
+approximate, set by hand
+assigned
+available
+capacity {n}
+critical
+dispatched
+full
+high
+low
+medium
+open
+rescue team
+resolved
+severe
+shelter
+supply stock
+warning
+watch
+{count} reports waiting to send

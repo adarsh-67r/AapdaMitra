@@ -64,17 +64,3 @@ const BY_CODE = new Map(LANGUAGES.map((l) => [l.code, l]));
 export function languageFor(code: string): Language {
   return BY_CODE.get(code) ?? LANGUAGES[0];
 }
-
-/**
- * The best language for a device, given the tags it reports in preference order.
- *
- * English is the fallback rather than the default: a phone set to French is not
- * evidence its owner reads English, but it is the only thing we can offer.
- */
-export function resolveLanguage(deviceTags: readonly string[]): string {
-  for (const tag of deviceTags) {
-    const base = tag.split("-")[0].toLowerCase();
-    if (BY_CODE.has(base)) return base;
-  }
-  return "en";
-}

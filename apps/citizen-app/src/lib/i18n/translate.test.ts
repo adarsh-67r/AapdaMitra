@@ -1,4 +1,4 @@
-import { LANGUAGES, resolveLanguage } from "@/lib/i18n/languages";
+import { LANGUAGES } from "@/lib/i18n/languages";
 import { makeTranslator } from "@/lib/i18n/translate";
 
 test("returns the translation for the chosen language", () => {
@@ -37,12 +37,4 @@ test("every language declares the script its text needs", () => {
 
 test("English is the only language that needs no extra font", () => {
   expect(LANGUAGES.find((l) => l.code === "en")!.script).toBe("latin");
-});
-
-test("picks the device language when we have it, and English when we do not", () => {
-  expect(resolveLanguage(["hi-IN", "en-US"])).toBe("hi");
-  expect(resolveLanguage(["ta"])).toBe("ta");
-  // Not a language of India and not one we carry: English rather than nothing.
-  expect(resolveLanguage(["fr-FR"])).toBe("en");
-  expect(resolveLanguage([])).toBe("en");
 });

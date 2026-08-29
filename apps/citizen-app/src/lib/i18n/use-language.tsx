@@ -1,11 +1,10 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as Localization from "expo-localization";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
 import { TYPE_BY_SCRIPT, type ScriptType } from "@/constants/script-fonts";
 
 import { DICTIONARIES } from "./dictionaries";
-import { languageFor, resolveLanguage, type Language } from "./languages";
+import { languageFor, type Language } from "./languages";
 import { makeTranslator, type Placeholders } from "./translate";
 
 const STORAGE_KEY = "language";
@@ -23,19 +22,18 @@ interface LanguageContextValue {
 
 const LanguageContext = createContext<LanguageContextValue | null>(null);
 
-function deviceLanguage(): string {
-  try {
-    return resolveLanguage(Localization.getLocales().map((l) => l.languageTag));
-  } catch {
-    return "en";
-  }
-}
+/**
+ * Everyone starts in English and changes it themselves.
+ *
+ * Reading the device locale was the obvious thing and it is the wrong one: a
+ * shared or hand-me-down phone is set to whoever set it up, and silently
+ * opening in a language the holder cannot read is a worse first screen than
+ * English with a visible way out. The picker is in the header of every screen.
+ */
+const DEFAULT_LANGUAGE = "en";
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  // The device's language is the starting guess; a stored choice overrides it.
-  // A phone set to English is not evidence its owner reads English best, so the
-  // citizen's own choice always wins and is remembered.
-  const [code, setCode] = useState(deviceLanguage);
+  const [code, setCode] = useState(DEFAULT_LANGUAGE);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -44,8 +42,8 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
         if (stored) setCode(stored);
       })
       .catch(() => {
-        // A device that cannot read its own storage still gets an app, in
-        // whatever language the phone is set to.
+        // A device that cannot read its own storage still gets an app; it just
+        // opens in English every time.
       })
       .finally(() => setReady(true));
   }, []);

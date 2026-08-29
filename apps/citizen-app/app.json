@@ -55,8 +55,7 @@
           "photosPermission": "Aapda Mitra accesses your photos so you can attach one to an incident report.",
           "cameraPermission": "Aapda Mitra uses your camera so you can photograph an incident to report it."
         }
-      ],
-      "expo-localization"
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
