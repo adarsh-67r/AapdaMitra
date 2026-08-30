@@ -4,6 +4,7 @@
 **Smart India Hackathon · Problem Statement PS-05 · Disaster Management**
 
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-aapda--mitra--sih.vercel.app-success?style=flat&logo=vercel)](https://aapda-mitra-sih.vercel.app/)
+[![Download APK](https://img.shields.io/badge/Download%20APK-v1.0.0-4630EB.svg?logo=android&logoColor=white)](https://github.com/adarsh-67r/AapdaMitra/releases/tag/v1.0.0)
 [![Backend: FastAPI](https://img.shields.io/badge/Backend-FastAPI%20%7C%20Python%203.11+-009688.svg?logo=fastapi&logoColor=white)](apps/backend)
 [![Web: Next.js 16](https://img.shields.io/badge/Web-Next.js%2016%20%7C%20React%2019-000000.svg?logo=nextdotjs&logoColor=white)](apps/web)
 [![Citizen App: Expo](https://img.shields.io/badge/Citizen%20App-Expo%20%2F%20React%20Native-4630EB.svg?logo=expo&logoColor=white)](apps/citizen-app)
@@ -13,7 +14,7 @@
 [![Languages: 14 Indian Languages](https://img.shields.io/badge/i18n-14%20Languages%20%2F%2010%20Scripts-orange.svg)](#multilingual-architecture)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-**[Open Live Demo →](https://aapda-mitra-sih.vercel.app/)** — zero signup friction; one-tap instant demo credentials for both Citizen and Authority consoles.
+**[Open Live Demo →](https://aapda-mitra-sih.vercel.app/)** · **[Download Android APK (v1.0.0) →](https://github.com/adarsh-67r/AapdaMitra/releases/tag/v1.0.0)** — zero signup friction; one-tap instant demo credentials for both Citizen and Authority consoles.
 
 ---
 
