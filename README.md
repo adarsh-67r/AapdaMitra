@@ -118,6 +118,82 @@ beside each hazard figure are computed from that set rather than estimated.
 
 ## Architecture
 
+```mermaid
+flowchart LR
+  subgraph clients["Clients"]
+    direction TB
+    APP["Citizen app<br/>Expo · React Native"]
+    CIT["Citizen web view<br/>Next.js"]
+    CONSOLE["Authority console<br/>Next.js"]
+    PUBLIC["Public map<br/>no login"]
+  end
+
+  subgraph nodata["When there is no data"]
+    direction TB
+    PHONE["Any phone<br/>signal, no data"]
+    GATEWAY["Gateway number<br/>forwards each text"]
+    PHONE -->|"AM 3 lat,lng text"| GATEWAY
+  end
+
+  SACHET["SACHET · NDMA<br/>multi-agency CAP feed"]
+
+  API["FastAPI<br/>the only writer"]
+  DB[("PostgreSQL · Supabase<br/>PostgREST revoked")]
+  CELLS["Facility cells<br/>331 static files"]
+  BUILD["OpenStreetMap · GADM · GeoNames"]
+
+  clients ==>|"reports · alerts · resources · facilities"| API
+  GATEWAY ==>|"/sms/inbound + shared secret"| API
+  SACHET ==>|"cron, every 10 min<br/>/internal/ingest-alerts"| API
+  API ==> DB
+
+  CIT --> CELLS
+  CONSOLE --> CELLS
+  BUILD -.->|"one-off build scripts"| CELLS
+  BUILD -.->|"one-off build scripts"| DB
+```
+
+Every write goes through FastAPI. PostgREST access to application tables is revoked in the database
+itself, so there is no second door into the data — the authorization rules live in one place that can
+be read end to end.
+
+**A report reaches the same row by three different roads.** Which one it takes depends only on what
+the network is doing at that moment, and all three converge before anything is stored:
+
+```mermaid
+flowchart TD
+  START(["Citizen files a report"]) --> NET{"Is there data?"}
+
+  NET -->|"yes"| POST["POST /reports"]
+  NET -->|"no, but there is signal"| SMS["Send by SMS<br/>AM 3 lat,lng text"]
+  NET -->|"nothing at all"| QUEUE["Held on the device<br/>with a client_local_id"]
+
+  SMS --> INBOUND["POST /sms/inbound"]
+  QUEUE -->|"data returns"| REPLAY["POST /reports"]
+
+  INBOUND --> DEDUPE
+  POST --> DEDUPE
+  REPLAY --> DEDUPE{"Seen this<br/>client_local_id?"}
+
+  DEDUPE -->|"yes"| SAME["Return the existing report<br/>one incident, not two"]
+  DEDUPE -->|"no"| INSERT["insert_report"]
+
+  INSERT --> CLUSTER{"Another report within<br/>2 km and 30 min?"}
+  CLUSTER -->|"yes"| JOIN["Join that cluster<br/>bump cluster_size"]
+  CLUSTER -->|"no"| NEW["Start a cluster"]
+
+  JOIN --> CONSOLE["Console queue and map"]
+  NEW --> CONSOLE
+  CONSOLE --> ALLOC["Scored allocator<br/>picks the unit to send"]
+```
+
+The SMS path is why `client_local_id` exists. A citizen who texts a report and then walks back into
+coverage would otherwise file it twice — the clustering would merge the two, but the incident would
+still be counted as two people reporting, which is the number an operator uses to judge how bad
+something is.
+
+## Architecture
+
 ```
 apps/
   backend/       FastAPI — auth, alert ingestion, reports, resources, allocation
