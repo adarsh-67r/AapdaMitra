@@ -1,11 +1,16 @@
 # Progress
 
-Status snapshot for AapdaMitra (PS-05). Last updated **2026-08-29**.
+Status snapshot for AapdaMitra (PS-05). Last updated **2026-08-30**.
 
 The point of this file is to be accurate rather than flattering: a capability listed under *Shipped*
 works end to end against the live backend.
 
 ## Shipped
+
+### Production Release & Binaries
+
+- **GitHub Release v1.0.0** published with attached `AapdaMitra v1.0.0 (Android APK)` (~109 MB standalone release build).
+- **114 automated unit tests** passing across the codebase (63 backend, 51 citizen app) without requiring a live database.
 
 ### Backend — FastAPI, deployed
 
@@ -17,9 +22,9 @@ works end to end against the live backend.
 - **Incident clustering** — reports within 2 km / 30 minutes join one cluster, with the cluster size
   denormalised so the console can flag a hotspot without a second query.
 - Resource registry with capacity and status.
-- **Scored allocator** — distance in kilometres, discounted for resource-type suitability and spare
-  capacity, with an explicit concurrency guard against double-dispatch. Returns the distance it chose,
-  and flags a dispatch as unusually far rather than refusing it.
+- **Scored allocator** — distance in kilometres, discounted for resource-type suitability (up to 20 km
+  discount for specialized rescue teams) and spare capacity, with an explicit concurrency guard against
+  double-dispatch. Returns the distance it chose, and flags a dispatch as unusually far rather than refusing it.
 - **Resources are released** back to the available pool when their report is resolved.
 - Authority broadcast advisories.
 - **SMS intake** — `POST /sms/inbound`, guarded by a shared secret and refusing everything while that
@@ -28,7 +33,7 @@ works end to end against the live backend.
   incident stays one row whichever path reaches the server first. A message with no coordinates falls
   back to the sender's last known position, stamped `sms-approx`.
 - **Facility lookup** — `GET /facilities` over a bounding box, refusing a box wider than a degree so no
-  client can ask for all 58,232 rows at once.
+  client can ask for all 58,232 rows at once, capped at 400 results per query.
 - 63 unit tests covering the allocator, alert parsing, auth core, SMS parsing and facility queries — no
   database required.
 
@@ -46,6 +51,8 @@ works end to end against the live backend.
   browser (`invert` plus `hue-rotate(180deg)`, so parkland stays green and water stays blue). Leaflet's
   popups, tooltips, zoom controls and attribution are on the same tokens as the rest of the UI instead
   of shipping white.
+- **Unified brand identity** — synchronized ECG pulse mark across homepage, citizen view, and favicon (`icon.svg`).
+  Clicking the brand mark triggers a hard page reload for immediate state refresh.
 - **Authority console** — map-first, with the reports queue pinned beside the map on wide screens,
   an inspector for the selected report, live density heatmap, resource management and broadcast.
   Selecting a report frames it together with the unit assigned to it.
@@ -69,8 +76,9 @@ works end to end against the live backend.
 - **14 languages** — English plus 13 Indian languages across 10 scripts, each script's fonts loaded only
   when that language is selected. Official alert text is never translated: alerts are ordered so the
   reader's language comes first and labelled with the language they are in.
-- **Nearby facilities on the shelter map** — hospitals, police and fire stations as three native chips,
-  fetched for the view once the map settles.
+- **Nearby facilities radar on the shelter map** — hospitals, police and fire stations as three native toggle chips,
+  fetched dynamically for the active bounding box via `GET /facilities` and injected into the Leaflet WebView.
+- **Unified ECG Brand Mark** rendered via native SVG matching web design tokens.
 - One-tap demo account on the sign-in screen.
 - Low-connectivity hardening: separate read and write timeouts, retries on reads only (a retried report
   is a second incident), and a guard against overlapping polls.
@@ -79,7 +87,7 @@ works end to end against the live backend.
 ### Security and infrastructure
 
 - PostgREST access to application tables is revoked at the database — all access is through our API.
-- Full pre-release code review completed; all Critical and Important findings fixed and verified.
+- Full pre-release code review completed; all findings fixed and verified.
 
 ## Recently fixed
 
@@ -107,6 +115,9 @@ Kept here because each was a real defect, not a polish item:
   marker was built with `pane: undefined`, `getPane()` returned undefined, and the first `appendChild`
   threw. Reproduced with a headless browser against the deployed site, then confirmed fixed against a
   local production build.
+- **Favicon rendered as a broken image.** `apps/web/src/app/icon.svg` contained `--accent` inside an XML
+  comment, which violates XML comment specifications (`--` inside comment). Removed and styled to the
+  `#e0574a` signal red accent.
 - **State names were a decade out of date.** The bundled boundary data is GADM 2.x — it says *Orissa*
   and *Uttaranchal* and predates Telangana entirely, so the picker offered Odisha and Orissa as separate
   places and 22 of the 103 hand-typed cities pointed at districts that do not exist in the data. The renames,
@@ -125,5 +136,5 @@ the same tiles inverted in the browser. Alerts are live from **SACHET**.
 
 - **Backend** — Python, FastAPI, PostgreSQL (Supabase-hosted, accessed directly rather than via client libraries)
 - **Web** — Next.js 16, React 19, Leaflet + leaflet.heat, Framer Motion, Tailwind v4, IBM Plex
-- **Citizen app** — Expo, React Native
+- **Citizen app** — Expo, React Native (Standalone APK released)
 - **Deployment** — Render (backend), Vercel (web), external cron for alert ingestion
