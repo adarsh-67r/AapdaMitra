@@ -154,27 +154,6 @@ Browser geolocation frequently fails on desktop PCs, unencrypted HTTP networks, 
 
 ---
 
-## 3-Minute Golden Demo Walkthrough
-
-1. **Dual-Window Setup:** Open [`https://aapda-mitra-sih.vercel.app/`](https://aapda-mitra-sih.vercel.app/) in two browser windows.
-   - Click **Citizen Demo** on the left.
-   - Click **Authority Demo** on the right.
-2. **Explore the Citizen Safety Hub (`/`):**
-   - Switch language to **Hindi (हिन्दी)** or **Tamil (தமிழ்)** — notice all UI elements, status labels, and town pickers adapt immediately with native fonts.
-   - View nearby live SACHET warnings ordered by issuing agency and language.
-3. **File a Distress Report / SOS:**
-   - On the Citizen screen, tap **Report an Incident**, snap or attach a photo, select **Critical** severity, and choose a town (e.g. *Bhuj, Kachchh*).
-   - Alternatively, press and hold the **SOS Beacon** for 1.2s.
-4. **Live Authority Ingestion & Heatmap:**
-   - The incident appears instantly on the Authority Console map with heat-density gradient overlay and priority queue ranking.
-5. **Inspect Facilities & Dispatch Unit:**
-   - On the Authority Map, zoom into the incident and tick **Hospitals** and **Police stations** to view surrounding OSM facilities.
-   - Click the incident and tap **Auto-Allocate Nearest Resource**. Observe the scored allocation breakdown and dispatch line connecting the optimal responder unit.
-6. **No-Data SMS Fallback Verification:**
-   - Open the Citizen App offline; observe the offline queue indicator and tap **Send by SMS instead** to inspect the compact formatted message payload (`AM 4 13.0827,80.2707 [text]`).
-
----
-
 ## Data Provenance & Architectural Honesty
 
 | Component | Classification | Provenance & Implementation |
@@ -298,13 +277,6 @@ AapdaMitra/
     ├── migrations/              # SQL DDL & PostgREST lockdown migrations (001 - 007)
     └── scripts/                 # Spatial cell slicer & facility database loader
 ```
-
----
-
-## Team & Hackathon Submission
-
-- **Smart India Hackathon (SIH 2026)** · Problem Statement **PS-05** · Disaster Management
-- Developed with operational discipline for national emergency coordination.
 
 ---
 
